@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+/* Define CSS custom properties for the design system */
+:root {
+  --color-primary: #0d7ff2;
+  --color-background-light: #f5f7f8;
+  --color-background-dark: #101922;
+  --color-surface-dark: #16212b;
+  --color-border-dark: #283039;
+}
+
+/* Base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  background-color: var(--color-background-dark);
+  color: white;
+  font-family: var(--font-noto-sans), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar for webkit */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #111418;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3b4754;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4b5966;
+}
+
+/* Extend Tailwind with custom utilities using the defined colors */
+@layer utilities {
+  .bg-primary {
+    background-color: var(--color-primary);
+  }
+  
+  .text-primary {
+    color: var(--color-primary);
+  }
+  
+  .bg-background-dark {
+    background-color: var(--color-background-dark);
+  }
+  
+  .bg-surface-dark {
+    background-color: var(--color-surface-dark);
+  }
+  
+  .border-border-dark {
+    border-color: var(--color-border-dark);
+  }
+  
+  .font-display {
+    font-family: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  }
+  
+  .font-body {
+    font-family: var(--font-noto-sans), ui-sans-serif, system-ui, sans-serif;
+  }
+}
+

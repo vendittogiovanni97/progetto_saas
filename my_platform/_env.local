@@ -1,0 +1,64 @@
+# ============================================
+# Environment Configuration
+# ============================================
+NODE_ENV=development
+NEXT_PUBLIC_APP_ENV=development
+
+# ============================================
+# API Configuration
+# ============================================
+NEXT_PUBLIC_API_URL=http://localhost:3001/api
+API_TIMEOUT=30000
+
+# ============================================
+# Authentication & Security
+# ============================================
+NEXTAUTH_SECRET=change-this-to-a-random-secret-in-production
+NEXTAUTH_URL=http://localhost:3000
+JWT_SECRET=change-this-jwt-secret-key-in-production
+JWT_EXPIRES_IN=3600
+REFRESH_TOKEN_EXPIRES_IN=604800
+
+# ============================================
+# Database Configuration
+# ============================================
+DATABASE_URL=postgresql://user:password@localhost:5432/my_platform_db?schema=public
+DATABASE_POOL_MIN=2
+DATABASE_POOL_MAX=10
+
+# ============================================
+# Redis Configuration (Optional - for caching)
+# ============================================
+REDIS_URL=redis://localhost:6379
+REDIS_PASSWORD=
+
+# ============================================
+# Application Settings
+# ============================================
+NEXT_PUBLIC_APP_NAME=Nexus OS
+NEXT_PUBLIC_APP_VERSION=3.0.0
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# ============================================
+# Feature Flags
+# ============================================
+NEXT_PUBLIC_ENABLE_ANALYTICS=true
+NEXT_PUBLIC_ENABLE_EXPERIMENTAL_FEATURES=false
+
+# ============================================
+# External Services (Optional)
+# ============================================
+# Email Service
+EMAIL_SERVICE_API_KEY=
+EMAIL_FROM=noreply@nexusos.local
+
+# File Storage
+STORAGE_PROVIDER=local
+STORAGE_BUCKET=
+AWS_REGION=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+
+# Monitoring & Logging
+SENTRY_DSN=
+SENTRY_ENVIRONMENT=development
