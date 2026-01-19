@@ -65,6 +65,9 @@ export interface TableGenericProps<T = any> {
   pageSize?: number;
   emptyMessage?: string;
   onRowClick?: (row: T) => void;
+  onView?: (row: T) => void;
+  onEdit?: (row: T) => void;
+  onDelete?: (row: T) => void;
   stickyHeader?: boolean;
 }
 
@@ -77,6 +80,9 @@ export function TableGeneric<T extends Record<string, any>>({
   pageSize = 10,
   emptyMessage = "No data available",
   onRowClick,
+  onView,
+  onEdit,
+  onDelete,
   stickyHeader = false,
 }: TableGenericProps<T>) {
   const theme = useTheme();
@@ -100,6 +106,71 @@ export function TableGeneric<T extends Record<string, any>>({
     minSize: typeof col.width === "number" ? col.width : undefined,
     maxSize: typeof col.width === "number" ? col.width : undefined,
   }));
+
+  // Aggiungi la colonna azioni se necessario
+  if (onView || onEdit || onDelete) {
+    tableColumns.push({
+      id: "actions",
+      header: "Actions",
+      enableSorting: false,
+      size: 100,
+      cell: ({ row }) => (
+        <Box sx={{ display: "flex", gap: 1, justifyContent: "flex-end" }}>
+          {onView && (
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                onView(row.original);
+              }}
+              sx={{
+                color: "text.secondary",
+                "&:hover": { color: theme.palette.primary.main },
+              }}
+            >
+              <Box component="span" className="material-symbols-outlined" sx={{ fontSize: 20 }}>
+                visibility
+              </Box>
+            </IconButton>
+          )}
+          {onEdit && (
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(row.original);
+              }}
+              sx={{
+                color: "text.secondary",
+                "&:hover": { color: theme.palette.info.main },
+              }}
+            >
+              <Box component="span" className="material-symbols-outlined" sx={{ fontSize: 20 }}>
+                edit
+              </Box>
+            </IconButton>
+          )}
+          {onDelete && (
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(row.original);
+              }}
+              sx={{
+                color: "text.secondary",
+                "&:hover": { color: theme.palette.error.main },
+              }}
+            >
+              <Box component="span" className="material-symbols-outlined" sx={{ fontSize: 20 }}>
+                delete
+              </Box>
+            </IconButton>
+          )}
+        </Box>
+      ),
+    });
+  }
 
   const table = useReactTable({
     data,

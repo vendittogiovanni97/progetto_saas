@@ -1,14 +1,16 @@
 "use client";
 
 import { Box } from "@mui/material";
+import { useRouter } from "next/navigation";
 import { useProjectsPage } from "./hooks/useProjectsPage";
 import { ProjectsHeader } from "./components/ProjectsHeader";
 import { ProjectsTable } from "./components/ProjectsTable";
 import { ProjectDialog } from "./components/ProjectDialog";
 import { projects } from "./services/mockData";
-import { ProjectFormData } from "./types";
+import { Project, ProjectFormData } from "./types";
 
 export function ProjectsPage() {
+  const router = useRouter();
   const {
     search,
     setSearch,
@@ -33,6 +35,10 @@ export function ProjectsPage() {
       console.log("Create new project");
     }
   };
+  
+  const handleViewProject = (project: Project) => {
+    router.push(`/dashboard/projects/${project.id}`);
+  };
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -45,6 +51,7 @@ export function ProjectsPage() {
       <ProjectsTable
         projects={filteredProjects}
         onEditProject={handleEditProject}
+        onViewProject={handleViewProject}
       />
 
       <ProjectDialog

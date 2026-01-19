@@ -16,11 +16,13 @@ import { Project } from "../types";
 interface ProjectsTableProps {
   projects: Project[];
   onEditProject: (project: Project) => void;
+  onViewProject: (project: Project) => void;
 }
 
 export function ProjectsTable({
   projects,
   onEditProject,
+  onViewProject,
 }: ProjectsTableProps) {
   const theme = useTheme();
 
@@ -127,7 +129,8 @@ export function ProjectsTable({
       data={projects}
       columns={columns}
       enableSorting
-      onRowClick={onEditProject}
+      onView={onViewProject}
+      onEdit={onEditProject}
       emptyMessage="No projects available"
     />
   );
