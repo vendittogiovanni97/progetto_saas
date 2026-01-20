@@ -4,6 +4,10 @@
 
 import { Box, Typography, List, ListItem, ListItemText, Chip, Button, Divider } from "@mui/material";
 
+import { ProjectLogViewer } from "./ProjectLogViewer";
+import { ProjectEnvVariables } from "./ProjectEnvVariables";
+import { ProjectDeploymentTimeline } from "./ProjectDeploymentTimeline";
+
 interface CardContentRendererProps {
   cardId: string | null;
 }
@@ -15,27 +19,17 @@ export function CardContentRenderer({ cardId }: CardContentRendererProps) {
         <List>
           {["orbital.io", "api.orbital.io", "assets.orbital.io"].map((domain) => (
             <ListItem key={domain} sx={{ px: 0 }}>
-              <ListItemText primary={domain} secondary="Active Proxy" />
+              <ListItemText 
+                primary={<Typography variant="subtitle2">{domain}</Typography>} 
+                secondary="Active Proxy" 
+              />
               <Chip label="SSL OK" color="success" size="small" variant="outlined" />
             </ListItem>
           ))}
         </List>
       );
     case "config":
-      return (
-        <Box sx={{ py: 2 }}>
-          <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-            Runtime Environment: Node.js 20.x
-          </Typography>
-          <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-            Memory Limit: 1024MB
-          </Typography>
-          <Divider sx={{ my: 2 }} />
-          <Button variant="outlined" size="small">
-            Edit Configuration
-          </Button>
-        </Box>
-      );
+      return <ProjectEnvVariables />;
     case "access":
       return (
         <List>
@@ -51,27 +45,17 @@ export function CardContentRenderer({ cardId }: CardContentRendererProps) {
         </List>
       );
     case "logs":
+      return <ProjectLogViewer />;
+    case "deploy":
+      return <ProjectDeploymentTimeline />;
+    default:
       return (
-        <Box
-          sx={{
-            bgcolor: "black",
-            p: 2,
-            borderRadius: 1,
-            fontFamily: "monospace",
-            fontSize: "0.75rem",
-            color: "success.main",
-            maxHeight: 300,
-            overflow: "auto",
-          }}
-        >
-          <div>[10:42:00] INITIALIZING DEPLOYMENT...</div>
-          <div>[10:42:05] FETCHING REPOSITORY...</div>
-          <div style={{ color: "red" }}>[10:42:10] ERR: CONNECTION RESET BY PEER</div>
-          <div>[10:42:11] RETRYING (1/3)...</div>
+        <Box sx={{ py: 4, textAlign: "center" }}>
+          <Typography color="text.secondary">
+            Informazioni dettagliate per {cardId} non disponibili.
+          </Typography>
         </Box>
       );
-    default:
-      return <Typography color="text.secondary">Detailed information for {cardId} will be displayed here.</Typography>;
   }
 }
 

@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { authRoutes } from './services/authentication/routes/authRoutes';
+import { chatbotRoutes } from './services/chatbot/routes/chatbotRoutes';
 
 // Carica le variabili d'ambiente
 dotenv.config();
@@ -15,6 +16,9 @@ app.use(express.json());
 
 // Authentication routes
 app.use('/api/auth', authRoutes);
+
+// Chatbot routes
+app.use('/api/chatbots', chatbotRoutes);
 
 // Avvio del server
 app.listen(PORT, () => {

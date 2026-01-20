@@ -6,11 +6,17 @@ import { useProjectsPage } from "./hooks/useProjectsPage";
 import { ProjectsHeader } from "./components/ProjectsHeader";
 import { ProjectsTable } from "./components/ProjectsTable";
 import { ProjectDialog } from "./components/ProjectDialog";
+import { TemplateGallery } from "./components/TemplateGallery";
+import { ChatbotWizard } from "./components/ChatbotWizard";
 import { projects } from "./services/mockData";
 import { Project, ProjectFormData } from "./types";
+import { useState } from "react";
 
 export function ProjectsPage() {
   const router = useRouter();
+  const [isTemplateGalleryOpen, setIsTemplateGalleryOpen] = useState(false);
+  const [isChatbotWizardOpen, setIsChatbotWizardOpen] = useState(false);
+  
   const {
     search,
     setSearch,
@@ -29,15 +35,26 @@ export function ProjectsPage() {
   const handleSaveProject = (data: ProjectFormData) => {
     // TODO: Integrare con API
     console.log("Save project:", data);
-    if (selectedProject) {
-      console.log("Update existing project:", selectedProject.id);
-    } else {
-      console.log("Create new project");
-    }
+    handleCloseDialog();
   };
   
   const handleViewProject = (project: Project) => {
     router.push(`/dashboard/projects/${project.id}`);
+  };
+
+  const handleTemplateSelect = (templateId: string) => {
+    setIsTemplateGalleryOpen(false);
+    if (templateId === "chatbot") {
+      setIsChatbotWizardOpen(true);
+    } else {
+      handleCreateProject();
+    }
+  };
+
+  const handleChatbotSave = (chatbot: any) => {
+    setIsChatbotWizardOpen(false);
+    // Reindirizza l'utente alla pagina del chatbot appena creato
+    router.push(`/dashboard/chatbots/${chatbot.id}`);
   };
 
   return (
@@ -45,13 +62,25 @@ export function ProjectsPage() {
       <ProjectsHeader
         search={search}
         onSearchChange={setSearch}
-        onCreateProject={handleCreateProject}
+        onCreateProject={() => setIsTemplateGalleryOpen(true)}
       />
 
       <ProjectsTable
         projects={filteredProjects}
         onEditProject={handleEditProject}
         onViewProject={handleViewProject}
+      />
+
+      <TemplateGallery
+        open={isTemplateGalleryOpen}
+        onClose={() => setIsTemplateGalleryOpen(false)}
+        onSelect={handleTemplateSelect}
+      />
+
+      <ChatbotWizard
+        open={isChatbotWizardOpen}
+        onClose={() => setIsChatbotWizardOpen(false)}
+        onSave={handleChatbotSave}
       />
 
       <ProjectDialog

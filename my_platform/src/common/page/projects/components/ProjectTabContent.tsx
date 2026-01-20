@@ -3,10 +3,13 @@
  */
 
 import { Box, Typography, Paper } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
+import { useTheme, alpha } from "@mui/material/styles";
 import { TabValue } from "../types";
 import { ProjectCard } from "./ProjectCard";
 import { projectCards } from "../services/mockData";
+
+import { ProjectEnvVariables } from "./ProjectEnvVariables";
+import { ProjectDeploymentTimeline } from "./ProjectDeploymentTimeline";
 
 interface ProjectTabContentProps {
   activeTab: TabValue;
@@ -35,14 +38,19 @@ export function ProjectTabContent({ activeTab, onCardClick }: ProjectTabContentP
 
   if (activeTab === 1) {
     return (
-      <Box sx={{ py: 4 }}>
-        <Typography variant="h4" sx={{ mb: 2 }}>
+      <Box sx={{ py: 2 }}>
+        <Typography variant="h4" sx={{ mb: 3 }}>
           Project Settings
         </Typography>
-        <Paper sx={{ p: 4, bgcolor: "background.paper", border: `1px solid ${theme.palette.divider}` }}>
-          <Typography color="text.secondary">
-            Le impostazioni del progetto saranno disponibili qui. Potrai gestire nomi, domini e variabili di ambiente.
-          </Typography>
+        <Paper 
+          sx={{ 
+            p: 3, 
+            bgcolor: alpha(theme.palette.background.paper, 0.4), 
+            border: `1px solid ${theme.palette.divider}`,
+            backdropFilter: "blur(10px)",
+          }}
+        >
+          <ProjectEnvVariables />
         </Paper>
       </Box>
     );
@@ -50,14 +58,19 @@ export function ProjectTabContent({ activeTab, onCardClick }: ProjectTabContentP
 
   if (activeTab === 2) {
     return (
-      <Box sx={{ py: 4 }}>
-        <Typography variant="h4" sx={{ mb: 2 }}>
+      <Box sx={{ py: 2 }}>
+        <Typography variant="h4" sx={{ mb: 3 }}>
           Deployments
         </Typography>
-        <Paper sx={{ p: 4, bgcolor: "background.paper", border: `1px solid ${theme.palette.divider}` }}>
-          <Typography color="text.secondary">
-            Qui vedrai la lista di tutti i deployment effettuati per questo progetto.
-          </Typography>
+        <Paper 
+          sx={{ 
+            p: 3, 
+            bgcolor: alpha(theme.palette.background.paper, 0.4), 
+            border: `1px solid ${theme.palette.divider}`,
+            backdropFilter: "blur(10px)",
+          }}
+        >
+          <ProjectDeploymentTimeline />
         </Paper>
       </Box>
     );

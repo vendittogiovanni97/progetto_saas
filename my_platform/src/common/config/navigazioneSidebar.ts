@@ -105,6 +105,15 @@ export const navLinksConfig: NavLink[] = [
     active: true,
     roles: ["admin", "editor"],
   },
+  {
+    id: "chatbots",
+    name: "AI Chatbots",
+    href: "/dashboard/chatbots",
+    icon: "smart_toy",
+    priority: 6,
+    active: true,
+    roles: ["admin", "editor", "viewer"],
+  },
 ];
 
 /**

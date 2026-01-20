@@ -78,7 +78,14 @@ export const projectCards: ProjectCard[] = [
     status: "ERR: Connection reset",
     icon: "terminal",
     isError: true,
-    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBQsuHdQ5FD40GOo4CcPXV0_Ay5GjKV9dQuCVxdWwshiZVd7YEQVcU_2cND-GQvWxYGdYutWECjZ99c8yK0wyCuz2U7vjMynTyMfZEYdqTtQgxncMcWJ2zSqS-GQvWxYGdYutWECjZ99c8yK0wyCuz2U7vjMynTyMfZEYdqTtQgxncMcWJ2zSqS-GQvWxYGdYutWECjZ99c8yK0wyCuz2U7vjMynTyMfZEYdqTtQgxncMcWJ2zSqS-GXhoMZrxNR6al-zxtZ5w85xw6a3Vn-Glxx2WC_h2-WqkAuiCsbrd5WTOSRR2LiU0o9n-gxjGD01Xmps5DoSbYpFHOkKVENuA30Wm4tzTcrBEWGjpcou9sLF7nwfK4kqinJGuQxwuSRm_YdgOzzTA",
+    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBQsuHdQ5FD40GOo4CcPXV0_Ay5GjKV9dQuCVxdWwshiZVd7YEQVcU_2cND-GQvWxYGdYutWECjZ99c8yK0wyCuz2U7vjMynTyMfZEYdqTtQgxncMcWJ2zSqS-GQvWxYGdYutWECjZ99c8yK0wyCuz2U7vjMynTyMfZEYdqTtQgxncMcWJ2zSqS-GXhoMZrxNR6al-zxtZ5w85xw6a3Vn-Glxx2WC_h2-WqkAuiCsbrd5WTOSRR2LiU0o9n-gxjGD01Xmps5DoSbYpFHOkKVENuA30Wm4tzTcrBEWGjpcou9sLF7nwfK4kqinJGuQxwuSRm_YdgOzzTA",
+  },
+  {
+    id: "deploy",
+    title: "Deployments",
+    status: "v1.2.4 building...",
+    icon: "rocket_launch",
+    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCH0Y4pA2G5P7N9F_H6G8S5J9K4L3M2N1O0P9Q8R7S6T5U4V3W2X1Y0Z9A8B7C6D5E4F3G2H1I0J9K8L7M6N5O4P3Q2R1S0T9U8V7W6X5Y4Z3",
   },
 ];
 
