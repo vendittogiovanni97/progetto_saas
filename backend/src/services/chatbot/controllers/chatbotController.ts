@@ -5,13 +5,31 @@ export const createChatbot = async (req: Request, res: Response) => {
   const { name, welcomeMessage, systemPrompt, primaryColor, userId } = req.body;
 
   try {
+    // --- FIX PER SVILUPPO ---
+    // Se l'utente è quello di debug (USR-001), assicuriamoci che esista nel DB
+    if (userId === 'USR-001') {
+      const userExists = await prisma.user.findUnique({ where: { id: userId } });
+      if (!userExists) {
+        console.log("Creating dev user USR-001...");
+        await prisma.user.create({
+          data: {
+            id: userId,
+            email: 'admin@example.com',
+            password: 'dev_password_insecure',
+            role: 'ADMIN',
+          },
+        });
+      }
+    }
+    // ------------------------
+
     const chatbot = await prisma.chatbot.create({
       data: {
         name,
         welcomeMessage,
         systemPrompt,
         primaryColor,
-        userId, // Assumiamo che l'ID utente venga passato o preso dalla sessione
+        userId, 
       },
     });
     res.status(201).json({ data: chatbot });

@@ -29,8 +29,24 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   // --- STATO & LOGICA AUTH ---
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // --- STATO & LOGICA AUTH ---
+  // Inizializziamo con un utente mock per sviluppo se non c'è nulla in localStorage
+  const [user, setUser] = useState<User | null>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('auth_user');
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    }
+    // Default DEBUG user per evitare blocco sviluppo
+    return {
+      id: 'USR-001',
+      name: 'Admin User',
+      email: 'admin@example.com',
+      role: 'admin',
+    };
+  });
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!user);
 
   const login = async (email: string, password: string) => {
     // TODO: Implementare chiamata API reale qui
@@ -40,22 +56,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     
     // Mock di login avvenuto con successo
-    setUser({ 
+    const mockUser: User = { 
       id: 'USR-001',
       name: 'Admin User',
       email: email,
       role: 'admin',
-    });
+    };
+
+    setUser(mockUser);
     setIsAuthenticated(true);
-    
-    // TODO: Salvare il token in un cookie o nel localStorage
+    localStorage.setItem('auth_user', JSON.stringify(mockUser));
   };
 
   const logout = () => {
-    // TODO: Implementare chiamata API reale per il logout
     setUser(null);
     setIsAuthenticated(false);
-    // TODO: Cancellare il token dal cookie o dal localStorage
+    localStorage.removeItem('auth_user');
   };
 
   const value = useMemo(

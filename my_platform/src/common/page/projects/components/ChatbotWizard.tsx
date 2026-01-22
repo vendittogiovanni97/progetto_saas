@@ -31,18 +31,24 @@ export function ChatbotWizard({ open, onClose, onSave }: ChatbotWizardProps) {
   });
 
   const handleSave = async () => {
-    if (!user) return;
+    console.log("ChatbotWizard: Starting save...", { user, config });
+    if (!user) {
+      console.error("ChatbotWizard: No user found! Aborting save.");
+      return;
+    }
     setLoading(true);
     try {
+      console.log("ChatbotWizard: Sending request to /chatbots", config);
       const response = await chatbotService.createChatbot({
         ...config,
         userId: user.id,
       });
+      console.log("ChatbotWizard: Response received", response);
       if (response.data) {
         onSave(response.data);
       }
     } catch (error) {
-      console.error("Failed to create chatbot:", error);
+      console.error("ChatbotWizard: Failed to create chatbot:", error);
       alert("Errore durante la creazione del chatbot.");
     } finally {
       setLoading(false);
