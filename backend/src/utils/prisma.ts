@@ -1,5 +1,7 @@
-import { PrismaClient } from '@prisma/client';
+// src/utils/prisma.ts
+import dotenv from "dotenv";
+dotenv.config();  // carica .env
 
-// Simple Prisma client instantiation
-// TODO: Consider a singleton pattern if needed for multi-service context
+import { PrismaClient } from "@prisma/client";
+
 export const prisma = new PrismaClient();

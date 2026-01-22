@@ -7,10 +7,10 @@ import { ProjectsHeader } from "./components/ProjectsHeader";
 import { ProjectsTable } from "./components/ProjectsTable";
 import { ProjectDialog } from "./components/ProjectDialog";
 import { TemplateGallery } from "./components/TemplateGallery";
-import { ChatbotWizard } from "./components/ChatbotWizard";
 import { projects } from "./services/mockData";
 import { Project, ProjectFormData } from "./types";
 import { useState } from "react";
+import { ChatbotWizard } from "./chatbot/ChatbotWizard";
 
 export function ProjectsPage() {
   const router = useRouter();

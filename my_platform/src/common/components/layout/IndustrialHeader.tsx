@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Typography, Button, IconButton } from "@mui/material";
+import { Box, IconButton, Typography } from "@mui/material";
 import { useTheme, alpha } from "@mui/material/styles";
 
 export default function IndustrialHeader() {

@@ -7,6 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
 enum Role {
   SUPER_ADMIN
   ADMIN
@@ -14,7 +15,7 @@ enum Role {
 }
 
 model User {
-  id        String    @id @default(uuid())
+  id        Int    @id @default(autoincrement())
   email     String    @unique
   password  String
   role      Role      @default(USER)
@@ -24,12 +25,12 @@ model User {
 }
 
 model Chatbot {
-  id             String         @id @default(uuid())
+  id             Int         @id @default(autoincrement())
   name           String
   welcomeMessage String         @default("Ciao! Come posso aiutarti?")
   systemPrompt   String?        @db.Text
   primaryColor   String         @default("#3b82f6")
-  userId         String
+  userId         Int
   user           User           @relation(fields: [userId], references: [id])
   conversations  Conversation[]
   createdAt      DateTime       @default(now())
@@ -37,8 +38,8 @@ model Chatbot {
 }
 
 model Conversation {
-  id        String    @id @default(uuid())
-  chatbotId String
+  id        Int    @id @default(autoincrement())
+  chatbotId Int
   chatbot   Chatbot   @relation(fields: [chatbotId], references: [id])
   visitorId String?
   messages  Message[]
@@ -46,8 +47,8 @@ model Conversation {
 }
 
 model Message {
-  id             String       @id @default(uuid())
-  conversationId String
+  id             Int       @id @default(autoincrement())
+  conversationId Int
   conversation   Conversation @relation(fields: [conversationId], references: [id])
   role           String
   content        String       @db.Text

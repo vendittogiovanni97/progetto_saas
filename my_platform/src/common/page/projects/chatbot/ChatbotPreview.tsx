@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Typography, TextField, IconButton, alpha, useTheme, Avatar, Paper, InputBase } from "@mui/material";
+import { Box, Typography, IconButton, alpha, Avatar, Paper, InputBase } from "@mui/material";
 import { useState } from "react";
 
 interface ChatbotConfig {
@@ -15,7 +15,6 @@ interface Message {
 }
 
 export function ChatbotPreview({ config }: { config: ChatbotConfig }) {
-  const theme = useTheme();
   const [messages, setMessages] = useState<Message[]>([
     { role: "assistant", content: config.welcomeMessage }
   ]);

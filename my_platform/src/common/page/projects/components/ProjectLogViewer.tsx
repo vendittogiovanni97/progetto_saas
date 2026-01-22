@@ -2,24 +2,13 @@
 
 import { Box, Typography, alpha, useTheme, IconButton, Tooltip } from "@mui/material";
 import { useState, useRef, useEffect } from "react";
+import { mockLogs } from "../types/projectMocks";
 
 interface LogEntry {
   timestamp: string;
   level: "INFO" | "WARN" | "ERROR" | "DEBUG";
   message: string;
 }
-
-const mockLogs: LogEntry[] = [
-  { timestamp: "10:42:00", level: "INFO", message: "Starting production build..." },
-  { timestamp: "10:42:05", level: "INFO", message: "Fetching repository dependencies..." },
-  { timestamp: "10:42:10", level: "WARN", message: "Deprecated API usage detected in 'auth-service'" },
-  { timestamp: "10:42:15", level: "ERROR", message: "Failed to connect to redis-primary.cluster.local:6379" },
-  { timestamp: "10:42:16", level: "INFO", message: "Retrying connection in 5s... (Attempt 1/3)" },
-  { timestamp: "10:42:21", level: "INFO", message: "Retrying connection in 10s... (Attempt 2/3)" },
-  { timestamp: "10:42:31", level: "INFO", message: "Connected to redis-primary sucessfully." },
-  { timestamp: "10:42:32", level: "DEBUG", message: "Cache pre-warmed with 1,245 keys" },
-  { timestamp: "10:42:35", level: "INFO", message: "Server listening on port 3000" },
-];
 
 export function ProjectLogViewer() {
   const theme = useTheme();
@@ -92,7 +81,7 @@ export function ProjectLogViewer() {
           "&::-webkit-scrollbar-thumb": { bgcolor: alpha(theme.palette.common.white, 0.1), borderRadius: 3 }
         }}
       >
-        {mockLogs.map((log, i) => (
+  {(mockLogs as LogEntry[]).map((log, i) => (
           <Box key={i} sx={{ display: "flex", gap: 2, mb: 0.5, "&:hover": { bgcolor: alpha(theme.palette.common.white, 0.05) } }}>
             <Typography variant="caption" sx={{ color: alpha(theme.palette.common.white, 0.3), minWidth: 65, userSelect: "none" }}>
               {log.timestamp}

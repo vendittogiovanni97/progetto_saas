@@ -1,10 +1,11 @@
 "use client";
 
-import { Box, Typography, TextField, Button, alpha, useTheme, Dialog, DialogTitle, DialogContent, Grid, Stack } from "@mui/material";
+import { Box, Typography, TextField, Button, alpha, useTheme, Grid, Stack } from "@mui/material";
 import { useState } from "react";
-import { ChatbotPreview } from "./ChatbotPreview";
 import { useAuth } from "@/providers/AuthProvider";
 import { chatbotService } from "@/services/api/chatbot";
+import { ModalGeneric } from "@/common/components/modal/ModalGeneric";
+import { ChatbotPreview } from "./ChatbotPreview";
 
 interface ChatbotWizardProps {
   open: boolean;
@@ -24,58 +25,30 @@ export function ChatbotWizard({ open, onClose, onSave }: ChatbotWizardProps) {
   const theme = useTheme();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [config, setConfig] = useState<ChatbotConfig>({
-    name: "My Assistant",
-    welcomeMessage: "Ciao! Come posso aiutarti oggi?",
-    primaryColor: "#3b82f6",
-  });
+  const [config, setConfig] = useState<ChatbotConfig>({ name: "My Assistant", welcomeMessage: "Ciao! Come posso aiutarti oggi?", primaryColor: "#3b82f6" });
 
   const handleSave = async () => {
-    console.log("ChatbotWizard: Starting save...", { user, config });
-    if (!user) {
-      console.error("ChatbotWizard: No user found! Aborting save.");
-      return;
-    }
+    if (!user) return;
     setLoading(true);
     try {
-      console.log("ChatbotWizard: Sending request to /chatbots", config);
       const response = await chatbotService.createChatbot({
         ...config,
-        userId: user.id,
+        userId: "1",
       });
-      console.log("ChatbotWizard: Response received", response);
       if (response.data) {
         onSave(response.data);
       }
     } catch (error) {
-      console.error("ChatbotWizard: Failed to create chatbot:", error);
+      void error;
       alert("Errore durante la creazione del chatbot.");
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <Dialog 
-      open={open} 
-      onClose={onClose}
-      maxWidth="lg"
-      fullWidth
-      PaperProps={{
-        sx: {
-          bgcolor: alpha(theme.palette.background.paper, 0.9),
-          backdropFilter: "blur(20px)",
-          borderRadius: 4,
-        }
-      }}
-    >
-      <DialogTitle sx={{ p: 3, borderBottom: `1px solid ${theme.palette.divider}` }}>
-        <Typography variant="h4" sx={{ fontWeight: 800 }}>
-          Configura il tuo Chatbot
-        </Typography>
-      </DialogTitle>
-
-      <DialogContent sx={{ p: 4 }}>
+  const content = (
+      <Box sx={{ p: 0 }}>
+      <Box sx={{ p: 4 }}>
         <Grid container spacing={5}>
           {/* Form Side */}
           <Grid size={{ xs: 12, md: 6 }}>
@@ -137,9 +110,9 @@ export function ChatbotWizard({ open, onClose, onSave }: ChatbotWizardProps) {
                 <Button variant="outlined" fullWidth onClick={onClose} disabled={loading}>
                   Annulla
                 </Button>
-                <Button 
-                  variant="contained" 
-                  fullWidth 
+                <Button
+                  variant="contained"
+                  fullWidth
                   onClick={handleSave}
                   disabled={loading}
                   sx={{ bgcolor: config.primaryColor, "&:hover": { bgcolor: alpha(config.primaryColor, 0.8) } }}
@@ -158,7 +131,25 @@ export function ChatbotWizard({ open, onClose, onSave }: ChatbotWizardProps) {
             <ChatbotPreview config={config} />
           </Grid>
         </Grid>
-      </DialogContent>
-    </Dialog>
+      </Box>
+    </Box>
+  );
+
+  return (
+    <ModalGeneric
+      open={open}
+      onClose={onClose}
+      title={<Typography sx={{ fontWeight: 800 }}>Configura il tuo Chatbot</Typography>}
+      content={content}
+      maxWidth="lg"
+      fullWidth
+      PaperProps={{
+        sx: {
+          bgcolor: alpha(theme.palette.background.paper, 0.9),
+          backdropFilter: "blur(20px)",
+          borderRadius: 4,
+        }
+      }}
+    />
   );
 }
