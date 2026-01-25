@@ -3,7 +3,7 @@ import { InternalServerError } from "elysia";
 
 const prisma = new PrismaClient();
 
-export class IamService {
+export class AuthenticationService {
   // REGISTRAZIONE
   async register(data: any) {
     const hashedPassword = await Bun.password.hash(data.password);
