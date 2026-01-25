@@ -14,7 +14,16 @@ const app = new Elysia()
       .get('/chatbots', () => {})
   )
 
-  app.listen(port, () => console.log(`🦊 Backend pronto: http://localhost:${port}`))
+  app.listen(port, () => 
+    console.log(`
+        🛡️  KODA GATEWAY
+        -------------------------
+        Status: Online
+        Port:   ${port}
+        Routes: http://localhost:${port}
+      `
+    )
+  );
 
 // Esportiamo il tipo per Eden (la magia per Next.js)
 export type App = typeof app
