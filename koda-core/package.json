@@ -4,16 +4,18 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun --watch src/index.ts"
+    "dev": "bun --watch src/gateway.ts"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "prisma": "6"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
     "@elysiajs/cors": "^1.4.1",
+    "@prisma/client": "6",
     "elysia": "^1.4.22"
   }
 }
