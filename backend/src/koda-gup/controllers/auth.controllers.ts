@@ -1,32 +1,66 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import User from "../models/User";
+import User from "../models/user";
 
-
+// Registrazione utente
 export const register = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password, role } = req.body;
 
-  const existing = await User.findOne({ email });
-  if (existing) return res.status(400).json({ message: "Email already in use" });
+    // Controllo se esiste già
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email già in uso" });
+    }
 
-  const hashed = await bcrypt.hash(password, 10);
-  const user = new User({ email, password: hashed });
-  await user.save();
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-  const { password: _, ...rest } = user.toObject();
-  res.json(rest);
+    const user = await User.create({ email, password: hashedPassword, role });
+
+    res.status(201).json({
+      message: "Registrazione avvenuta con successo",
+      user: { id: user._id, email: user.email, role: user.role },
+    });
+  } catch (error: any) {
+    res.status(500).json({ message: "Errore registrazione", error: error.message });
+  }
 };
 
+// Login utente
 export const login = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  const user = await User.findOne({ email });
-  if (!user) return res.status(401).json({ message: "Invalid credentials" });
+    // Trova utente
+    const user = await User.findOne({ email });
+    console.log("Trovato utente:", user);
+    if (!user) {
+      return res.status(401).json({ message: "Credenziali non valide" });
+    }
 
-  const valid = await bcrypt.compare(password, user.password);
-  if (!valid) return res.status(401).json({ message: "Invalid credentials" });
+    // Controlla password
+    const isMatch = await bcrypt.compare(password, user.password);
+    console.log("Password match:", isMatch);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Credenziali non valide" });
+    }
 
-  const token = jwt.sign({ sub: user._id, email: user.email }, process.env.JWT_SECRET as string, { expiresIn: "7d" });
-  res.json({ access_token: token });
+    res.json({
+      message: "Login effettuato con successo",
+      user: { id: user._id, email: user.email, role: user.role },
+    });
+  } catch (error: any) {
+    res.status(500).json({ message: "Errore login", error: error.message });
+  }
+};
+
+export const getUsers = async (_req: Request, res: Response) => {
+  try {
+    const users = await User.find();
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: "Errore recupero utenti", error });
+  }
 };
