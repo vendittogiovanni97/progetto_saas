@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
-import User from "../models/user";
+import Account from "../models/account";
 
 // Registrazione utente
 export const register = async (req: Request, res: Response) => {
@@ -8,7 +8,7 @@ export const register = async (req: Request, res: Response) => {
     const { email, password, role } = req.body;
 
     // Controllo se esiste già
-    const existingUser = await User.findOne({ email });
+    const existingUser = await Account.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "Email già in uso" });
     }
@@ -17,7 +17,7 @@ export const register = async (req: Request, res: Response) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const user = await User.create({ email, password: hashedPassword, role });
+    const user = await Account.create({ email, password: hashedPassword, role });
 
     res.status(201).json({
       message: "Registrazione avvenuta con successo",
@@ -34,7 +34,7 @@ export const login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     // Trova utente
-    const user = await User.findOne({ email });
+    const user = await Account.findOne({ email });
     console.log("Trovato utente:", user);
     if (!user) {
       return res.status(401).json({ message: "Credenziali non valide" });
@@ -58,7 +58,7 @@ export const login = async (req: Request, res: Response) => {
 
 export const getUsers = async (_req: Request, res: Response) => {
   try {
-    const users = await User.find();
+    const users = await Account.find();
     res.json(users);
   } catch (error) {
     res.status(500).json({ message: "Errore recupero utenti", error });
