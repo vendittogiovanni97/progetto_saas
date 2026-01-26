@@ -1,8 +1,0 @@
-# Template per le variabili d'ambiente
-# Rinomina in .env per l'uso locale
-
-PORT=5001
-NODE_ENV=development
-
-# DATABASE_URL=
-# JWT_SECRET=
