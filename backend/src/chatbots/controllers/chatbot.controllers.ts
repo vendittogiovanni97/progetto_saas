@@ -1,10 +1,9 @@
-import { Request, Response } from 'express';
-import { Chatbot, Conversation, Message } from '@prisma/client';
+import { Request, Response } from "express";
 import {
   ChatbotService,
   ConversationService,
   MessageService,
-} from '../services/chatbot.service';
+} from "../services/chatbot.service";
 
 // TODO: Aggiungere middleware di autenticazione per verificare ownership del chatbot
 // TODO: Implementare proper error handling con status codes specifici
@@ -21,13 +20,13 @@ export class ChatbotController {
   static async createChatbot(req: Request, res: Response): Promise<void> {
     try {
       // TODO: Validare req.user.id da token JWT
-      const userId = req.user?.id || req.body.userId ;
+      const accountId = req.user?.id || req.body.accountId;
 
       const { name, welcomeMessage, systemPrompt, primaryColor } = req.body;
 
       // TODO: Aggiungere validazione dei dati in input con Joi o Zod
 
-      const chatbot = await chatbotService.createChatbot(userId, {
+      const chatbot = await chatbotService.createChatbot(accountId, {
         name,
         welcomeMessage,
         systemPrompt,
@@ -42,8 +41,8 @@ export class ChatbotController {
       // TODO: Implementare logger strutturato
       res.status(500).json({
         success: false,
-        message: 'Errore nella creazione del chatbot',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        message: "Errore nella creazione del chatbot",
+        error: error instanceof Error ? error.message : "Unknown error",
       });
     }
   }
@@ -54,10 +53,10 @@ export class ChatbotController {
    */
   static async getUserChatbots(req: Request, res: Response): Promise<void> {
     try {
-      const userId = req.user?.id || req.query.userId;
+      const accountId = req.user?.id || req.query.accountId;
 
       // TODO: Aggiungere paginazione
-      const chatbots = await chatbotService.getChatbotsByUserId(userId);
+      const chatbots = await chatbotService.getChatbotsByUserId(accountId);
 
       res.status(200).json({
         success: true,
@@ -66,8 +65,8 @@ export class ChatbotController {
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: 'Errore nel recupero dei chatbot',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        message: "Errore nel recupero dei chatbot",
+        error: error instanceof Error ? error.message : "Unknown error",
       });
     }
   }
@@ -86,7 +85,7 @@ export class ChatbotController {
       if (!chatbot) {
         res.status(404).json({
           success: false,
-          message: 'Chatbot non trovato',
+          message: "Chatbot non trovato",
         });
         return;
       }
@@ -100,8 +99,8 @@ export class ChatbotController {
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: 'Errore nel recupero del chatbot',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        message: "Errore nel recupero del chatbot",
+        error: error instanceof Error ? error.message : "Unknown error",
       });
     }
   }
@@ -124,7 +123,7 @@ export class ChatbotController {
       if (!chatbot) {
         res.status(404).json({
           success: false,
-          message: 'Chatbot non trovato',
+          message: "Chatbot non trovato",
         });
         return;
       }
@@ -136,8 +135,8 @@ export class ChatbotController {
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: 'Errore nell\'aggiornamento del chatbot',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        message: "Errore nell'aggiornamento del chatbot",
+        error: error instanceof Error ? error.message : "Unknown error",
       });
     }
   }
@@ -158,20 +157,20 @@ export class ChatbotController {
       if (!success) {
         res.status(404).json({
           success: false,
-          message: 'Chatbot non trovato',
+          message: "Chatbot non trovato",
         });
         return;
       }
 
       res.status(200).json({
         success: true,
-        message: 'Chatbot eliminato con successo',
+        message: "Chatbot eliminato con successo",
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: 'Errore nell\'eliminazione del chatbot',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        message: "Errore nell'eliminazione del chatbot",
+        error: error instanceof Error ? error.message : "Unknown error",
       });
     }
   }
@@ -192,7 +191,7 @@ export class ConversationController {
 
       const conversation = await conversationService.createConversation(
         chatbotIdNum,
-        visitorId
+        visitorId,
       );
 
       res.status(201).json({
@@ -202,8 +201,8 @@ export class ConversationController {
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: 'Errore nella creazione della conversazione',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        message: "Errore nella creazione della conversazione",
+        error: error instanceof Error ? error.message : "Unknown error",
       });
     }
   }
@@ -218,9 +217,8 @@ export class ConversationController {
       const chatbotIdNum = parseInt(chatbotId as string, 10);
 
       // TODO: Aggiungere paginazione da query params
-      const conversations = await conversationService.getConversationsByChatbotId(
-        chatbotIdNum
-      );
+      const conversations =
+        await conversationService.getConversationsByChatbotId(chatbotIdNum);
 
       res.status(200).json({
         success: true,
@@ -229,8 +227,8 @@ export class ConversationController {
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: 'Errore nel recupero delle conversazioni',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        message: "Errore nel recupero delle conversazioni",
+        error: error instanceof Error ? error.message : "Unknown error",
       });
     }
   }
@@ -244,12 +242,13 @@ export class ConversationController {
       const { id } = req.params;
       const conversationId = parseInt(id as string, 10);
 
-      const conversation = await conversationService.getConversationById(conversationId);
+      const conversation =
+        await conversationService.getConversationById(conversationId);
 
       if (!conversation) {
         res.status(404).json({
           success: false,
-          message: 'Conversazione non trovata',
+          message: "Conversazione non trovata",
         });
         return;
       }
@@ -261,8 +260,8 @@ export class ConversationController {
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: 'Errore nel recupero della conversazione',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        message: "Errore nel recupero della conversazione",
+        error: error instanceof Error ? error.message : "Unknown error",
       });
     }
   }
@@ -276,25 +275,26 @@ export class ConversationController {
       const { id } = req.params;
       const conversationId = parseInt(id as string, 10);
 
-      const success = await conversationService.deleteConversation(conversationId);
+      const success =
+        await conversationService.deleteConversation(conversationId);
 
       if (!success) {
         res.status(404).json({
           success: false,
-          message: 'Conversazione non trovata',
+          message: "Conversazione non trovata",
         });
         return;
       }
 
       res.status(200).json({
         success: true,
-        message: 'Conversazione eliminata con successo',
+        message: "Conversazione eliminata con successo",
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: 'Errore nell\'eliminazione della conversazione',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        message: "Errore nell'eliminazione della conversazione",
+        error: error instanceof Error ? error.message : "Unknown error",
       });
     }
   }
@@ -314,7 +314,11 @@ export class MessageController {
       // TODO: Validare che role sia 'user' o 'assistant'
       // TODO: Implementare integrazione con AI API per generare risposta
 
-      const message = await messageService.createMessage(conversationIdNum, role, content);
+      const message = await messageService.createMessage(
+        conversationIdNum,
+        role,
+        content,
+      );
 
       res.status(201).json({
         success: true,
@@ -323,8 +327,8 @@ export class MessageController {
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: 'Errore nell\'invio del messaggio',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        message: "Errore nell'invio del messaggio",
+        error: error instanceof Error ? error.message : "Unknown error",
       });
     }
   }
@@ -339,7 +343,8 @@ export class MessageController {
       const conversationIdNum = parseInt(conversationId as string, 10);
 
       // TODO: Aggiungere paginazione
-      const messages = await messageService.getMessagesByConversationId(conversationIdNum);
+      const messages =
+        await messageService.getMessagesByConversationId(conversationIdNum);
 
       res.status(200).json({
         success: true,
@@ -348,8 +353,8 @@ export class MessageController {
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: 'Errore nel recupero dei messaggi',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        message: "Errore nel recupero dei messaggi",
+        error: error instanceof Error ? error.message : "Unknown error",
       });
     }
   }
@@ -368,20 +373,20 @@ export class MessageController {
       if (!success) {
         res.status(404).json({
           success: false,
-          message: 'Messaggio non trovato',
+          message: "Messaggio non trovato",
         });
         return;
       }
 
       res.status(200).json({
         success: true,
-        message: 'Messaggio eliminato con successo',
+        message: "Messaggio eliminato con successo",
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: 'Errore nell\'eliminazione del messaggio',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        message: "Errore nell'eliminazione del messaggio",
+        error: error instanceof Error ? error.message : "Unknown error",
       });
     }
   }

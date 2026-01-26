@@ -7,7 +7,7 @@ export class ChatbotService {
    * Crea un nuovo chatbot per un utente
    */
   async createChatbot(
-    userId: number,
+    accountId: number,
     data: {
       name: string;
       welcomeMessage?: string;
@@ -21,7 +21,7 @@ export class ChatbotService {
         welcomeMessage: data.welcomeMessage || 'Ciao! Come posso aiutarti?',
         systemPrompt: data.systemPrompt,
         primaryColor: data.primaryColor || '#3b82f6',
-        userId,
+        accountId,
       },
     });
   }
@@ -31,7 +31,7 @@ export class ChatbotService {
    */
   async getChatbotsByUserId(userId: number): Promise<Chatbot[]> {
     return await prisma.chatbot.findMany({
-      where: { userId },
+      where: { accountId: userId },
       orderBy: { createdAt: 'desc' },
     });
   }

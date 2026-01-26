@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
-import Account from "../models/account";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 // Registrazione utente
 export const register = async (req: Request, res: Response) => {
@@ -8,7 +10,7 @@ export const register = async (req: Request, res: Response) => {
     const { email, password, role } = req.body;
 
     // Controllo se esiste già
-    const existingUser = await Account.findOne({ email });
+    const existingUser = await prisma.account.findUnique({ where: { email } });
     if (existingUser) {
       return res.status(400).json({ message: "Email già in uso" });
     }
@@ -17,11 +19,13 @@ export const register = async (req: Request, res: Response) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const user = await Account.create({ email, password: hashedPassword, role });
+    const user = await prisma.account.create({
+      data: { email, password: hashedPassword, role: role || "USER" },
+    });
 
     res.status(201).json({
       message: "Registrazione avvenuta con successo",
-      user: { id: user._id, email: user.email, role: user.role },
+      user: { id: user.id, email: user.email, role: user.role },
     });
   } catch (error: any) {
     res.status(500).json({ message: "Errore registrazione", error: error.message });
@@ -34,7 +38,7 @@ export const login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     // Trova utente
-    const user = await Account.findOne({ email });
+    const user = await prisma.account.findUnique({ where: { email } });
     console.log("Trovato utente:", user);
     if (!user) {
       return res.status(401).json({ message: "Credenziali non valide" });
@@ -49,7 +53,7 @@ export const login = async (req: Request, res: Response) => {
 
     res.json({
       message: "Login effettuato con successo",
-      user: { id: user._id, email: user.email, role: user.role },
+      user: { id: user.id, email: user.email, role: user.role },
     });
   } catch (error: any) {
     res.status(500).json({ message: "Errore login", error: error.message });
@@ -58,7 +62,7 @@ export const login = async (req: Request, res: Response) => {
 
 export const getUsers = async (_req: Request, res: Response) => {
   try {
-    const users = await Account.find();
+    const users = await prisma.account.findMany();
     res.json(users);
   } catch (error) {
     res.status(500).json({ message: "Errore recupero utenti", error });
