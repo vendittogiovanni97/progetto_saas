@@ -1,5 +1,8 @@
 import { Schema, model, Document, Types } from 'mongoose';
 
+/**
+ * Interfaccia Chatbot
+ */
 export interface IChatbot extends Document {
   _id: Types.ObjectId;
   id: number; // ID numerico user-friendly
@@ -12,12 +15,28 @@ export interface IChatbot extends Document {
   updatedAt: Date;
 }
 
+/**
+ * Collezione per contatori numerici
+ */
+const counterSchema = new Schema(
+  {
+    _id: { type: String, required: true }, // nome del contatore, es. "chatbotId"
+    seq: { type: Number, default: 0 },
+  },
+  { versionKey: false }
+);
+
+const Counter = model('Counter', counterSchema);
+
+/**
+ * Schema Chatbot
+ */
 const chatbotSchema = new Schema<IChatbot>(
   {
     id: {
       type: Number,
-      unique: true,
-      // ID numerico auto-incrementato (no UUID mess!)
+      unique: true, // ID numerico unico
+      required: true,
     },
     name: {
       type: String,
@@ -32,20 +51,18 @@ const chatbotSchema = new Schema<IChatbot>(
     systemPrompt: {
       type: String,
       default: undefined,
-      // TODO: Implementare validazione della lunghezza del systemPrompt in futuro
-      // TODO: Aggiungere rate limiting per le richieste AI basate su systemPrompt
+      // TODO: validazione lunghezza
     },
     primaryColor: {
       type: String,
       default: '#3b82f6',
-      // TODO: Validare il formato HEX del colore in futuro
-      // match: /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/
+      // TODO: validazione formato HEX
     },
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
-      // TODO: Aggiungere cascading delete quando l'utente viene eliminato
+      // TODO: cascading delete
     },
   },
   {
@@ -53,9 +70,27 @@ const chatbotSchema = new Schema<IChatbot>(
   }
 );
 
-// Indici per performance queries
-chatbotSchema.index({ id: 1 }); // ID numerico lookup
-chatbotSchema.index({ userId: 1 }); // Query per user
-chatbotSchema.index({ createdAt: -1 }); // Sort per data
+// Indici per performance
+chatbotSchema.index({ id: 1 });
+chatbotSchema.index({ userId: 1 });
+chatbotSchema.index({ createdAt: -1 });
 
+/**
+ * Pre-save hook per ID numerico auto-increment
+ */
+chatbotSchema.pre<IChatbot>('save', async function (next) {
+  if (this.isNew) {
+    const counter = await Counter.findByIdAndUpdate(
+      'chatbotId',          // nome del contatore
+      { $inc: { seq: 1 } }, // incremento atomico
+      { new: true, upsert: true }
+    );
+    this.id = counter.seq;
+  }
+  next();
+});
+
+/**
+ * Export del modello
+ */
 export const Chatbot = model<IChatbot>('Chatbot', chatbotSchema);

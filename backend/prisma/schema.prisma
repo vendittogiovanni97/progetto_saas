@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// USER MODEL (da koda-gup)
+// ============================================================================
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  USER
+}
+
+model Account {
+  id        Int         @id @default(autoincrement())
+  email     String      @unique
+  password  String
+  role      Role        @default(USER)
+  chatbots  Chatbot[]   // Relazione one-to-many
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+// ============================================================================
+// CHATBOT MODEL
+// ============================================================================
+
+model Chatbot {
+  id               Int            @id @default(autoincrement())
+  name             String
+  welcomeMessage   String         @default("Ciao! Come posso aiutarti?")
+  systemPrompt     String?        @db.Text
+  primaryColor     String         @default("#3b82f6")
+  accountId        Int
+  account          Account        @relation(fields: [accountId], references: [id])
+  conversations    Conversation[]
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  // Indici per performance
+  @@index([accountId])
+  @@index([createdAt])
+}
+
+// ============================================================================
+// CONVERSATION MODEL
+// ============================================================================
+
+model Conversation {
+  id         Int       @id @default(autoincrement())
+  chatbotId  Int
+  chatbot    Chatbot   @relation(fields: [chatbotId], references: [id])
+  visitorId  String?
+  messages   Message[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Indici per performance
+  @@index([chatbotId])
+  @@index([createdAt])
+}
+
+// ============================================================================
+// MESSAGE MODEL
+// ============================================================================
+
+model Message {
+  id             Int         @id @default(autoincrement())
+  conversationId Int
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  role           String      // 'user' o 'assistant'
+  content        String      @db.Text
+  createdAt      DateTime    @default(now())
+
+  // Indici per performance
+  @@index([conversationId])
+}

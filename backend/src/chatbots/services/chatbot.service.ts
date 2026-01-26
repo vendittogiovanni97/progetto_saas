@@ -1,185 +1,187 @@
-import { Types } from 'mongoose';
-import { Chatbot, Conversation, Message } from '../models';
-import type { IChatbot, IConversation, IMessage } from '../models';
-import { getNextId } from '../../utils/idCounter';
+import { PrismaClient, Chatbot, Conversation, Message } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export class ChatbotService {
   /**
    * Crea un nuovo chatbot per un utente
-   * TODO: Aggiungere validazione del numero massimo di chatbot per utente (plan-based)
    */
   async createChatbot(
-    userId: string | Types.ObjectId,
+    userId: number,
     data: {
       name: string;
       welcomeMessage?: string;
       systemPrompt?: string;
       primaryColor?: string;
     }
-  ): Promise<IChatbot> {
-    const id = await getNextId('chatbots');
-
-    const chatbot = new Chatbot({
-      id, // ID numerico auto-incrementato
-      ...data,
-      userId: new Types.ObjectId(userId),
+  ): Promise<Chatbot> {
+    return await prisma.chatbot.create({
+      data: {
+        name: data.name,
+        welcomeMessage: data.welcomeMessage || 'Ciao! Come posso aiutarti?',
+        systemPrompt: data.systemPrompt,
+        primaryColor: data.primaryColor || '#3b82f6',
+        userId,
+      },
     });
-    return await chatbot.save();
   }
 
   /**
    * Recupera tutti i chatbot di un utente
-   * TODO: Implementare paginazione in futuro
    */
-  async getChatbotsByUserId(userId: string | Types.ObjectId): Promise<IChatbot[]> {
-    return await Chatbot.find({
-      userId: new Types.ObjectId(userId),
-    }).sort({ createdAt: -1 });
-  }
-
-  /**
-   * Recupera un chatbot specifico
-   * TODO: Aggiungere check permessi (utente proprietario)
-   */
-  async getChatbotById(chatbotId: string | Types.ObjectId): Promise<IChatbot | null> {
-    return await Chatbot.findById(chatbotId);
-  }
-
-  /**
-   * Aggiorna un chatbot
-   * TODO: Aggiungere validazione dei dati prima dell'update
-   */
-  async updateChatbot(
-    chatbotId: string | Types.ObjectId,
-    data: Partial<IChatbot>
-  ): Promise<IChatbot | null> {
-    return await Chatbot.findByIdAndUpdate(chatbotId, data, {
-      new: true,
-      runValidators: true,
+  async getChatbotsByUserId(userId: number): Promise<Chatbot[]> {
+    return await prisma.chatbot.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
   /**
-   * Elimina un chatbot
-   * TODO: Implementare soft delete per audit trail
-   * TODO: Cascading delete delle conversations e messages
+   * Recupera un chatbot specifico
    */
-  async deleteChatbot(chatbotId: string | Types.ObjectId): Promise<boolean> {
-    const result = await Chatbot.findByIdAndDelete(chatbotId);
-    return result !== null;
+  async getChatbotById(id: number): Promise<Chatbot | null> {
+    return await prisma.chatbot.findUnique({
+      where: { id },
+    });
+  }
+
+  /**
+   * Aggiorna un chatbot
+   */
+  async updateChatbot(
+    id: number,
+    data: Partial<Chatbot>
+  ): Promise<Chatbot | null> {
+    try {
+      return await prisma.chatbot.update({
+        where: { id },
+        data,
+      });
+    } catch (error) {
+      return null;
+    }
+  }
+
+  /**
+   * Elimina un chatbot
+   */
+  async deleteChatbot(id: number): Promise<boolean> {
+    try {
+      await prisma.chatbot.delete({
+        where: { id },
+      });
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 }
 
 export class ConversationService {
   /**
    * Crea una nuova conversazione
-   * TODO: Aggiungere validazione chatbot exists
    */
   async createConversation(
-    chatbotId: string | Types.ObjectId,
+    chatbotId: number,
     visitorId?: string
-  ): Promise<IConversation> {
-    const id = await getNextId('conversations');
-
-    const conversation = new Conversation({
-      id, // ID numerico auto-incrementato
-      chatbotId: new Types.ObjectId(chatbotId),
-      visitorId,
+  ): Promise<Conversation> {
+    return await prisma.conversation.create({
+      data: {
+        chatbotId,
+        visitorId,
+      },
     });
-    return await conversation.save();
   }
 
   /**
    * Recupera tutte le conversazioni di un chatbot
-   * TODO: Implementare paginazione con limit/offset
-   * TODO: Aggiungere filtri per data, status
    */
-  async getConversationsByChatbotId(
-    chatbotId: string | Types.ObjectId
-  ): Promise<IConversation[]> {
-    return await Conversation.find({
-      chatbotId: new Types.ObjectId(chatbotId),
-    })
-      .populate('chatbotId')
-      .sort({ createdAt: -1 });
+  async getConversationsByChatbotId(chatbotId: number): Promise<Conversation[]> {
+    return await prisma.conversation.findMany({
+      where: { chatbotId },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
   /**
    * Recupera una conversazione specifica
    */
-  async getConversationById(
-    conversationId: string | Types.ObjectId
-  ): Promise<IConversation | null> {
-    return await Conversation.findById(conversationId).populate('chatbotId');
+  async getConversationById(id: number): Promise<Conversation | null> {
+    return await prisma.conversation.findUnique({
+      where: { id },
+    });
   }
 
   /**
    * Elimina una conversazione
-   * TODO: Cascading delete dei messages associati
    */
-  async deleteConversation(conversationId: string | Types.ObjectId): Promise<boolean> {
-    const result = await Conversation.findByIdAndDelete(conversationId);
-    return result !== null;
+  async deleteConversation(id: number): Promise<boolean> {
+    try {
+      await prisma.conversation.delete({
+        where: { id },
+      });
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 }
 
 export class MessageService {
   /**
    * Aggiunge un messaggio a una conversazione
-   * TODO: Aggiungere validazione conversation exists
-   * TODO: Implementare token counting per tracking costi API
    */
   async createMessage(
-    conversationId: string | Types.ObjectId,
+    conversationId: number,
     role: 'user' | 'assistant',
     content: string
-  ): Promise<IMessage> {
-    const id = await getNextId('messages');
-
-    const message = new Message({
-      id, // ID numerico auto-incrementato
-      conversationId: new Types.ObjectId(conversationId),
-      role,
-      content,
+  ): Promise<Message> {
+    return await prisma.message.create({
+      data: {
+        conversationId,
+        role,
+        content,
+      },
     });
-    return await message.save();
   }
 
   /**
    * Recupera tutti i messaggi di una conversazione
-   * TODO: Implementare paginazione per conversazioni lunghe
    */
-  async getMessagesByConversationId(
-    conversationId: string | Types.ObjectId
-  ): Promise<IMessage[]> {
-    return await Message.find({
-      conversationId: new Types.ObjectId(conversationId),
-    }).sort({ createdAt: 1 });
+  async getMessagesByConversationId(conversationId: number): Promise<Message[]> {
+    return await prisma.message.findMany({
+      where: { conversationId },
+      orderBy: { createdAt: 'asc' },
+    });
   }
 
   /**
-   * Recupera gli ultimi N messaggi (per context AI)
-   * TODO: Implementare smart context window per ottimizzare tokens
+   * Recupera gli ultimi N messaggi
    */
   async getLastMessages(
-    conversationId: string | Types.ObjectId,
+    conversationId: number,
     limit: number = 10
-  ): Promise<IMessage[]> {
-    return await Message.find({
-      conversationId: new Types.ObjectId(conversationId),
-    })
-      .sort({ createdAt: -1 })
-      .limit(limit)
-      .exec()
-      .then((messages) => messages.reverse());
+  ): Promise<Message[]> {
+    return await prisma.message.findMany({
+      where: { conversationId },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    });
   }
 
   /**
    * Elimina un messaggio
-   * TODO: Implementare soft delete per mantenere l'integrità storica
    */
-  async deleteMessage(messageId: string | Types.ObjectId): Promise<boolean> {
-    const result = await Message.findByIdAndDelete(messageId);
-    return result !== null;
+  async deleteMessage(id: number): Promise<boolean> {
+    try {
+      await prisma.message.delete({
+        where: { id },
+      });
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 }
+
+export { prisma };

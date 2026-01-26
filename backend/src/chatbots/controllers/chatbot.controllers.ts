@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { Chatbot, Conversation, Message } from '@prisma/client';
 import {
   ChatbotService,
   ConversationService,
@@ -78,8 +79,9 @@ export class ChatbotController {
   static async getChatbot(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
+      const chatbotId = parseInt(id as string, 10);
 
-      const chatbot = await chatbotService.getChatbotById(id);
+      const chatbot = await chatbotService.getChatbotById(chatbotId);
 
       if (!chatbot) {
         res.status(404).json({
@@ -111,12 +113,13 @@ export class ChatbotController {
   static async updateChatbot(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
+      const chatbotId = parseInt(id as string, 10);
       const updateData = req.body;
 
       // TODO: Verificare che l'utente sia il proprietario
       // TODO: Aggiungere validazione dei dati
 
-      const chatbot = await chatbotService.updateChatbot(id, updateData);
+      const chatbot = await chatbotService.updateChatbot(chatbotId, updateData);
 
       if (!chatbot) {
         res.status(404).json({
@@ -146,10 +149,11 @@ export class ChatbotController {
   static async deleteChatbot(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
+      const chatbotId = parseInt(id as string, 10);
 
       // TODO: Verificare che l'utente sia il proprietario
 
-      const success = await chatbotService.deleteChatbot(id);
+      const success = await chatbotService.deleteChatbot(chatbotId);
 
       if (!success) {
         res.status(404).json({
@@ -181,12 +185,13 @@ export class ConversationController {
   static async createConversation(req: Request, res: Response): Promise<void> {
     try {
       const { chatbotId } = req.params;
+      const chatbotIdNum = parseInt(chatbotId as string, 10);
       const { visitorId } = req.body;
 
       // TODO: Generare visitorId automaticamente se non fornito
 
       const conversation = await conversationService.createConversation(
-        chatbotId,
+        chatbotIdNum,
         visitorId
       );
 
@@ -210,10 +215,11 @@ export class ConversationController {
   static async getConversations(req: Request, res: Response): Promise<void> {
     try {
       const { chatbotId } = req.params;
+      const chatbotIdNum = parseInt(chatbotId as string, 10);
 
       // TODO: Aggiungere paginazione da query params
       const conversations = await conversationService.getConversationsByChatbotId(
-        chatbotId
+        chatbotIdNum
       );
 
       res.status(200).json({
@@ -236,8 +242,9 @@ export class ConversationController {
   static async getConversation(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
+      const conversationId = parseInt(id as string, 10);
 
-      const conversation = await conversationService.getConversationById(id);
+      const conversation = await conversationService.getConversationById(conversationId);
 
       if (!conversation) {
         res.status(404).json({
@@ -267,8 +274,9 @@ export class ConversationController {
   static async deleteConversation(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
+      const conversationId = parseInt(id as string, 10);
 
-      const success = await conversationService.deleteConversation(id);
+      const success = await conversationService.deleteConversation(conversationId);
 
       if (!success) {
         res.status(404).json({
@@ -300,12 +308,13 @@ export class MessageController {
   static async sendMessage(req: Request, res: Response): Promise<void> {
     try {
       const { conversationId } = req.params;
+      const conversationIdNum = parseInt(conversationId as string, 10);
       const { role, content } = req.body;
 
       // TODO: Validare che role sia 'user' o 'assistant'
       // TODO: Implementare integrazione con AI API per generare risposta
 
-      const message = await messageService.createMessage(conversationId, role, content);
+      const message = await messageService.createMessage(conversationIdNum, role, content);
 
       res.status(201).json({
         success: true,
@@ -327,9 +336,10 @@ export class MessageController {
   static async getMessages(req: Request, res: Response): Promise<void> {
     try {
       const { conversationId } = req.params;
+      const conversationIdNum = parseInt(conversationId as string, 10);
 
       // TODO: Aggiungere paginazione
-      const messages = await messageService.getMessagesByConversationId(conversationId);
+      const messages = await messageService.getMessagesByConversationId(conversationIdNum);
 
       res.status(200).json({
         success: true,
@@ -351,8 +361,9 @@ export class MessageController {
   static async deleteMessage(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
+      const messageId = parseInt(id as string, 10);
 
-      const success = await messageService.deleteMessage(id);
+      const success = await messageService.deleteMessage(messageId);
 
       if (!success) {
         res.status(404).json({
