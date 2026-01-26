@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import initializePrisma from './config/prisma';
 
 dotenv.config();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5001;
 
 const startServer = async () => {
   if (!PORT) throw new Error('La porta del server non è definita nel file .env');

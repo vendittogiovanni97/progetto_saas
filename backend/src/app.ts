@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { corsOptions } from './middleware/cors.middleware';
 import AuthRouter from './modules/koda-gup/routes/auth';
-import chatbotRoutes from './chatbots/routes/chatbot.routes';
+import chatbotRoutes from './modules/chatbots/routes/chatbot.routes';
 
 const app = express();
 
