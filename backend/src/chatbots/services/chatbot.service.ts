@@ -1,6 +1,7 @@
 import { Types } from 'mongoose';
 import { Chatbot, Conversation, Message } from '../models';
 import type { IChatbot, IConversation, IMessage } from '../models';
+import { getNextId } from '../../utils/idCounter';
 
 export class ChatbotService {
   /**
@@ -16,7 +17,10 @@ export class ChatbotService {
       primaryColor?: string;
     }
   ): Promise<IChatbot> {
+    const id = await getNextId('chatbots');
+
     const chatbot = new Chatbot({
+      id, // ID numerico auto-incrementato
       ...data,
       userId: new Types.ObjectId(userId),
     });
@@ -75,7 +79,10 @@ export class ConversationService {
     chatbotId: string | Types.ObjectId,
     visitorId?: string
   ): Promise<IConversation> {
+    const id = await getNextId('conversations');
+
     const conversation = new Conversation({
+      id, // ID numerico auto-incrementato
       chatbotId: new Types.ObjectId(chatbotId),
       visitorId,
     });
@@ -127,7 +134,10 @@ export class MessageService {
     role: 'user' | 'assistant',
     content: string
   ): Promise<IMessage> {
+    const id = await getNextId('messages');
+
     const message = new Message({
+      id, // ID numerico auto-incrementato
       conversationId: new Types.ObjectId(conversationId),
       role,
       content,

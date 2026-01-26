@@ -2,6 +2,7 @@ import { Schema, model, Document, Types } from 'mongoose';
 
 export interface IConversation extends Document {
   _id: Types.ObjectId;
+  id: number; // ID numerico user-friendly
   chatbotId: Types.ObjectId;
   visitorId?: string;
   // TODO: Aggiungere campo metadata per tracciare device, browser, location
@@ -12,6 +13,11 @@ export interface IConversation extends Document {
 
 const conversationSchema = new Schema<IConversation>(
   {
+    id: {
+      type: Number,
+      unique: true,
+      // ID numerico auto-incrementato
+    },
     chatbotId: {
       type: Schema.Types.ObjectId,
       ref: 'Chatbot',
@@ -33,9 +39,10 @@ const conversationSchema = new Schema<IConversation>(
   }
 );
 
-// TODO: Aggiungere indici per performance queries
-// conversationSchema.index({ chatbotId: 1 });
-// conversationSchema.index({ createdAt: -1 });
-// conversationSchema.index({ visitorId: 1 });
+// Indici per performance queries
+conversationSchema.index({ id: 1 }); // ID numerico lookup
+conversationSchema.index({ chatbotId: 1 }); // Query per chatbot
+conversationSchema.index({ createdAt: -1 }); // Sort per data
+conversationSchema.index({ visitorId: 1 }); // Query per visitatore
 
 export const Conversation = model<IConversation>('Conversation', conversationSchema);

@@ -2,6 +2,7 @@ import { Schema, model, Document, Types } from 'mongoose';
 
 export interface IMessage extends Document {
   _id: Types.ObjectId;
+  id: number; // ID numerico user-friendly
   conversationId: Types.ObjectId;
   role: 'user' | 'assistant';
   content: string;
@@ -14,6 +15,11 @@ export interface IMessage extends Document {
 
 const messageSchema = new Schema<IMessage>(
   {
+    id: {
+      type: Number,
+      unique: true,
+      // ID numerico auto-incrementato
+    },
     conversationId: {
       type: Schema.Types.ObjectId,
       ref: 'Conversation',
@@ -45,7 +51,8 @@ const messageSchema = new Schema<IMessage>(
   }
 );
 
-// TODO: Aggiungere indici per performance queries
-// messageSchema.index({ conversationId: 1, createdAt: -1 });
+// Indici per performance queries
+messageSchema.index({ id: 1 }); // ID numerico lookup
+messageSchema.index({ conversationId: 1, createdAt: -1 }); // Query per conversazione
 
 export const Message = model<IMessage>('Message', messageSchema);

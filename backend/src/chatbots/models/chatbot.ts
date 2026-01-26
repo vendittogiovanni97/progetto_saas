@@ -2,6 +2,7 @@ import { Schema, model, Document, Types } from 'mongoose';
 
 export interface IChatbot extends Document {
   _id: Types.ObjectId;
+  id: number; // ID numerico user-friendly
   name: string;
   welcomeMessage: string;
   systemPrompt?: string;
@@ -13,6 +14,11 @@ export interface IChatbot extends Document {
 
 const chatbotSchema = new Schema<IChatbot>(
   {
+    id: {
+      type: Number,
+      unique: true,
+      // ID numerico auto-incrementato (no UUID mess!)
+    },
     name: {
       type: String,
       required: true,
@@ -47,8 +53,9 @@ const chatbotSchema = new Schema<IChatbot>(
   }
 );
 
-// TODO: Aggiungere indici per performance queries
-// chatbotSchema.index({ userId: 1 });
-// chatbotSchema.index({ createdAt: -1 });
+// Indici per performance queries
+chatbotSchema.index({ id: 1 }); // ID numerico lookup
+chatbotSchema.index({ userId: 1 }); // Query per user
+chatbotSchema.index({ createdAt: -1 }); // Sort per data
 
 export const Chatbot = model<IChatbot>('Chatbot', chatbotSchema);

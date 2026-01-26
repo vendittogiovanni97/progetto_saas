@@ -20,7 +20,7 @@ export class ChatbotController {
   static async createChatbot(req: Request, res: Response): Promise<void> {
     try {
       // TODO: Validare req.user.id da token JWT
-      const userId = req.user?.id || req.body.userId;
+      const userId = req.user?.id || req.body.userId ;
 
       const { name, welcomeMessage, systemPrompt, primaryColor } = req.body;
 
