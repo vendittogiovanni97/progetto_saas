@@ -1,393 +1,347 @@
 import { Request, Response } from "express";
-import {
-  ChatbotService,
-  ConversationService,
-  MessageService,
-} from "../services/chatbot.service";
+import { prisma } from "../../../config/prisma";
 
-// TODO: Aggiungere middleware di autenticazione per verificare ownership del chatbot
-// TODO: Implementare proper error handling con status codes specifici
+// =============================================================================
+// CHATBOTS - Qui gestiamo la creazione e modifica dei Bot
+// =============================================================================
 
-const chatbotService = new ChatbotService();
-const conversationService = new ConversationService();
-const messageService = new MessageService();
+/**
+ * Crea un nuovo chatbot
+ * POST /chatbots
+ */
+export async function createChatbot(req: Request, res: Response): Promise<void> {
+  try {
+    // TODO (Junior): Qui dovremmo assicurarci che l'utente sia loggato (middleware).
+    // Per ora prendiamo l'ID dall'utente (se c'è il token) o dal body.
+    const accountId = (req as any).user?.id || req.body.accountId;
 
-export class ChatbotController {
-  /**
-   * POST /chatbots
-   * Crea un nuovo chatbot
-   */
-  static async createChatbot(req: Request, res: Response): Promise<void> {
-    try {
-      // TODO: Validare req.user.id da token JWT
-      const accountId = req.user?.id || req.body.accountId;
+    // TODO (Junior): Sarebbe utile controllare se il nome è vuoto prima di salvare.
+    const { name, welcomeMessage, systemPrompt, primaryColor } = req.body;
 
-      const { name, welcomeMessage, systemPrompt, primaryColor } = req.body;
-
-      // TODO: Aggiungere validazione dei dati in input con Joi o Zod
-
-      const chatbot = await chatbotService.createChatbot(accountId, {
+    // Salviamo nel database usando Prisma direttamente
+    const chatbot = await prisma.chatbot.create({
+      data: {
         name,
-        welcomeMessage,
-        systemPrompt,
-        primaryColor,
-      });
+        // Messaggi di default se l'utente non li fornisce
+        welcomeMessage: welcomeMessage || "Ciao! Sono il tuo assistente. Come posso aiutarti?",
+        systemPrompt: systemPrompt || "Sei un assistente utile e gentile.",
+        primaryColor: primaryColor || "#3b82f6",
+        accountId: parseInt(accountId as string, 10),
+      },
+    });
 
-      res.status(201).json({
-        success: true,
-        data: chatbot,
-      });
-    } catch (error) {
-      // TODO: Implementare logger strutturato
-      res.status(500).json({
-        success: false,
-        message: "Errore nella creazione del chatbot",
-        error: error instanceof Error ? error.message : "Unknown error",
-      });
-    }
-  }
-
-  /**
-   * GET /chatbots
-   * Recupera tutti i chatbot dell'utente
-   */
-  static async getUserChatbots(req: Request, res: Response): Promise<void> {
-    try {
-      const accountId = req.user?.id || req.query.accountId;
-
-      // TODO: Aggiungere paginazione
-      const chatbots = await chatbotService.getChatbotsByUserId(accountId);
-
-      res.status(200).json({
-        success: true,
-        data: chatbots,
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: "Errore nel recupero dei chatbot",
-        error: error instanceof Error ? error.message : "Unknown error",
-      });
-    }
-  }
-
-  /**
-   * GET /chatbots/:id
-   * Recupera un chatbot specifico
-   */
-  static async getChatbot(req: Request, res: Response): Promise<void> {
-    try {
-      const { id } = req.params;
-      const chatbotId = parseInt(id as string, 10);
-
-      const chatbot = await chatbotService.getChatbotById(chatbotId);
-
-      if (!chatbot) {
-        res.status(404).json({
-          success: false,
-          message: "Chatbot non trovato",
-        });
-        return;
-      }
-
-      // TODO: Verificare che l'utente sia il proprietario
-
-      res.status(200).json({
-        success: true,
-        data: chatbot,
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: "Errore nel recupero del chatbot",
-        error: error instanceof Error ? error.message : "Unknown error",
-      });
-    }
-  }
-
-  /**
-   * PUT /chatbots/:id
-   * Aggiorna un chatbot
-   */
-  static async updateChatbot(req: Request, res: Response): Promise<void> {
-    try {
-      const { id } = req.params;
-      const chatbotId = parseInt(id as string, 10);
-      const updateData = req.body;
-
-      // TODO: Verificare che l'utente sia il proprietario
-      // TODO: Aggiungere validazione dei dati
-
-      const chatbot = await chatbotService.updateChatbot(chatbotId, updateData);
-
-      if (!chatbot) {
-        res.status(404).json({
-          success: false,
-          message: "Chatbot non trovato",
-        });
-        return;
-      }
-
-      res.status(200).json({
-        success: true,
-        data: chatbot,
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: "Errore nell'aggiornamento del chatbot",
-        error: error instanceof Error ? error.message : "Unknown error",
-      });
-    }
-  }
-
-  /**
-   * DELETE /chatbots/:id
-   * Elimina un chatbot
-   */
-  static async deleteChatbot(req: Request, res: Response): Promise<void> {
-    try {
-      const { id } = req.params;
-      const chatbotId = parseInt(id as string, 10);
-
-      // TODO: Verificare che l'utente sia il proprietario
-
-      const success = await chatbotService.deleteChatbot(chatbotId);
-
-      if (!success) {
-        res.status(404).json({
-          success: false,
-          message: "Chatbot non trovato",
-        });
-        return;
-      }
-
-      res.status(200).json({
-        success: true,
-        message: "Chatbot eliminato con successo",
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: "Errore nell'eliminazione del chatbot",
-        error: error instanceof Error ? error.message : "Unknown error",
-      });
-    }
+    res.status(201).json({
+      success: true,
+      data: chatbot,
+    });
+  } catch (error) {
+    // TODO (Junior): Meglio usare un logger (tipo Winston) invece di console.log
+    res.status(500).json({
+      success: false,
+      message: "C'è stato un errore nel creare il chatbot. Riprova più tardi.",
+      error: error instanceof Error ? error.message : "Errore sconosciuto",
+    });
   }
 }
 
-export class ConversationController {
-  /**
-   * POST /chatbots/:chatbotId/conversations
-   * Crea una nuova conversazione
-   */
-  static async createConversation(req: Request, res: Response): Promise<void> {
-    try {
-      const { chatbotId } = req.params;
-      const chatbotIdNum = parseInt(chatbotId as string, 10);
-      const { visitorId } = req.body;
+/**
+ * Recupera tutti i chatbot che appartengono all'utente
+ * GET /chatbots
+ */
+export async function getUserChatbots(req: Request, res: Response): Promise<void> {
+  try {
+    const accountId = (req as any).user?.id || req.query.accountId;
 
-      // TODO: Generare visitorId automaticamente se non fornito
+    // TODO (Junior): Se l'utente ha 1000 chatbot, la pagina sarà lenta. 
+    // In futuro aggiungiamo la paginazione qui!
+    const chatbots = await prisma.chatbot.findMany({
+      where: { accountId: parseInt(accountId as string, 10) },
+      orderBy: { createdAt: "desc" }, // I più nuovi per primi
+    });
 
-      const conversation = await conversationService.createConversation(
-        chatbotIdNum,
+    res.status(200).json({
+      success: true,
+      data: chatbots,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Errore nel recupero dei tuoi chatbot.",
+      error: error instanceof Error ? error.message : "Errore sconosciuto",
+    });
+  }
+}
+
+/**
+ * Prende i dettagli di un singolo chatbot basandosi sull'ID
+ * GET /chatbots/:id
+ */
+export async function getChatbot(req: Request, res: Response): Promise<void> {
+  try {
+    const { id } = req.params;
+    const chatbotId = parseInt(id as string, 10);
+
+    const chatbot = await prisma.chatbot.findUnique({
+      where: { id: chatbotId },
+    });
+
+    // TODO (Junior): Aggiungi un controllo per vedere se il chatbot appartiene
+    // veramente all'utente che lo sta chiedendo (Security Check!).
+    if (!chatbot) {
+      res.status(404).json({
+        success: false,
+        message: "Chatbot non trovato. Controlla l'ID.",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      data: chatbot,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Non sono riuscito a trovare questo chatbot.",
+      error: error instanceof Error ? error.message : "Errore sconosciuto",
+    });
+  }
+}
+
+/**
+ * Permette di modificare i dati di un chatbot esistente
+ * PUT /chatbots/:id
+ */
+export async function updateChatbot(req: Request, res: Response): Promise<void> {
+  try {
+    const { id } = req.params;
+    const chatbotId = parseInt(id as string, 10);
+    const updateData = req.body;
+
+    // TODO (Junior): Ricordati di validare i dati nel body prima di aggiornare.
+    const chatbot = await prisma.chatbot.update({
+      where: { id: chatbotId },
+      data: updateData,
+    });
+
+    res.status(200).json({
+      success: true,
+      data: chatbot,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Errore durante l'aggiornamento del chatbot.",
+      error: error instanceof Error ? error.message : "Errore sconosciuto",
+    });
+  }
+}
+
+/**
+ * Elimina un chatbot dal sistema
+ * DELETE /chatbots/:id
+ */
+export async function deleteChatbot(req: Request, res: Response): Promise<void> {
+  try {
+    const { id } = req.params;
+    const chatbotId = parseInt(id as string, 10);
+
+    // TODO (Junior): Si potrebbe fare una 'soft delete' (nascondere il bot invece di cancellarlo).
+    await prisma.chatbot.delete({
+      where: { id: chatbotId },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Chatbot eliminato con successo!",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Impossibile eliminare il chatbot.",
+      error: error instanceof Error ? error.message : "Errore sconosciuto",
+    });
+  }
+}
+
+// =============================================================================
+// CONVERSATIONS - Gestione delle chat aperte dai visitatori
+// =============================================================================
+
+/**
+ * Crea una nuova sessione di chat (conversazione)
+ * POST /chatbots/:chatbotId/conversations
+ */
+export async function createConversation(req: Request, res: Response): Promise<void> {
+  try {
+    const { chatbotId } = req.params;
+    const chatbotIdNum = parseInt(chatbotId as string, 10);
+    const { visitorId } = req.body;
+
+    // TODO (Junior): Se visitorId non c'è, creane uno random per tracciare l'utente anonimo.
+    const conversation = await prisma.conversation.create({
+      data: {
+        chatbotId: chatbotIdNum,
         visitorId,
-      );
+      },
+    });
 
-      res.status(201).json({
-        success: true,
-        data: conversation,
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: "Errore nella creazione della conversazione",
-        error: error instanceof Error ? error.message : "Unknown error",
-      });
-    }
-  }
-
-  /**
-   * GET /chatbots/:chatbotId/conversations
-   * Recupera tutte le conversazioni di un chatbot
-   */
-  static async getConversations(req: Request, res: Response): Promise<void> {
-    try {
-      const { chatbotId } = req.params;
-      const chatbotIdNum = parseInt(chatbotId as string, 10);
-
-      // TODO: Aggiungere paginazione da query params
-      const conversations =
-        await conversationService.getConversationsByChatbotId(chatbotIdNum);
-
-      res.status(200).json({
-        success: true,
-        data: conversations,
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: "Errore nel recupero delle conversazioni",
-        error: error instanceof Error ? error.message : "Unknown error",
-      });
-    }
-  }
-
-  /**
-   * GET /conversations/:id
-   * Recupera una conversazione specifica
-   */
-  static async getConversation(req: Request, res: Response): Promise<void> {
-    try {
-      const { id } = req.params;
-      const conversationId = parseInt(id as string, 10);
-
-      const conversation =
-        await conversationService.getConversationById(conversationId);
-
-      if (!conversation) {
-        res.status(404).json({
-          success: false,
-          message: "Conversazione non trovata",
-        });
-        return;
-      }
-
-      res.status(200).json({
-        success: true,
-        data: conversation,
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: "Errore nel recupero della conversazione",
-        error: error instanceof Error ? error.message : "Unknown error",
-      });
-    }
-  }
-
-  /**
-   * DELETE /conversations/:id
-   * Elimina una conversazione
-   */
-  static async deleteConversation(req: Request, res: Response): Promise<void> {
-    try {
-      const { id } = req.params;
-      const conversationId = parseInt(id as string, 10);
-
-      const success =
-        await conversationService.deleteConversation(conversationId);
-
-      if (!success) {
-        res.status(404).json({
-          success: false,
-          message: "Conversazione non trovata",
-        });
-        return;
-      }
-
-      res.status(200).json({
-        success: true,
-        message: "Conversazione eliminata con successo",
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: "Errore nell'eliminazione della conversazione",
-        error: error instanceof Error ? error.message : "Unknown error",
-      });
-    }
+    res.status(201).json({
+      success: true,
+      data: conversation,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Errore nell'iniziare una nuova chat.",
+      error: error instanceof Error ? error.message : "Errore sconosciuto",
+    });
   }
 }
 
-export class MessageController {
-  /**
-   * POST /conversations/:conversationId/messages
-   * Aggiunge un messaggio a una conversazione
-   */
-  static async sendMessage(req: Request, res: Response): Promise<void> {
-    try {
-      const { conversationId } = req.params;
-      const conversationIdNum = parseInt(conversationId as string, 10);
-      const { role, content } = req.body;
+/**
+ * Prende la lista delle conversazioni per un bot specifico
+ * GET /chatbots/:chatbotId/conversations
+ */
+export async function getConversations(req: Request, res: Response): Promise<void> {
+  try {
+    const { chatbotId } = req.params;
+    const chatbotIdNum = parseInt(chatbotId as string, 10);
 
-      // TODO: Validare che role sia 'user' o 'assistant'
-      // TODO: Implementare integrazione con AI API per generare risposta
+    const conversations = await prisma.conversation.findMany({
+      where: { chatbotId: chatbotIdNum },
+      orderBy: { createdAt: "desc" },
+    });
 
-      const message = await messageService.createMessage(
-        conversationIdNum,
-        role,
+    res.status(200).json({
+      success: true,
+      data: conversations,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Errore nel caricamento delle conversazioni.",
+      error: error instanceof Error ? error.message : "Errore sconosciuto",
+    });
+  }
+}
+
+/**
+ * Elimina una conversazione (e i suoi messaggi se impostato il Cascade)
+ * DELETE /conversations/:id
+ */
+export async function deleteConversation(req: Request, res: Response): Promise<void> {
+  try {
+    const { id } = req.params;
+    const conversationId = parseInt(id as string, 10);
+
+    await prisma.conversation.delete({
+      where: { id: conversationId },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Chat eliminata definitivamente.",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Non sono riuscito a eliminare la conversazione.",
+      error: error instanceof Error ? error.message : "Errore sconosciuto",
+    });
+  }
+}
+
+// =============================================================================
+// MESSAGES - Gestione dei singoli messaggi inviati
+// =============================================================================
+
+/**
+ * Invia un messaggio e (in futuro) ottieni risposta dall'AI
+ * POST /conversations/:conversationId/messages
+ */
+export async function sendMessage(req: Request, res: Response): Promise<void> {
+  try {
+    const { conversationId } = req.params;
+    const conversationIdNum = parseInt(conversationId as string, 10);
+    const { role, content } = req.body;
+
+    // TODO (Junior): Qui dovrai integrare l'AI (OpenAI, Gemini, etc.)!
+    // 1. Salva il messaggio dell'utente.
+    // 2. Invia la storia della chat all'AI.
+    // 3. Salva la risposta dell'AI e mandala indietro.
+
+    const message = await prisma.message.create({
+      data: {
+        conversationId: conversationIdNum,
+        role, // Può essere 'user' o 'assistant'
         content,
-      );
+      },
+    });
 
-      res.status(201).json({
-        success: true,
-        data: message,
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: "Errore nell'invio del messaggio",
-        error: error instanceof Error ? error.message : "Unknown error",
-      });
-    }
-  }
-
-  /**
-   * GET /conversations/:conversationId/messages
-   * Recupera tutti i messaggi di una conversazione
-   */
-  static async getMessages(req: Request, res: Response): Promise<void> {
-    try {
-      const { conversationId } = req.params;
-      const conversationIdNum = parseInt(conversationId as string, 10);
-
-      // TODO: Aggiungere paginazione
-      const messages =
-        await messageService.getMessagesByConversationId(conversationIdNum);
-
-      res.status(200).json({
-        success: true,
-        data: messages,
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: "Errore nel recupero dei messaggi",
-        error: error instanceof Error ? error.message : "Unknown error",
-      });
-    }
-  }
-
-  /**
-   * DELETE /messages/:id
-   * Elimina un messaggio
-   */
-  static async deleteMessage(req: Request, res: Response): Promise<void> {
-    try {
-      const { id } = req.params;
-      const messageId = parseInt(id as string, 10);
-
-      const success = await messageService.deleteMessage(messageId);
-
-      if (!success) {
-        res.status(404).json({
-          success: false,
-          message: "Messaggio non trovato",
-        });
-        return;
-      }
-
-      res.status(200).json({
-        success: true,
-        message: "Messaggio eliminato con successo",
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: "Errore nell'eliminazione del messaggio",
-        error: error instanceof Error ? error.message : "Unknown error",
-      });
-    }
+    res.status(201).json({
+      success: true,
+      data: message,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Errore nell'invio del messaggio.",
+      error: error instanceof Error ? error.message : "Errore sconosciuto",
+    });
   }
 }
+
+/**
+ * Recupera tutti i messaggi di una specifica conversazione
+ * GET /conversations/:conversationId/messages
+ */
+export async function getMessages(req: Request, res: Response): Promise<void> {
+  try {
+    const { conversationId } = req.params;
+    const conversationIdNum = parseInt(conversationId as string, 10);
+
+    const messages = await prisma.message.findMany({
+      where: { conversationId: conversationIdNum },
+      orderBy: { createdAt: "asc" }, // Ordine cronologico per leggere la chat bene
+    });
+
+    res.status(200).json({
+      success: true,
+      data: messages,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Errore nel recupero della cronologia messaggi.",
+      error: error instanceof Error ? error.message : "Errore sconosciuto",
+    });
+  }
+}
+
+/**
+ * Elimina un singolo messaggio
+ * DELETE /messages/:id
+ */
+export async function deleteMessage(req: Request, res: Response): Promise<void> {
+  try {
+    const { id } = req.params;
+    const messageId = parseInt(id as string, 10);
+
+    await prisma.message.delete({
+      where: { id: messageId },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Messaggio rimosso.",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Non ho potuto cancellare il messaggio.",
+      error: error instanceof Error ? error.message : "Errore sconosciuto",
+    });
+  }
+}
+

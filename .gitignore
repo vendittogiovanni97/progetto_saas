@@ -26,3 +26,5 @@ stitch_home_screen_strict_industrial/
 
 # test
 coverage/
+
+.next/
