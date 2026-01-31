@@ -1,0 +1,8 @@
+DATABASE_URL="mysql://root:root123@localhost:3306/koda_core_dev"
+NODE_ENV="development"
+PORT=5001
+CORS_ORIGIN_ALLOWED="http://localhost:3000"
+
+# Ollama Configuration
+OLLAMA_URL="http://localhost:11434"
+OLLAMA_MODEL="phi3"

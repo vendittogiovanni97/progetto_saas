@@ -1,9 +1,5 @@
 import { Router } from 'express';
-import {
-  ChatbotController,
-  ConversationController,
-  MessageController,
-} from '../controllers/chatbot.controllers';
+import { createChatbot, createConversation, deleteChatbot, deleteConversation, deleteMessage, getChatbot, getConversations, getMessages, getUserChatbots, sendMessage, updateChatbot, handleChat, getAvailableChatbotTypes } from '../controllers/chatbot.controller';
 
 const router = Router();
 
@@ -15,38 +11,31 @@ const router = Router();
  */
 
 // POST /chatbots - Crea un nuovo chatbot
-router.post('/chatbots', ChatbotController.createChatbot);
+router.post('/chatbots', createChatbot);
 
 // GET /chatbots - Recupera tutti i chatbot dell'utente
-router.get('/chatbots', ChatbotController.getUserChatbots);
+router.get('/chatbots', getUserChatbots);
 
 // GET /chatbots/:id - Recupera un chatbot specifico
-router.get('/chatbots/:id', ChatbotController.getChatbot);
+router.get('/chatbots/:id', getChatbot);
 
 // PUT /chatbots/:id - Aggiorna un chatbot
-router.put('/chatbots/:id', ChatbotController.updateChatbot);
+router.put('/chatbots/:id', updateChatbot);
 
 // DELETE /chatbots/:id - Elimina un chatbot
-router.delete('/chatbots/:id', ChatbotController.deleteChatbot);
+router.delete('/chatbots/:id', deleteChatbot);
 
 /**
  * CONVERSATION ROUTES
  */
 
 // POST /chatbots/:chatbotId/conversations - Crea una nuova conversazione
-router.post('/chatbots/:chatbotId/conversations', ConversationController.createConversation);
-
-// GET /chatbots/:chatbotId/conversations - Recupera conversazioni di un chatbot
-router.get(
-  '/chatbots/:chatbotId/conversations',
-  ConversationController.getConversations
-);
+router.post('/chatbots/:chatbotId/conversations', createConversation);
 
 // GET /conversations/:id - Recupera una conversazione specifica
-router.get('/conversations/:id', ConversationController.getConversation);
-
+router.get('/conversations/:id', getConversations);
 // DELETE /conversations/:id - Elimina una conversazione
-router.delete('/conversations/:id', ConversationController.deleteConversation);
+router.delete('/conversations/:id', deleteConversation);
 
 /**
  * MESSAGE ROUTES
@@ -55,16 +44,26 @@ router.delete('/conversations/:id', ConversationController.deleteConversation);
 // POST /conversations/:conversationId/messages - Invia un messaggio
 router.post(
   '/conversations/:conversationId/messages',
-  MessageController.sendMessage
+  sendMessage
 );
 
 // GET /conversations/:conversationId/messages - Recupera messaggi di una conversazione
 router.get(
   '/conversations/:conversationId/messages',
-  MessageController.getMessages
+  getMessages
 );
 
 // DELETE /messages/:id - Elimina un messaggio
-router.delete('/messages/:id', MessageController.deleteMessage);
+router.delete('/messages/:id', deleteMessage);
+
+/**
+ * OLLAMA INTEGRATION ROUTES
+ */
+
+// POST /api/chat - Endpoint principale per la chat con Ollama
+router.post('/api/chat', handleChat);
+
+// GET /api/chat/types - Endpoint per ottenere i tipi di chatbot disponibili
+router.get('/api/chat/types', getAvailableChatbotTypes);
 
 export default router;

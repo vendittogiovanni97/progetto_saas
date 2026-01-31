@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 /// Lista cors consentiti ///
-const allowedOriginCors = process.env.CORS_ORIGIN_ALL?.split(',')
+const allowedOriginCors = process.env.CORS_ORIGIN_ALLOWED
 
 // ===== CORS CONFIGURAZIONE BASE =====
 export const corsOptions: cors.CorsOptions = {

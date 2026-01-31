@@ -112,6 +112,7 @@ class ApiClient {
       try {
         await authManager.refreshAccessToken();
       } catch (error) {
+        void error;
         // Se il refresh fallisce, continua comunque con il token esistente
       }
     }
@@ -247,3 +248,102 @@ class ApiClient {
 
 export const apiClient = new ApiClient();
 
+/**
+ * API Client semplice per chiamare Ollama
+ */
+
+// class ApiClient {
+//   constructor(baseURL = 'http://localhost:11434') {
+//     this.baseURL = baseURL;
+//     this.timeout = 30000; // 30 secondi
+//   }
+
+//   /**
+//    * Metodo principale per fare richieste HTTP
+//    */
+//   async request(method, endpoint, data = null, options = {}) {
+//     const url = `${this.baseURL}${endpoint}`;
+    
+//     // Timeout controller
+//     const controller = new AbortController();
+//     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+
+//     try {
+//       // Configurazione della richiesta
+//       const config = {
+//         method: method,
+//         headers: {
+//           'Content-Type': 'application/json',
+//           ...options.headers // Headers aggiuntivi se passati
+//         },
+//         signal: controller.signal
+//       };
+
+//       // Aggiungi body solo se c'è data (GET non ha body)
+//       if (data) {
+//         config.body = JSON.stringify(data);
+//       }
+
+//       // Fai la richiesta
+//       const response = await fetch(url, config);
+
+//       // Pulisci il timeout
+//       clearTimeout(timeoutId);
+
+//       // Leggi la risposta
+//       const responseData = await response.json();
+
+//       // Controlla se è andato tutto bene
+//       if (!response.ok) {
+//         throw new Error(responseData.error || `Errore HTTP: ${response.status}`);
+//       }
+
+//       return responseData;
+
+//     } catch (error) {
+//       clearTimeout(timeoutId);
+
+//       // Gestione timeout
+//       if (error.name === 'AbortError') {
+//         throw new Error('Richiesta timeout dopo 30 secondi');
+//       }
+
+//       // Altri errori
+//       throw error;
+//     }
+//   }
+
+//   /**
+//    * GET - Richiesta senza body
+//    */
+//   async get(endpoint, options = {}) {
+//     return this.request('GET', endpoint, null, options);
+//   }
+
+//   /**
+//    * POST - Richiesta con body
+//    */
+//   async post(endpoint, data, options = {}) {
+//     return this.request('POST', endpoint, data, options);
+//   }
+
+//   /**
+//    * PUT - Richiesta con body per aggiornamento
+//    */
+//   async put(endpoint, data, options = {}) {
+//     return this.request('PUT', endpoint, data, options);
+//   }
+
+//   /**
+//    * DELETE - Richiesta per eliminare
+//    */
+//   async delete(endpoint, options = {}) {
+//     return this.request('DELETE', endpoint, null, options);
+//   }
+// }
+
+// // Esporta un'istanza già pronta
+// export const ollamaClient = new ApiClient('http://localhost:11434');
+
+// // Esporta anche la classe se serve crearne altre
+// export default ApiClient;

@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../../../config/prisma";
+import { getAvailableTypes, getTemplate } from "./chatbot.templates";
 
 // =============================================================================
 // CHATBOTS - Qui gestiamo la creazione e modifica dei Bot
@@ -14,6 +15,10 @@ export async function createChatbot(req: Request, res: Response): Promise<void> 
     // TODO (Junior): Qui dovremmo assicurarci che l'utente sia loggato (middleware).
     // Per ora prendiamo l'ID dall'utente (se c'è il token) o dal body.
     const accountId = (req as any).user?.id || req.body.accountId;
+
+    if (!accountId || Number.isNaN(accountId)) {
+      throw new Error("accountId non valido");
+    }
 
     // TODO (Junior): Sarebbe utile controllare se il nome è vuoto prima di salvare.
     const { name, welcomeMessage, systemPrompt, primaryColor } = req.body;
@@ -51,6 +56,10 @@ export async function createChatbot(req: Request, res: Response): Promise<void> 
 export async function getUserChatbots(req: Request, res: Response): Promise<void> {
   try {
     const accountId = (req as any).user?.id || req.query.accountId;
+
+    if (!accountId || Number.isNaN(accountId)) {
+      throw new Error("accountId non valido");
+    }
 
     // TODO (Junior): Se l'utente ha 1000 chatbot, la pagina sarà lenta. 
     // In futuro aggiungiamo la paginazione qui!
@@ -341,6 +350,146 @@ export async function deleteMessage(req: Request, res: Response): Promise<void> 
       success: false,
       message: "Non ho potuto cancellare il messaggio.",
       error: error instanceof Error ? error.message : "Errore sconosciuto",
+    });
+  }
+}
+
+/**
+ * Chatbot Controller
+ * 
+ * Questo controller gestisce le chiamate all'API di Ollama.
+ * Per un junior developer: questo è il "cervello" che parla con l'AI.
+ * 
+ * Funzionalità principali:
+ * - Validazione dell'input
+ * - Chiamata a Ollama
+ * - Gestione degli errori
+ * - Supporto ai template per diversi tipi di chatbot
+ */
+
+// Interfaccia per la richiesta al nostro endpoint
+interface ChatRequest {
+  message: string;
+  type?: string; // Tipo di chatbot (support, ecommerce, pharmacy, ecc.)
+}
+
+// Interfaccia per la risposta di Ollama
+interface OllamaResponse {
+  message: {
+    content: string;
+  };
+}
+
+// Funzione principale che gestisce la chat
+export async function handleChat(req: Request, res: Response): Promise<void> {
+  try {
+    // 1. Validazione dell'input
+    const { message, type }: ChatRequest = req.body;
+
+    // Controlliamo che il messaggio non sia vuoto
+    if (!message || typeof message !== 'string' || message.trim().length === 0) {
+      res.status(400).json({
+        success: false,
+        error: 'Il messaggio è obbligatorio e deve essere una stringa non vuota.'
+      });
+      return;
+    }
+
+    // 2. Prepariamo il prompt di sistema basato sul tipo di chatbot
+    const template = getTemplate(type || 'generic');
+    const systemPrompt = template.systemPrompt;
+
+    // 3. Chiamiamo Ollama
+    const response = await callOllama(message, systemPrompt);
+
+    // 4. Restituiamo la risposta
+    res.status(200).json({
+      success: true,
+      reply: response.message.content
+    });
+
+  } catch (error) {
+    // 5. Gestione degli errori
+    console.error('Errore nella gestione della chat:', error);
+    
+    res.status(500).json({
+      success: false,
+      error: 'Si è verificato un errore durante l\'elaborazione della richiesta.'
+    });
+  }
+}
+
+// Funzione che effettua la chiamata HTTP a Ollama
+async function callOllama(userMessage: string, systemPrompt: string): Promise<OllamaResponse> {
+  // Leggiamo le variabili d'ambiente
+  const ollamaUrl = process.env.OLLAMA_URL || 'http://localhost:11434';
+  const ollamaModel = process.env.OLLAMA_MODEL || 'phi3';
+
+  // Costruiamo l'URL completo per l'API di Ollama
+  const apiUrl = `${ollamaUrl}/v1/chat/completions`;
+
+  // Prepariamo il corpo della richiesta
+  const requestBody = {
+    model: ollamaModel,
+    messages: [
+      {
+        role: 'system',
+        content: systemPrompt
+      },
+      {
+        role: 'user',
+        content: userMessage
+      }
+    ],
+    temperature: 0.7,
+    max_tokens: 500
+  };
+
+  // Effettuiamo la chiamata HTTP usando fetch (nativo in Node.js)
+  const response = await fetch(apiUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(requestBody)
+  });
+
+  // Controlliamo se la risposta è ok
+  if (!response.ok) {
+    throw new Error(`Errore Ollama: ${response.status} - ${response.statusText}`);
+  }
+
+  // Parsiamo la risposta JSON
+  const data = await response.json();
+
+  // Controlliamo che la risposta abbia il formato atteso
+  if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+    throw new Error('Risposta Ollama non valida');
+  }
+
+  // Restituiamo l'oggetto nel formato che ci aspettiamo
+  return {
+    message: {
+      content: data.choices[0].message.content
+    }
+  };
+}
+
+// Funzione per ottenere i tipi di chatbot disponibili (opzionale, per debug)
+export function getAvailableChatbotTypes(req: Request, res: Response): void {
+  try {
+    const types = getAvailableTypes();
+    
+    res.status(200).json({
+      success: true,
+      types: types
+    });
+  } catch (error) {
+    console.error('Errore nel recupero dei tipi di chatbot:', error);
+    
+    res.status(500).json({
+      success: false,
+      error: 'Si è verificato un errore durante il recupero dei tipi di chatbot.'
     });
   }
 }

@@ -1,13 +1,16 @@
 "use client";
 
-import { Box, Typography, alpha, useTheme, Avatar, Paper, InputBase, IconButton, List, ListItem, ListItemText, Divider } from "@mui/material";
+import { Box, Typography, alpha, useTheme, Avatar, Paper, InputBase, IconButton } from "@mui/material";
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import { chatbotService, ChatbotConfig, ChatMessage } from "@/services/api/chatbot";
+import { useAuth } from "@/providers/AuthProvider";
+
 
 export function ChatbotViewPage() {
   const theme = useTheme();
   const { id } = useParams();
+  const { user } = useAuth();
   const [chatbot, setChatbot] = useState<ChatbotConfig | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -15,21 +18,34 @@ export function ChatbotViewPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Carica dati chatbot (mock per ora se non abbiamo lista filtrata)
+    // Carica dati chatbot usando l'accountId dell'utente autenticato
     const loadChatbot = async () => {
+      if (!user?.accountId) {
+        console.error("User not authenticated or accountId missing");
+        return;
+      }
       try {
-        const response = await chatbotService.getChatbots();
-        const found = response.data?.find(c => c.id === id);
-        if (found) {
-          setChatbot(found);
-          setMessages([{ role: "assistant", content: found.welcomeMessage }]);
+        console.log("Chiamata API con accountId:", user.accountId);
+        const response = await chatbotService.getChatbots(user.accountId);
+        console.log("Risposta API:", response);
+        if (response.data) {
+          console.log("Chatbots disponibili:", response.data);
+          const found = response.data.find(c => c.id === id || c.id === String(id) || String(c.id) === id);
+          if (found) {
+            setChatbot(found);
+            setMessages([{ role: "assistant", content: found.welcomeMessage }]);
+          } else {
+            console.error("Chatbot non trovato con ID:", id);
+          }
+        } else {
+          console.error("Nessun chatbot restituito dall'API");
         }
       } catch (error) {
         console.error("Error loading chatbot:", error);
       }
     };
     if (id) loadChatbot();
-  }, [id]);
+  }, [id, user?.accountId]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -45,18 +61,53 @@ export function ChatbotViewPage() {
     setLoading(true);
 
     try {
-      const response = await chatbotService.sendMessage(chatbot.id, userMsg, "visitor-123");
-      if (response.data) {
-        setMessages(prev => [...prev, response.data!]);
+      // Usa l'API di Ollama invece di sendMessage
+      const response = await chatbotService.chatWithOllama({
+        chatbotId: chatbot.id,
+        message: userMsg,
+        conversationHistory: messages.map(m => ({
+          role: m.role,
+          content: m.content
+        }))
+      });
+      
+      if (response.response) {
+        setMessages(prev => [...prev, { 
+          role: "assistant", 
+          content: response.response 
+        }]);
       }
     } catch (error) {
       console.error("Error sending message:", error);
+      // Messaggio di errore per l'utente
+      setMessages(prev => [...prev, { 
+        role: "assistant", 
+        content: "Mi dispiace, si è verificato un errore. Riprova." 
+      }]);
     } finally {
       setLoading(false);
     }
   };
 
-  if (!chatbot) return <Typography sx={{ p: 4 }}>Caricamento chatbot...</Typography>;
+  if (!chatbot) {
+    return (
+      <Box sx={{ p: 4, display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center' }}>
+        <Typography>Caricamento chatbot...</Typography>
+        <Typography variant="caption" color="text.secondary">
+          Verifica di essere autenticato e che il chatbot esista
+        </Typography>
+        {user ? (
+          <Typography variant="caption" color="text.secondary">
+            Account ID: {user.accountId}
+          </Typography>
+        ) : (
+          <Typography variant="caption" color="error">
+            Utente non autenticato
+          </Typography>
+        )}
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ maxWidth: 800, mx: "auto", height: "calc(100vh - 160px)", display: "flex", flexDirection: "column", gap: 3 }}>

@@ -28,35 +28,42 @@ export const API_ENDPOINTS = {
     BY_ID_ACCESS: (id: string) => `/projects/${id}/access`,
   },
   // Analytics
-  ANALYTICS: {
-    BASE: "/analytics",
-    DASHBOARD: "/analytics/dashboard",
-    METRICS: "/analytics/metrics",
-    EXPORT: "/analytics/export",
-  },
+  // ANALYTICS: {
+  //   BASE: "/analytics",
+  //   DASHBOARD: "/analytics/dashboard",
+  //   METRICS: "/analytics/metrics",
+  //   EXPORT: "/analytics/export",
+  // },
   // Clients
   CLIENTS: {
     BASE: "/clients",
     BY_ID: (id: string) => `/clients/${id}`,
   },
   // Deployments
-  DEPLOYMENTS: {
-    BASE: "/deployments",
-    BY_ID: (id: string) => `/deployments/${id}`,
-    BY_ID_LOGS: (id: string) => `/deployments/${id}/logs`,
-    BY_ID_ROLLBACK: (id: string) => `/deployments/${id}/rollback`,
-  },
+  // DEPLOYMENTS: {
+  //   BASE: "/deployments",
+  //   BY_ID: (id: string) => `/deployments/${id}`,
+  //   BY_ID_LOGS: (id: string) => `/deployments/${id}/logs`,
+  //   BY_ID_ROLLBACK: (id: string) => `/deployments/${id}/rollback`,
+  // },
   // Services
-  SERVICES: {
-    BASE: "/services",
-    HEALTH: "/services/health",
-    BY_ID: (id: string) => `/services/${id}`,
-  },
+  // SERVICES: {
+  //   BASE: "/services",
+  //   HEALTH: "/services/health",
+  //   BY_ID: (id: string) => `/services/${id}`,
+  // },
   // Users
   USERS: {
     BASE: "/users",
     BY_ID: (id: string) => `/users/${id}`,
     ROLES: "/users/roles",
+  },
+  // Chatbot
+  CHATBOT: {
+    BASE: "/chatbots",
+    BY_ID: (id: string) => `/chatbots/${id}`,
+    CHAT: "/api/chat",
+    TYPES: "/api/chat/types",
   },
 } as const;
 

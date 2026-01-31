@@ -33,7 +33,7 @@ export function ChatbotWizard({ open, onClose, onSave }: ChatbotWizardProps) {
     try {
       const response = await chatbotService.createChatbot({
         ...config,
-        userId: "1",
+        accountId: 1,
       });
       if (response.data) {
         onSave(response.data);

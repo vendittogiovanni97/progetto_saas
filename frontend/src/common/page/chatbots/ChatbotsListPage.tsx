@@ -3,8 +3,8 @@
 import { Box, Typography, Grid, Card, CardContent, Button, alpha, useTheme, Avatar, Paper } from "@mui/material";
 import { useState, useEffect } from "react";
 import { chatbotService, ChatbotConfig } from "@/services/api/chatbot";
-import { useAuth } from "@/providers/AuthProvider";
 import Link from "next/link";
+import { useAuth } from "@/providers/AuthProvider";
 
 export function ChatbotsListPage() {
   const theme = useTheme();
@@ -73,7 +73,8 @@ export function ChatbotsListPage() {
                     </Avatar>
                     <Box>
                       <Typography variant="h6" sx={{ fontWeight: 700 }}>{bot.name}</Typography>
-                      <Typography variant="caption" color="text.secondary">Creato il: {new Date().toLocaleDateString()}</Typography>
+                      <Typography variant="caption" color="text.secondary">ID: {bot.id}</Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>Creato il: {new Date().toLocaleDateString()}</Typography>
                     </Box>
                   </Box>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 3, minHeight: 40 }}>
