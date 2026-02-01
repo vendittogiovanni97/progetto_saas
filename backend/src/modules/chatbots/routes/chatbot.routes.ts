@@ -1,69 +1,41 @@
 import { Router } from 'express';
-import { createChatbot, createConversation, deleteChatbot, deleteConversation, deleteMessage, getChatbot, getConversations, getMessages, getUserChatbots, sendMessage, updateChatbot, handleChat, getAvailableChatbotTypes } from '../controllers/chatbot.controller';
+import { 
+  createChatbot, 
+  getUserChatbots, 
+  getChatbot, 
+  updateChatbot, 
+  deleteChatbot,
+  createConversation, 
+  getConversations, 
+  deleteConversation,
+  sendMessage, 
+  getMessages, 
+  deleteMessage 
+} from '../controllers/chatbot.controller';
 
 const router = Router();
 
-/**
- * CHATBOT ROUTES
+/* CHATBOT ROUTES
  * TODO: Aggiungere middleware di autenticazione a tutte le rotte
  * TODO: Aggiungere middleware di validazione dei dati
  * TODO: Aggiungere middleware di autorizzazione (user ownership check)
  */
 
-// POST /chatbots - Crea un nuovo chatbot
-router.post('/chatbots', createChatbot);
+// CHATBOT ROUTES - Gestione dei chatbot
+router.post('/', createChatbot); // POST /chatbots - Crea un nuovo chatbot
+router.get('/', getUserChatbots); // GET /chatbots - Prendi tutti i chatbot di un utente (usa ?accountId=123)
+router.get('/:id', getChatbot); // GET /chatbots/:id - Prendi un chatbot specifico
+router.put('/:id', updateChatbot); // PUT /chatbots/:id - Aggiorna un chatbot
+router.delete('/:id', deleteChatbot); // DELETE /chatbots/:id - Elimina un chatbot
 
-// GET /chatbots - Recupera tutti i chatbot dell'utente
-router.get('/chatbots', getUserChatbots);
+// CONVERSATION ROUTES - Gestione delle conversazioni
+router.post('/conversations', createConversation); // POST /conversations - Crea una nuova conversazione
+router.get('/conversations', getConversations); // GET /conversations - Prendi conversazioni di un chatbot (usa ?chatbotId=123)
+router.delete('/conversations/:id', deleteConversation); // DELETE /conversations/:id - Elimina una conversazione
 
-// GET /chatbots/:id - Recupera un chatbot specifico
-router.get('/chatbots/:id', getChatbot);
-
-// PUT /chatbots/:id - Aggiorna un chatbot
-router.put('/chatbots/:id', updateChatbot);
-
-// DELETE /chatbots/:id - Elimina un chatbot
-router.delete('/chatbots/:id', deleteChatbot);
-
-/**
- * CONVERSATION ROUTES
- */
-
-// POST /chatbots/:chatbotId/conversations - Crea una nuova conversazione
-router.post('/chatbots/:chatbotId/conversations', createConversation);
-
-// GET /conversations/:id - Recupera una conversazione specifica
-router.get('/conversations/:id', getConversations);
-// DELETE /conversations/:id - Elimina una conversazione
-router.delete('/conversations/:id', deleteConversation);
-
-/**
- * MESSAGE ROUTES
- */
-
-// POST /conversations/:conversationId/messages - Invia un messaggio
-router.post(
-  '/conversations/:conversationId/messages',
-  sendMessage
-);
-
-// GET /conversations/:conversationId/messages - Recupera messaggi di una conversazione
-router.get(
-  '/conversations/:conversationId/messages',
-  getMessages
-);
-
-// DELETE /messages/:id - Elimina un messaggio
-router.delete('/messages/:id', deleteMessage);
-
-/**
- * OLLAMA INTEGRATION ROUTES
- */
-
-// POST /api/chat - Endpoint principale per la chat con Ollama
-router.post('/api/chat', handleChat);
-
-// GET /api/chat/types - Endpoint per ottenere i tipi di chatbot disponibili
-router.get('/api/chat/types', getAvailableChatbotTypes);
+// MESSAGE ROUTES - Invio e gestione messaggi
+router.post('/messages', sendMessage); // POST /messages - Invia un messaggio e ricevi risposta
+router.get('/messages', getMessages); // GET /messages - Prendi messaggi di una conversazione (usa ?conversationId=123)
+router.delete('/messages/:id', deleteMessage); // DELETE /messages/:id - Elimina un messaggio
 
 export default router;

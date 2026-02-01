@@ -1,9 +1,5 @@
-/**
- * Hook per gestire i navigation links con filtri per ruoli
- */
-
 import { useMemo } from "react";
-import { getNavLinksByRole, getActiveNavLinks, type NavLink, type UserRole } from "../navigazioneSidebar";
+import { getNavLinksByRole, getActiveNavLinks, type UserRole } from "../common/config/navigazioneSidebar";
 
 interface UseNavLinksOptions {
   userRole?: UserRole;

@@ -3,8 +3,6 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 dotenv.config();
-
-/// Lista cors consentiti ///
 const allowedOriginCors = process.env.CORS_ORIGIN_ALLOWED
 
 // ===== CORS CONFIGURAZIONE BASE =====
@@ -25,8 +23,8 @@ export const corsOptions: cors.CorsOptions = {
       callback(new Error('Non esiste permesso di accesso da questo dominio'));
     }
   },
-  credentials: false, // Permette cookies per il momento false da gestire dopo con nicola!!!
+  credentials: false,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  maxAge: 86400, // Cache preflight per 24h
+  maxAge: 86400,
 };
