@@ -3,10 +3,10 @@
  */
 
 import { useState } from "react";
-import { UseProjectPageReturn, ProjectCard, TabValue } from "../types";
+import { TabValue } from "../types/types";
 import { projectCards } from "../services/mockData";
 
-export function useProjectPage(): UseProjectPageReturn {
+export function useProjectPage() {
   const [activeTab, setActiveTab] = useState<TabValue>(0);
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Project } from "../types";
+import { Project } from "../types/types";
 
 export function useProjectsPage() {
   const [search, setSearch] = useState("");

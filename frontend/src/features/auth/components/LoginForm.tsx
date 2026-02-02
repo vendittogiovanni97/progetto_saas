@@ -13,14 +13,11 @@ import {
 } from "@mui/material";
 import { InputGeneric } from "@/components/ui/input";
 import { ButtonGeneric } from "@/components/ui/button";
-import { 
-  Person as PersonIcon, 
-  Lock as LockIcon, 
-  Visibility as VisibilityIcon, 
-  VisibilityOff as VisibilityOffIcon 
-} from "@mui/icons-material";
 import { useTheme, alpha } from "@mui/material/styles";
 import { useLogin } from "../hooks/useLogin";
+import { VisibilityOff } from "@mui/icons-material";
+import { Visibility } from "@mui/icons-material";
+
 
 export function LoginForm() {
   const theme = useTheme();
@@ -89,9 +86,9 @@ export function LoginForm() {
             size="small"
           >
             {showPassword ? (
-              <VisibilityOffIcon sx={{ fontSize: 20 }} />
+              <VisibilityOff sx={{ fontSize: 20 }} />
             ) : (
-              <VisibilityIcon sx={{ fontSize: 20 }} />
+              <Visibility sx={{ fontSize: 20 }} />
             )}
           </IconButton>
         }

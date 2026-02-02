@@ -4,7 +4,7 @@
 
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { LoginFormData, LoginFormErrors } from "../types";
+import { LoginFormErrors, LoginFormData } from "../types/types";
 
 export function useLogin() {
   const router = useRouter();
@@ -14,10 +14,8 @@ export function useLogin() {
   const validateForm = (data: LoginFormData): boolean => {
     const newErrors: LoginFormErrors = {};
 
-    if (!data.email) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(data.email)) {
-      newErrors.email = "Email is invalid";
+    if (!data.username) {
+      newErrors.username = "Username is required";
     }
 
     if (!data.password) {

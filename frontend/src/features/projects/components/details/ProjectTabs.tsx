@@ -4,7 +4,7 @@
 
 import { Box, Tabs, Tab } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { TabValue } from "../types";
+import { TabValue } from "../../types/types";
 
 interface ProjectTabsProps {
   activeTab: TabValue;

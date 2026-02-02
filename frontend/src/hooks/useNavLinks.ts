@@ -1,5 +1,5 @@
+import { UserRole, getNavLinksByRole, getActiveNavLinks } from "@/lib/constants/navigation";
 import { useMemo } from "react";
-import { getNavLinksByRole, getActiveNavLinks, type UserRole } from "../common/config/navigazioneSidebar";
 
 interface UseNavLinksOptions {
   userRole?: UserRole;
