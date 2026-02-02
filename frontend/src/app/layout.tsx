@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Noto_Sans } from "next/font/google";
 import { AuthProvider } from "@/providers/AuthProvider";
-import MuiThemeProvider from "@/providers/MuiThemeProvider";
+import { ThemeContextProvider } from "@/providers/ThemeContext";
 import "./globals.css";
 
 
@@ -33,9 +33,9 @@ export default function RootLayout({
       </head>
       <body className={`${spaceGrotesk.variable} ${notoSans.variable}`} suppressHydrationWarning>
         <AuthProvider>
-          <MuiThemeProvider>
+          <ThemeContextProvider>
             {children}
-          </MuiThemeProvider>
+          </ThemeContextProvider>
         </AuthProvider>
       </body>
     </html>

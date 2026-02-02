@@ -1,6 +1,7 @@
 "use client";
 
-import { ChatbotsListPage } from "@/common/page/chatbots/ChatbotsListPage";
+import { ChatbotsListPage } from "@/features/chatbots/ChatbotsListPage";
+
 
 export default function ChatbotsListPageRoute() {
   return <ChatbotsListPage />;

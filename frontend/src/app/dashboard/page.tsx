@@ -1,6 +1,7 @@
 "use client";
 
-import { DashboardPage } from "@/common/page/dashboard/page";
+import { DashboardPage } from "@/features/dashboard/page";
+
 
 
 export default function DashboardPageRoute() {

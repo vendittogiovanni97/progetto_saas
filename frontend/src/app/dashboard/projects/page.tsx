@@ -1,6 +1,7 @@
 "use client";
 
-import { ProjectsPage } from "@/common/page/projects/ProjectsListPage";
+import { ProjectsPage } from "@/features/projects/ProjectsListPage";
+
 
 export default function ProjectsPageRoute() {
   return <ProjectsPage />;

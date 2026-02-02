@@ -1,5 +1,5 @@
-import IndustrialSidebar from "@/common/components/layout/IndustrialSidebar";
-import IndustrialHeader from "@/common/components/layout/IndustrialHeader";
+import IndustrialSidebar from "@/components/layout/sidebar";
+import IndustrialHeader from "@/components/layout/header";
 import { Box } from "@mui/material";
 import { ReactNode } from "react";
 import { SidebarProvider } from "@/providers/SidebarProvider";

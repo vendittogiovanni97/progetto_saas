@@ -1,6 +1,6 @@
 "use client";
 
-import { ProjectPage } from "@/common/page/projects/ProjectDetailPage";
+import { ProjectPage } from "@/features/projects/ProjectDetailPage";
 import { useParams } from "next/navigation";
 
 export default function ProjectPageRoute() {
