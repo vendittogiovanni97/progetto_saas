@@ -1,6 +1,11 @@
 "use client";
 
 import { Box, Typography, IconButton, alpha, Avatar, Paper, InputBase } from "@mui/material";
+import { 
+  SmartToy as SmartToyIcon, 
+  Close as CloseIcon, 
+  Send as SendIcon 
+} from "@mui/icons-material";
 import { useState } from "react";
 
 interface ChatbotConfig {
@@ -60,7 +65,7 @@ export function ChatbotPreview({ config }: { config: ChatbotConfig }) {
         }}
       >
         <Avatar sx={{ bgcolor: alpha("#fff", 0.2), width: 32, height: 32 }}>
-          <span className="material-symbols-outlined" style={{ fontSize: 20 }}>smart_toy</span>
+          <SmartToyIcon sx={{ fontSize: 20 }} />
         </Avatar>
         <Box sx={{ flex: 1 }}>
           <Typography variant="subtitle2" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
@@ -72,7 +77,7 @@ export function ChatbotPreview({ config }: { config: ChatbotConfig }) {
           </Typography>
         </Box>
         <IconButton size="small" sx={{ color: "#fff" }}>
-          <span className="material-symbols-outlined">close</span>
+          <CloseIcon />
         </IconButton>
       </Box>
 
@@ -130,7 +135,7 @@ export function ChatbotPreview({ config }: { config: ChatbotConfig }) {
             "&:hover": { bgcolor: alpha(config.primaryColor, 0.1) }
           }}
         >
-          <span className="material-symbols-outlined">send</span>
+          <SendIcon />
         </IconButton>
       </Box>
     </Paper>

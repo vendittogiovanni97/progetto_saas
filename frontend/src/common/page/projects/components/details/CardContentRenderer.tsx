@@ -2,7 +2,8 @@
  * Componente per renderizzare il contenuto delle card nel dialog
  */
 
-import { Box, Typography, List, ListItem, ListItemText, Chip, Button, Divider } from "@mui/material";
+import { Box, Typography, List, ListItem, ListItemText, Chip, Divider } from "@mui/material";
+import { ButtonGeneric } from "@/common/components/button/ButtonGeneric";
 
 import { ProjectLogViewer } from "./ProjectLogViewer";
 import { ProjectEnvVariables } from "./ProjectEnvVariables";
@@ -23,7 +24,11 @@ export function CardContentRenderer({ cardId }: CardContentRendererProps) {
                 primary={<Typography variant="subtitle2">{domain}</Typography>} 
                 secondary="Active Proxy" 
               />
-              <Chip label="SSL OK" color="success" size="small" variant="outlined" />
+              <ButtonGeneric.Secondary
+                size="small"
+                // onClick={() => onAction(action.id)} // onAction and action are not defined in this scope.
+                label="SSL OK" // Assuming label from original Chip
+              />
             </ListItem>
           ))}
         </List>

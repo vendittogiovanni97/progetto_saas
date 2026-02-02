@@ -2,9 +2,15 @@
  * Panel laterale destro con informazioni sui servizi
  */
 
-import { Paper, Box, Typography, Chip, Button } from "@mui/material";
+import { Paper, Box, Typography, Chip, Icon } from "@mui/material";
+import { ButtonGeneric } from "@/common/components/button/ButtonGeneric";
 import { useTheme, alpha } from "@mui/material/styles";
-import { services } from "../services/mockData";
+import { 
+  IconRefresh, 
+  IconBug,
+} from "@/common/icons/icons";
+import { DynamicIcon } from "@/common/icons/DynamicIcon";
+import { services } from "../../services/mockData";
 
 export function ProjectServicesPanel() {
   const theme = useTheme();
@@ -50,7 +56,7 @@ export function ProjectServicesPanel() {
           <Typography variant="h2" sx={{ fontSize: "1.5rem", mb: 0.5 }}>
             Services
           </Typography>
-          <Typography sx={{ color: "text.secondary", fontSize: "0.875rem", fontFamily: "monospace" }}>
+          <Typography sx={{ color: "text.secondary", fontSize: "0.875rem" }}>
             Running on us-east-1
           </Typography>
         </Box>
@@ -89,7 +95,7 @@ export function ProjectServicesPanel() {
               Status
             </Typography>
           </Box>
-          {services.map((s) => (
+          {services.map((s: any) => (
             <Box
               key={s.name}
               sx={{
@@ -120,14 +126,11 @@ export function ProjectServicesPanel() {
                   display: "flex",
                   alignItems: "center",
                   gap: 1,
-                  fontSize: "0.75rem",
+                  fontSize: "0.7rem",
                   color: "text.secondary",
-                  fontFamily: "monospace",
                 }}
               >
-                <Box component="span" className="material-symbols-outlined" sx={{ fontSize: 14 }}>
-                  {s.icon}
-                </Box>
+                <DynamicIcon name={s.icon} sx={{ fontSize: 14 }} />
                 {s.cpu && <span>CPU: {s.cpu}</span>}
                 {s.mem && <span>MEM: {s.mem}</span>}
                 {s.keys && <span>Keys: {s.keys}</span>}
@@ -151,33 +154,16 @@ export function ProjectServicesPanel() {
             gap: 1.5,
           }}
         >
-          <Button
-            variant="contained"
+          <ButtonGeneric.Primary
             fullWidth
-            startIcon={<Box component="span" className="material-symbols-outlined" sx={{ fontSize: 20 }}>refresh</Box>}
-            sx={{
-              height: 48,
-              boxShadow: `0 4px 8px ${alpha(theme.palette.primary.main, 0.2)}`,
-            }}
-          >
-            Restart Services
-          </Button>
-          <Button
-            variant="outlined"
+            startIcon={<IconRefresh />}
+            label="Restart Services"
+          />
+          <ButtonGeneric.Secondary
             fullWidth
-            startIcon={<Box component="span" className="material-symbols-outlined" sx={{ fontSize: 18 }}>bug_report</Box>}
-            sx={{
-              height: 40,
-              borderColor: theme.palette.divider,
-              color: "text.secondary",
-              "&:hover": {
-                color: "white",
-                borderColor: theme.palette.grey[500],
-              },
-            }}
-          >
-            View Logs
-          </Button>
+            startIcon={<IconBug />}
+            label="View Logs"
+          />
         </Box>
       </Box>
     </Paper>

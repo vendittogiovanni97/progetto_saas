@@ -3,17 +3,21 @@
 import { Box } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useProjectsPage } from "./hooks/useProjectsPage";
-import { ProjectsHeader } from "./components/ProjectsHeader";
-import { ProjectsTable } from "./components/ProjectsTable";
-import { ProjectDialog } from "./components/ProjectDialog";
-import { TemplateGallery } from "./components/TemplateGallery";
+import { PageHeaderGeneric } from "@/common/components/header/PageHeaderGeneric";
+import { TextField, alpha, useTheme } from "@mui/material";
+import { IconAdd } from "@/common/icons/icons";
+import { ButtonGeneric } from "@/common/components/button/ButtonGeneric";
+import { ProjectsTable } from "./components/list/ProjectsTable";
+import { ProjectDialog } from "./components/dialogs/ProjectDialog";
+import { TemplateGallery } from "./components/list/TemplateGallery";
 import { projects } from "./services/mockData";
-import { Project, ProjectFormData } from "./types";
+import { Project, ProjectFormData } from "./types/types";
 import { useState } from "react";
-import { ChatbotWizard } from "./chatbot/ChatbotWizard";
+import { ChatbotWizard } from "../chatbots/components/ChatbotWizard";
 
 export function ProjectsPage() {
   const router = useRouter();
+  const theme = useTheme();
   const [isTemplateGalleryOpen, setIsTemplateGalleryOpen] = useState(false);
   const [isChatbotWizardOpen, setIsChatbotWizardOpen] = useState(false);
   
@@ -57,12 +61,37 @@ export function ProjectsPage() {
     router.push(`/dashboard/chatbots/${chatbot.id}`);
   };
 
+  const headerActions = (
+    <>
+      <TextField
+        size="small"
+        placeholder="SEARCH_PROJECTS..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        sx={{
+          width: 300,
+          "& .MuiOutlinedInput-root": {
+            fontSize: "0.75rem",
+            bgcolor: alpha(theme.palette.background.paper, 0.3),
+          },
+        }}
+        autoComplete="off"
+      />
+      <ButtonGeneric.Primary
+        onClick={() => setIsTemplateGalleryOpen(true)}
+        startIcon={<IconAdd />}
+      >
+        New Project
+      </ButtonGeneric.Primary>
+    </>
+  );
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-      <ProjectsHeader
-        search={search}
-        onSearchChange={setSearch}
-        onCreateProject={() => setIsTemplateGalleryOpen(true)}
+      <PageHeaderGeneric
+        title="Projects Control"
+        subtitle="SYSTEM_VERSION: 1.0.4 // ACTIVE_PROXIES: 04"
+        actions={headerActions}
       />
 
       <ProjectsTable

@@ -1,11 +1,16 @@
 "use client";
 
-import { Box, Typography, alpha, useTheme, Avatar, Paper, InputBase, IconButton } from "@mui/material";
+import { Box, Typography, alpha, useTheme, Avatar, Paper, InputBase, IconButton, Icon } from "@mui/material";
+import { 
+  SmartToy as SmartToyIcon, 
+  Send as SendIcon 
+} from "@mui/icons-material";
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import { chatbotService, ChatbotConfig, ChatMessage } from "@/services/api/chatbot";
+import { PageHeaderGeneric } from "@/common/components/header/PageHeaderGeneric";
 import { useAuth } from "@/providers/AuthProvider";
-
+import { ollamaService } from "@/services/api/ollama";
 
 export function ChatbotViewPage() {
   const theme = useTheme();
@@ -62,7 +67,7 @@ export function ChatbotViewPage() {
 
     try {
       // Usa l'API di Ollama invece di sendMessage
-      const response = await chatbotService.chatWithOllama({
+      const response = await ollamaService.chatWithOllama({
         chatbotId: chatbot.id,
         message: userMsg,
         conversationHistory: messages.map(m => ({
@@ -71,10 +76,10 @@ export function ChatbotViewPage() {
         }))
       });
       
-      if (response.response) {
+      if (response.data?.reply || response.data?.response) {
         setMessages(prev => [...prev, { 
           role: "assistant", 
-          content: response.response 
+          content: response.data.reply || response.data.response || "" 
         }]);
       }
     } catch (error) {
@@ -109,17 +114,19 @@ export function ChatbotViewPage() {
     );
   }
 
+  const headerActions = (
+     <Avatar sx={{ bgcolor: chatbot.primaryColor, width: 44, height: 44 }}>
+        <SmartToyIcon />
+     </Avatar>
+  );
+
   return (
-    <Box sx={{ maxWidth: 800, mx: "auto", height: "calc(100vh - 160px)", display: "flex", flexDirection: "column", gap: 3 }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-        <Avatar sx={{ bgcolor: chatbot.primaryColor, width: 48, height: 48 }}>
-          <span className="material-symbols-outlined">smart_toy</span>
-        </Avatar>
-        <Box>
-          <Typography variant="h4" sx={{ fontWeight: 800 }}>{chatbot.name}</Typography>
-          <Typography variant="caption" color="text.secondary">ID: {chatbot.id}</Typography>
-        </Box>
-      </Box>
+    <Box sx={{ maxWidth: 800, mx: "auto", height: "calc(100vh - 160px)", display: "flex", flexDirection: "column" }}>
+      <PageHeaderGeneric
+        title={chatbot.name}
+        subtitle={`ID: ${chatbot.id}`}
+        actions={headerActions}
+      />
 
       <Paper
         elevation={0}
@@ -206,7 +213,7 @@ export function ChatbotViewPage() {
               width: 54
             }}
           >
-            <span className="material-symbols-outlined">send</span>
+            <SendIcon />
           </IconButton>
         </Box>
       </Paper>

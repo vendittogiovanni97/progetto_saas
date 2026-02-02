@@ -1,18 +1,21 @@
-/**
- * Tipi per la pagina Dashboard
- */
+import { ProjectStatus } from "../../projects/types/types";
 
 export interface Stat {
   label: string;
-  value: string;
-  isPrimary?: boolean;
-  isSuccess?: boolean;
+  value: string | number;
+  icon?: string;
+  trend?: {
+    value: number;
+    isPositive: boolean;
+  };
+  color?: "primary" | "success" | "error" | "info" | "warning";
+  description?: string;
 }
 
 export interface Project {
   id: string;
   name: string;
-  status: string;
+  status: ProjectStatus;
   statusColor: "success" | "warning" | "default" | "error";
   progress: number;
   time: string;
@@ -30,4 +33,3 @@ export interface SystemLog {
   isPrimary?: boolean;
   isWarning?: boolean;
 }
-

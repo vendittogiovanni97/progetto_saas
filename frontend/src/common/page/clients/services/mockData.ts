@@ -2,7 +2,7 @@
  * Mock data per la pagina Clients Management
  */
 
-import { Client } from "../types";
+import { Client } from "../types/types";
 
 export const clients: Client[] = [
   {
@@ -62,6 +62,7 @@ export const clients: Client[] = [
     plan: "basic",
     createdAt: "2024-12-01",
     projects: 0,
+    revenue: 0,
   },
   {
     id: "CLI-006",

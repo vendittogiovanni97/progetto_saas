@@ -1,4 +1,4 @@
-import { Project, ProjectCard, Service } from "./index";
+import { Project, ProjectCard, Service } from "./types";
 
 // Projects list (used by ProjectsTable / ProjectsListPage)
 export const projects: Project[] = [

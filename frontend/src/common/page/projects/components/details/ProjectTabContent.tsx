@@ -4,9 +4,9 @@
 
 import { Box, Typography, Paper } from "@mui/material";
 import { useTheme, alpha } from "@mui/material/styles";
-import { TabValue } from "../types";
+import { TabValue } from "../../types/types";
 import { ProjectCard } from "./ProjectCard";
-import { projectCards } from "../services/mockData";
+import { projectCards } from "../../services/mockData";
 
 import { ProjectEnvVariables } from "./ProjectEnvVariables";
 import { ProjectDeploymentTimeline } from "./ProjectDeploymentTimeline";

@@ -2,11 +2,13 @@
  * Dialog per mostrare i dettagli di una card selezionata
  */
 
-import { Box, Button } from "@mui/material";
+import { Box } from "@mui/material";
+import { ButtonGeneric } from "@/common/components/button/ButtonGeneric";
 import { useTheme } from "@mui/material/styles";
 import { ModalGeneric } from "@/common/components/modal/ModalGeneric";
-import { ProjectCard } from "../types";
-import { CardContentRenderer } from "./CardContentRenderer";
+import { ProjectCard } from "../../types/types";
+import { CardContentRenderer } from "../details/CardContentRenderer";
+import { DynamicIcon } from "@/common/icons/DynamicIcon";
 
 interface ProjectDetailDialogProps {
   open: boolean;
@@ -20,9 +22,7 @@ export function ProjectDetailDialog({ open, selectedCard, selectedCardId, onClos
 
   const title = (
     <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 700 }}>
-      <Box component="span" className="material-symbols-outlined" sx={{ color: "primary.main" }}>
-        {selectedCard?.icon}
-      </Box>
+      <DynamicIcon name={selectedCard?.icon || "folder"} sx={{ color: "primary.main" }} />
       {selectedCard?.title}
     </Box>
   );
@@ -35,17 +35,10 @@ export function ProjectDetailDialog({ open, selectedCard, selectedCardId, onClos
 
   const actions = (
     <>
-      <Button
-        onClick={onClose}
-        variant="outlined"
-        size="small"
-        sx={{ color: "text.secondary", borderColor: theme.palette.divider }}
-      >
-        Close
-      </Button>
-      <Button variant="contained" size="small" onClick={onClose}>
+      <ButtonGeneric.Secondary onClick={onClose} label="CLOSE_CONTROL" />
+      <ButtonGeneric.Primary variant="contained" size="small" onClick={onClose}>
         Manage {selectedCard?.title}
-      </Button>
+      </ButtonGeneric.Primary>
     </>
   );
 
@@ -58,14 +51,6 @@ export function ProjectDetailDialog({ open, selectedCard, selectedCardId, onClos
       actions={actions}
       maxWidth="sm"
       fullWidth
-      PaperProps={{
-        sx: {
-          bgcolor: "background.paper",
-          backgroundImage: "none",
-          border: `1px solid ${theme.palette.divider}`,
-          borderRadius: 2,
-        },
-      }}
     />
   );
 }

@@ -1,7 +1,8 @@
 "use client";
 
-import { Box, IconButton, Typography } from "@mui/material";
+import { Box, IconButton, Typography, Icon } from "@mui/material";
 import { useTheme, alpha } from "@mui/material/styles";
+import { Notifications as NotificationsIcon } from "@mui/icons-material";
 
 export default function IndustrialHeader() {
   const theme = useTheme();
@@ -75,7 +76,7 @@ export default function IndustrialHeader() {
             },
           }}
         >
-          <Box component="span" className="material-symbols-outlined">notifications</Box>
+          <NotificationsIcon />
         </IconButton>
       </Box>
     </Box>

@@ -1,8 +1,10 @@
 "use client";
 
-import { Box, Typography, Card, CardContent, CardMedia, Grid, Button, alpha, useTheme } from "@mui/material";
+import { Box, Typography, Card, CardContent, CardMedia, Grid, alpha, useTheme, Icon } from "@mui/material";
+import { ButtonGeneric } from "@/common/components/button/ButtonGeneric";
 import { templates } from "@/common/page/projects/types/projectMocks";
 import { ModalGeneric } from "@/common/components/modal/ModalGeneric";
+import { DynamicIcon } from "@/common/icons/DynamicIcon";
 
 // templates are imported from centralized mocks
 
@@ -77,7 +79,7 @@ export function TemplateGallery({ open, onClose, onSelect }: TemplateGalleryProp
                       justifyContent: "center",
                     }}
                   >
-                    <span className="material-symbols-outlined">{template.icon}</span>
+                    <DynamicIcon name={template.icon} />
                   </Box>
                   <Typography variant="h5" sx={{ fontWeight: 700 }}>
                     {template.title}
@@ -86,9 +88,9 @@ export function TemplateGallery({ open, onClose, onSelect }: TemplateGalleryProp
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 3, lineHeight: 1.6 }}>
                   {template.description}
                 </Typography>
-                <Button 
-                  fullWidth 
-                  variant="outlined" 
+                <ButtonGeneric.Secondary
+                  fullWidth
+                  label="Usa Template"
                   sx={{ 
                     borderColor: alpha(template.color, 0.3),
                     color: template.color,
@@ -97,9 +99,7 @@ export function TemplateGallery({ open, onClose, onSelect }: TemplateGalleryProp
                       borderColor: template.color,
                     }
                   }}
-                >
-                  Usa Template
-                </Button>
+                />
               </CardContent>
             </Card>
           </Grid>
@@ -116,15 +116,6 @@ export function TemplateGallery({ open, onClose, onSelect }: TemplateGalleryProp
       content={content}
       maxWidth="lg"
       fullWidth
-      PaperProps={{
-        sx: {
-          bgcolor: alpha(theme.palette.background.paper, 0.8),
-          backdropFilter: "blur(20px)",
-          border: `1px solid ${alpha(theme.palette.common.white, 0.1)}`,
-          borderRadius: 4,
-          boxShadow: theme.shadows[24],
-        }
-      }}
     />
   );
 }

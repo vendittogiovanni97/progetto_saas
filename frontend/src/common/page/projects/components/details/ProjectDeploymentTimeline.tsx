@@ -1,6 +1,7 @@
 "use client";
 
 import { Box, Typography, alpha, useTheme } from "@mui/material";
+import { Timer as TimerIcon } from "@mui/icons-material";
 
 interface Deployment {
   id: string;
@@ -100,7 +101,7 @@ export function ProjectDeploymentTimeline() {
           >
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
               <Box>
-                <Typography variant="subtitle2" sx={{ fontWeight: 700, fontFamily: "monospace" }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
                   {dep.version}
                 </Typography>
                 <Typography variant="caption" sx={{ color: "text.secondary" }}>
@@ -124,7 +125,7 @@ export function ProjectDeploymentTimeline() {
             </Box>
             {dep.duration && (
               <Typography variant="caption" sx={{ color: "text.secondary", display: "flex", alignItems: "center", gap: 0.5 }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 14 }}>timer</span>
+                <TimerIcon sx={{ fontSize: 14 }} />
                 Built in {dep.duration}
               </Typography>
             )}

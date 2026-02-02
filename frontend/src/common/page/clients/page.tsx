@@ -7,7 +7,7 @@ import { ClientsTable } from "./components/ClientsTable";
 import { ClientDialog } from "./components/ClientDialog";
 import { clients } from "./services/mockData";
 import { filterClients } from "./services/filterClients";
-import { ClientFormData } from "./types";
+import { ClientFormData } from "./types/types";
 
 export function ClientsPage() {
   const {

@@ -1,349 +1,75 @@
 /**
- * Client API centralizzato con interceptors e retry logic
+ * Client API (Semplificato)
  */
 
 import { API_CONFIG } from './config';
 import { ApiRequestConfig, ApiResponse, HttpMethod } from '@/types/api';
-import { ApiClientError, NetworkError, TimeoutError } from './errors';
-import { authManager } from './auth';
+import { ApiError } from './errors';
+import { getAccessToken } from './auth';
 
-class ApiClient {
-  private baseURL: string;
-  private timeout: number;
-  private defaultRetryAttempts: number;
-  private defaultRetryDelay: number;
+/**
+ * Funzione base per fare le richieste
+ */
+async function request<T>(
+  endpoint: string,
+  method: HttpMethod = HttpMethod.GET,
+  data?: unknown,
+  config: ApiRequestConfig = {}
+): Promise<ApiResponse<T>> {
+  const url = `${API_CONFIG.baseURL}${endpoint}`;
+  
+  // Prepariamo gli header
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(config.headers as Record<string, string>),
+  };
 
-  constructor() {
-    this.baseURL = API_CONFIG.baseURL;
-    this.timeout = API_CONFIG.timeout;
-    this.defaultRetryAttempts = API_CONFIG.retryAttempts;
-    this.defaultRetryDelay = API_CONFIG.retryDelay;
+  // Aggiungiamo il token se presente
+  const token = getAccessToken();
+  if (token && !config.skipAuth) {
+    headers['Authorization'] = `Bearer ${token}`;
   }
 
-  /**
-   * Metodo principale per effettuare richieste HTTP
-   */
-  async request<T>(
-    endpoint: string,
-    method: HttpMethod = HttpMethod.GET,
-    data?: unknown,
-    config: ApiRequestConfig = {}
-  ): Promise<ApiResponse<T>> {
-    const {
-      retry = this.defaultRetryAttempts,
-      retryDelay = this.defaultRetryDelay,
-      timeout = this.timeout,
-      skipAuth = false,
-      ...fetchConfig
-    } = config;
+  try {
+    const response = await fetch(url, {
+      method,
+      headers,
+      body: data ? JSON.stringify(data) : undefined,
+    });
 
-    let attempt = 0;
+    const responseData = await response.json();
 
-    while (attempt <= retry) {
-      try {
-        const response = await this.executeRequest<T>(
-          endpoint,
-          method,
-          data,
-          { ...fetchConfig, skipAuth, timeout }
-        );
-        return response;
-      } catch (error) {
-        attempt++;
-
-        // Se è un errore di autenticazione, prova a refreshare il token
-        if (error instanceof ApiClientError && error.status === 401 && !skipAuth && attempt === 1) {
-          try {
-            await authManager.refreshAccessToken();
-            continue; // Riprova con il nuovo token
-          } catch (refreshError) {
-            authManager.clearTokens();
-            // Redirect a login sarà gestito dal middleware
-            throw error;
-          }
-        }
-
-        // Se è un errore retryable e ci sono ancora tentativi
-        if (
-          error instanceof ApiClientError &&
-          ApiClientError.isRetryable(error.status) &&
-          attempt <= retry
-        ) {
-          await this.delay(retryDelay * attempt); // Exponential backoff
-          continue;
-        }
-
-        // Se è un NetworkError o TimeoutError e ci sono ancora tentativi
-        if (
-          (error instanceof NetworkError || error instanceof TimeoutError) &&
-          attempt <= retry
-        ) {
-          await this.delay(retryDelay * attempt);
-          continue;
-        }
-
-        throw error;
-      }
+    if (!response.ok) {
+      throw new ApiError(responseData.message || 'Errore API', response.status, responseData);
     }
 
-    throw new Error('Tentativi esauriti');
-  }
-
-  /**
-   * Esegue la richiesta HTTP effettiva
-   */
-  private async executeRequest<T>(
-    endpoint: string,
-    method: HttpMethod,
-    data?: unknown,
-    config: ApiRequestConfig = {}
-  ): Promise<ApiResponse<T>> {
-    const { skipAuth = false, timeout, ...fetchConfig } = config;
-    const url = `${this.baseURL}${endpoint}`;
-
-    // Headers
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-      ...fetchConfig.headers,
-    };
-
-    // Aggiungi token di autenticazione
-    if (!skipAuth && authManager.shouldRefreshToken()) {
-      try {
-        await authManager.refreshAccessToken();
-      } catch (error) {
-        void error;
-        // Se il refresh fallisce, continua comunque con il token esistente
-      }
-    }
-
-    const token = authManager.getAccessToken();
-    if (!skipAuth && token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    // Body
-    const body = data ? JSON.stringify(data) : undefined;
-
-    // Timeout controller
-    const controller = new AbortController();
-    const timeoutId = timeout
-      ? setTimeout(() => controller.abort(), timeout)
-      : null;
-
-    try {
-      const response = await fetch(url, {
-        method,
-        headers,
-        body,
-        signal: controller.signal,
-        ...fetchConfig,
-      });
-
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-
-      // Gestione timeout
-      if (controller.signal.aborted) {
-        throw new TimeoutError();
-      }
-
-      // Parsing risposta
-      const responseData = await this.parseResponse<T>(response);
-
-      // Gestione errori HTTP
-      if (!response.ok) {
-        throw ApiClientError.fromResponse(response.status, responseData);
-      }
-
-      return {
-        data: responseData.data || (responseData as unknown as T),
-        message: responseData.message,
-        status: response.status,
-        timestamp: responseData.timestamp,
-      };
-    } catch (error) {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-
-      if (error instanceof TimeoutError || error instanceof ApiClientError) {
-        throw error;
-      }
-
-      // Network error
-      if (error instanceof Error && error.name === 'AbortError') {
-        throw new TimeoutError();
-      }
-
-      throw new NetworkError(error instanceof Error ? error.message : 'Errore di rete');
-    }
-  }
-
-  /**
-   * Parse della risposta JSON
-   */
-  private async parseResponse<T>(response: Response): Promise<ApiResponse<T>> {
-    const contentType = response.headers.get('content-type');
-
-    if (contentType && contentType.includes('application/json')) {
-      try {
-        return await response.json();
-      } catch (error) {
-        throw new Error('Errore nel parsing della risposta JSON');
-      }
-    }
-
-    // Se non è JSON, restituisci la risposta come testo
-    const text = await response.text();
     return {
-      data: text as unknown as T,
+      data: responseData.data || responseData,
       status: response.status,
+      message: responseData.message,
     };
-  }
-
-  /**
-   * Utility per delay
-   */
-  private delay(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
-  /**
-   * Metodi HTTP helper
-   */
-  async get<T>(endpoint: string, config?: ApiRequestConfig): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, HttpMethod.GET, undefined, config);
-  }
-
-  async post<T>(
-    endpoint: string,
-    data?: unknown,
-    config?: ApiRequestConfig
-  ): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, HttpMethod.POST, data, config);
-  }
-
-  async put<T>(
-    endpoint: string,
-    data?: unknown,
-    config?: ApiRequestConfig
-  ): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, HttpMethod.PUT, data, config);
-  }
-
-  async patch<T>(
-    endpoint: string,
-    data?: unknown,
-    config?: ApiRequestConfig
-  ): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, HttpMethod.PATCH, data, config);
-  }
-
-  async delete<T>(endpoint: string, config?: ApiRequestConfig): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, HttpMethod.DELETE, undefined, config);
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    throw new ApiError(error instanceof Error ? error.message : 'Errore di rete', 500);
   }
 }
 
-export const apiClient = new ApiClient();
-
 /**
- * API Client semplice per chiamare Ollama
+ * Esportiamo i metodi semplici
  */
-
-// class ApiClient {
-//   constructor(baseURL = 'http://localhost:11434') {
-//     this.baseURL = baseURL;
-//     this.timeout = 30000; // 30 secondi
-//   }
-
-//   /**
-//    * Metodo principale per fare richieste HTTP
-//    */
-//   async request(method, endpoint, data = null, options = {}) {
-//     const url = `${this.baseURL}${endpoint}`;
+export const apiClient = {
+  get: <T>(endpoint: string, config?: ApiRequestConfig) => 
+    request<T>(endpoint, HttpMethod.GET, undefined, config),
     
-//     // Timeout controller
-//     const controller = new AbortController();
-//     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+  post: <T>(endpoint: string, data?: unknown, config?: ApiRequestConfig) => 
+    request<T>(endpoint, HttpMethod.POST, data, config),
+    
+  put: <T>(endpoint: string, data?: unknown, config?: ApiRequestConfig) => 
+    request<T>(endpoint, HttpMethod.PUT, data, config),
+    
+  delete: <T>(endpoint: string, config?: ApiRequestConfig) => 
+    request<T>(endpoint, HttpMethod.DELETE, undefined, config),
 
-//     try {
-//       // Configurazione della richiesta
-//       const config = {
-//         method: method,
-//         headers: {
-//           'Content-Type': 'application/json',
-//           ...options.headers // Headers aggiuntivi se passati
-//         },
-//         signal: controller.signal
-//       };
-
-//       // Aggiungi body solo se c'è data (GET non ha body)
-//       if (data) {
-//         config.body = JSON.stringify(data);
-//       }
-
-//       // Fai la richiesta
-//       const response = await fetch(url, config);
-
-//       // Pulisci il timeout
-//       clearTimeout(timeoutId);
-
-//       // Leggi la risposta
-//       const responseData = await response.json();
-
-//       // Controlla se è andato tutto bene
-//       if (!response.ok) {
-//         throw new Error(responseData.error || `Errore HTTP: ${response.status}`);
-//       }
-
-//       return responseData;
-
-//     } catch (error) {
-//       clearTimeout(timeoutId);
-
-//       // Gestione timeout
-//       if (error.name === 'AbortError') {
-//         throw new Error('Richiesta timeout dopo 30 secondi');
-//       }
-
-//       // Altri errori
-//       throw error;
-//     }
-//   }
-
-//   /**
-//    * GET - Richiesta senza body
-//    */
-//   async get(endpoint, options = {}) {
-//     return this.request('GET', endpoint, null, options);
-//   }
-
-//   /**
-//    * POST - Richiesta con body
-//    */
-//   async post(endpoint, data, options = {}) {
-//     return this.request('POST', endpoint, data, options);
-//   }
-
-//   /**
-//    * PUT - Richiesta con body per aggiornamento
-//    */
-//   async put(endpoint, data, options = {}) {
-//     return this.request('PUT', endpoint, data, options);
-//   }
-
-//   /**
-//    * DELETE - Richiesta per eliminare
-//    */
-//   async delete(endpoint, options = {}) {
-//     return this.request('DELETE', endpoint, null, options);
-//   }
-// }
-
-// // Esporta un'istanza già pronta
-// export const ollamaClient = new ApiClient('http://localhost:11434');
-
-// // Esporta anche la classe se serve crearne altre
-// export default ApiClient;
+  // TODO: In futuro aggiungere retry logic
+  // TODO: In futuro aggiungere refresh token automatico
+};

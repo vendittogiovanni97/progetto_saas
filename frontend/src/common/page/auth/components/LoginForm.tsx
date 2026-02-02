@@ -5,8 +5,6 @@
 import { useState } from "react";
 import {
   Box,
-  TextField,
-  Button,
   Checkbox,
   FormControlLabel,
   Typography,
@@ -14,25 +12,38 @@ import {
   InputAdornment,
   IconButton,
 } from "@mui/material";
+import { InputGeneric } from "@/common/components/form/InputGeneric";
+import { ButtonGeneric } from "@/common/components/button/ButtonGeneric";
+import { 
+  Person as PersonIcon, 
+  Lock as LockIcon, 
+  Visibility as VisibilityIcon, 
+  VisibilityOff as VisibilityOffIcon 
+} from "@mui/icons-material";
 import { useTheme, alpha } from "@mui/material/styles";
-import { LoginFormData, LoginFormErrors } from "../types";
 import { useLogin } from "../hooks/useLogin";
 
 export function LoginForm() {
   const theme = useTheme();
-  const [formData, setFormData] = useState<LoginFormData>({
-    email: "",
+  const [formData, setFormData] = useState({
+    username: "", // Changed from email to username
     password: "",
     rememberMe: false,
   });
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const { loading, errors, handleSubmit } = useLogin();
 
+  // Modified handleChange to handleFieldChange for direct value updates
+  const handleFieldChange = (field: keyof typeof formData, value: any) => {
+    setFormData((prev: typeof formData) => ({ ...prev, [field]: value }));
+  };
+
+  // Original handleChange for Checkbox
   const handleChange =
-    (field: keyof LoginFormData) =>
+    (field: keyof typeof formData) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = field === "rememberMe" ? e.target.checked : e.target.value;
-      setFormData((prev) => ({ ...prev, [field]: value }));
+      setFormData((prev: typeof formData) => ({ ...prev, [field]: value }));
     };
 
   return (
@@ -54,111 +65,40 @@ export function LoginForm() {
         </Alert>
       )}
 
-      <TextField
-        label="Email Address"
-        type="email"
-        value={formData.email}
-        onChange={handleChange("email")}
-        error={!!errors.email}
-        helperText={errors.email}
-        fullWidth
-        required
-        autoComplete="email"
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <Box
-                component="span"
-                className="material-symbols-outlined"
-                sx={{ fontSize: 20, color: "text.secondary" }}
-              >
-                person
-              </Box>
-            </InputAdornment>
-          ),
-        }}
-        sx={{
-          "& .MuiOutlinedInput-root": {
-            bgcolor: alpha(theme.palette.background.paper, 0.3),
-            "& fieldset": {
-              borderColor: theme.palette.divider,
-            },
-            "&:hover fieldset": {
-              borderColor: alpha(theme.palette.primary.main, 0.5),
-            },
-            "&.Mui-focused fieldset": {
-              borderColor: theme.palette.primary.main,
-            },
-          },
-          "& .MuiInputLabel-root": {
-            color: "text.secondary",
-            "&.Mui-focused": {
-              color: "primary.main",
-            },
-          },
-        }}
+      <InputGeneric
+        label="USERNAME"
+        placeholder="ENTER_IDENTITY"
+        value={formData.username}
+        onChange={(e) => handleFieldChange("username", e.target.value)}
+        error={!!errors.username}
+        helperText={errors.username}
+        startIcon={<PersonIcon sx={{ fontSize: 20, color: "text.secondary" }} />}
+        sx={{ mb: 2 }}
       />
 
-      <TextField
-        label="Password"
+      <InputGeneric
+        label="PASSWORD"
+        placeholder="VERIFY_ACCESS"
         type={showPassword ? "text" : "password"}
         value={formData.password}
-        onChange={handleChange("password")}
+        onChange={(e) => handleFieldChange("password", e.target.value)}
         error={!!errors.password}
         helperText={errors.password}
-        fullWidth
-        required
-        autoComplete="current-password"
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <Box
-                component="span"
-                className="material-symbols-outlined"
-                sx={{ fontSize: 20, color: "text.secondary" }}
-              >
-                lock
-              </Box>
-            </InputAdornment>
-          ),
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton
-                onClick={() => setShowPassword(!showPassword)}
-                edge="end"
-                sx={{ color: "text.secondary" }}
-              >
-                <Box
-                  component="span"
-                  className="material-symbols-outlined"
-                  sx={{ fontSize: 20 }}
-                >
-                  {showPassword ? "visibility_off" : "visibility"}
-                </Box>
-              </IconButton>
-            </InputAdornment>
-          ),
-        }}
-        sx={{
-          "& .MuiOutlinedInput-root": {
-            bgcolor: alpha(theme.palette.background.paper, 0.3),
-            "& fieldset": {
-              borderColor: theme.palette.divider,
-            },
-            "&:hover fieldset": {
-              borderColor: alpha(theme.palette.primary.main, 0.5),
-            },
-            "&.Mui-focused fieldset": {
-              borderColor: theme.palette.primary.main,
-            },
-          },
-          "& .MuiInputLabel-root": {
-            color: "text.secondary",
-            "&.Mui-focused": {
-              color: "primary.main",
-            },
-          },
-        }}
+        startIcon={<LockIcon sx={{ fontSize: 20, color: "text.secondary" }} />}
+        endIcon={
+          <IconButton
+            onClick={() => setShowPassword(!showPassword)}
+            edge="end"
+            size="small"
+          >
+            {showPassword ? (
+              <VisibilityOffIcon sx={{ fontSize: 20 }} />
+            ) : (
+              <VisibilityIcon sx={{ fontSize: 20 }} />
+            )}
+          </IconButton>
+        }
+        sx={{ mb: 1 }}
       />
 
       <Box
@@ -187,8 +127,8 @@ export function LoginForm() {
             </Typography>
           }
         />
-        <Button
-          variant="text"
+        <ButtonGeneric.Ghost
+          label="Forgot password?"
           sx={{
             fontSize: "0.875rem",
             color: "text.secondary",
@@ -197,16 +137,14 @@ export function LoginForm() {
               color: "primary.main",
             },
           }}
-        >
-          Forgot password?
-        </Button>
+        />
       </Box>
 
-      <Button
+      <ButtonGeneric.Primary
         type="submit"
-        variant="contained"
         fullWidth
-        disabled={loading}
+        loading={loading}
+        label="SIGN IN"
         sx={{
           py: 1.5,
           fontSize: "0.875rem",
@@ -218,9 +156,7 @@ export function LoginForm() {
             boxShadow: `0 6px 16px ${alpha(theme.palette.primary.main, 0.4)}`,
           },
         }}
-      >
-        {loading ? "Authenticating..." : "Sign In"}
-      </Button>
+      />
     </Box>
   );
 }

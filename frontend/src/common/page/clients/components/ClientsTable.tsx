@@ -2,13 +2,13 @@
  * Tabella clients con TableGeneric
  */
 
-import { Box, Chip, Button } from "@mui/material";
+import { Box, Chip, Typography, alpha } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import {
   TableGeneric,
   TableGenericColumn,
 } from "@/common/components/table/TableGeneric";
-import { Client } from "../types";
+import { Client } from "../types/types";
 
 interface ClientsTableProps {
   clients: Client[];
@@ -38,67 +38,50 @@ export function ClientsTable({ clients, onEditClient }: ClientsTableProps) {
 
   const getStatusColor = (status: Client["status"]) => {
     switch (status) {
-      case "active":
-        return "success";
-      case "pending":
-        return "warning";
-      case "inactive":
-        return "default";
-      default:
-        return "default";
+      case "active": return "success";
+      case "pending": return "warning";
+      case "inactive": return "error";
+      default: return "default";
     }
   };
 
   const getPlanColor = (plan: Client["plan"]) => {
     switch (plan) {
-      case "enterprise":
-        return "primary";
-      case "professional":
-        return "info";
-      case "basic":
-        return "default";
-      default:
-        return "default";
+      case "enterprise": return "primary";
+      case "professional": return "info";
+      default: return "default";
     }
   };
 
   const columns: TableGenericColumn<Client>[] = [
     {
       id: "name",
-      header: "Client Name",
+      header: "Client Entity",
       accessorKey: "name",
       cell: (value, row) => (
         <Box>
-          <Box sx={{ fontWeight: 500 }}>{value}</Box>
+          <Typography sx={{ fontWeight: 700, color: "primary.main" }}>{value}</Typography>
           {row.company && (
-            <Box
+            <Typography
+              variant="caption"
               sx={{
-                fontSize: "0.75rem",
+                fontSize: "0.7rem",
                 color: "text.secondary",
-                fontFamily: "monospace",
+                opacity: 0.7,
+                display: "block",
+                mt: -0.5
               }}
             >
-              {row.company}
-            </Box>
+              {row.company.toUpperCase()}
+            </Typography>
           )}
         </Box>
       ),
     },
     {
       id: "email",
-      header: "Email",
+      header: "Contact",
       accessorKey: "email",
-      cell: (value) => (
-        <Box
-          sx={{
-            fontSize: "0.875rem",
-            fontFamily: "monospace",
-            color: "text.secondary",
-          }}
-        >
-          {value}
-        </Box>
-      ),
     },
     {
       id: "status",
@@ -107,136 +90,89 @@ export function ClientsTable({ clients, onEditClient }: ClientsTableProps) {
       width: 120,
       cell: (value) => (
         <Chip
-          label={value.toUpperCase()}
+          label={String(value || "").toUpperCase()}
           size="small"
-          color={getStatusColor(value as Client["status"])}
+          color={getStatusColor(value as Client["status"]) as any}
           variant="outlined"
           sx={{
-            fontSize: "0.625rem",
-            fontWeight: 700,
+            fontSize: "0.6rem",
+            fontWeight: 900,
             textTransform: "uppercase",
-            letterSpacing: "0.05em",
-            height: 24,
+            letterSpacing: "0.1em",
+            height: 22,
+            borderRadius: 1,
+            borderWidth: 2,
+            bgcolor: alpha(theme.palette[getStatusColor(value as Client["status"]) as 'primary' | 'success' | 'error']?.main || theme.palette.primary.main, 0.05),
           }}
         />
       ),
     },
     {
       id: "plan",
-      header: "Plan",
+      header: "System Plan",
       accessorKey: "plan",
       width: 120,
       cell: (value) => (
         <Chip
-          label={value}
+          label={String(value || "").toUpperCase()}
           size="small"
-          color={getPlanColor(value as Client["plan"])}
+          color={getPlanColor(value as Client["plan"]) as any}
           variant="outlined"
           sx={{
-            fontSize: "0.625rem",
-            fontWeight: 700,
-            textTransform: "capitalize",
-            height: 24,
+            fontSize: "0.6rem",
+            fontWeight: 800,
+            height: 22,
+            borderRadius: 1,
+            borderColor: alpha(theme.palette.divider, 1),
+            color: "text.secondary"
           }}
         />
       ),
     },
     {
       id: "projects",
-      header: "Projects",
+      header: "Nodes",
       accessorKey: "projects",
       width: 100,
       align: "center",
       cell: (value) => (
-        <Box sx={{ fontFamily: "monospace", fontWeight: 500 }}>{value}</Box>
+        <Typography sx={{ fontWeight: 800, color: "primary.main" }}>{value}</Typography>
       ),
     },
     {
       id: "revenue",
       header: "Revenue",
       accessorKey: "revenue",
-      width: 120,
+      width: 140,
       align: "right",
       cell: (value) => (
-        <Box
+        <Typography
           sx={{
-            fontFamily: "monospace",
-            fontWeight: 500,
+            fontWeight: 800,
             color: "success.main",
           }}
         >
           {formatCurrency(value)}
-        </Box>
+        </Typography>
       ),
     },
     {
       id: "createdAt",
-      header: "Created",
+      header: "Registered",
       accessorKey: "createdAt",
-      width: 120,
-      cell: (value) => (
-        <Box
-          sx={{
-            fontSize: "0.75rem",
-            fontFamily: "monospace",
-            color: "text.secondary",
-          }}
-        >
-          {formatDate(value)}
-        </Box>
-      ),
-    },
-    {
-      id: "actions",
-      header: "Actions",
-      accessorKey: "id",
-      width: 120,
-      align: "right",
-      enableSorting: false,
-      cell: (value, row) => (
-        <Box sx={{ display: "flex", gap: 1, justifyContent: "flex-end" }}>
-          <Button
-            size="small"
-            variant="outlined"
-            onClick={(e) => {
-              e.stopPropagation();
-              onEditClient(row);
-            }}
-            sx={{
-              fontSize: "0.75rem",
-              px: 1.5,
-              minWidth: "auto",
-              borderColor: theme.palette.divider,
-              color: "text.secondary",
-              "&:hover": {
-                borderColor: "primary.main",
-                color: "primary.main",
-              },
-            }}
-          >
-            Edit
-          </Button>
-        </Box>
-      ),
+      width: 140,
+      cell: (value) => formatDate(value),
     },
   ];
 
   return (
-    <Box
-      sx={{
-        border: `1px solid ${theme.palette.divider}`,
-        borderRadius: 2,
-        overflow: "hidden",
-      }}
-    >
-      <TableGeneric
-        data={clients}
-        columns={columns}
-        enableSorting
-        enablePagination
-        pageSize={10}
-        emptyMessage="No clients found"
-      />
-    </Box>
+    <TableGeneric
+      data={clients}
+      columns={columns}
+      enableSorting
+      enablePagination
+      onEdit={onEditClient}
+      emptyMessage="No clients found in system"
+    />
   );
 }

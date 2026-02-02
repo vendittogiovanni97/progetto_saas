@@ -1,22 +1,26 @@
 "use client";
 
 import { Box } from "@mui/material";
-import { useDashboardPage } from "./hooks/useDashboardPage";
-import { DashboardHeader } from "./components/DashboardHeader";
+import { PageHeaderGeneric } from "@/common/components/header/PageHeaderGeneric";
 import { StatsGrid } from "./components/StatsGrid";
 import { ProjectsTable } from "./components/ProjectsTable";
 import { ComponentRepository } from "./components/ComponentRepository";
 import { SystemLog } from "./components/SystemLog";
 import { stats, projects, componentLibrary, systemLogs } from "./services/mockData";
+import { useRouter } from "next/navigation";
 
 export function DashboardPage() {
-  const { handleProjectClick, handleRefresh, handleNewProject } = useDashboardPage();
+  const router = useRouter();
+
+  const handleProjectClick = (projectId: string) => {
+    router.push(`/dashboard/projects/${projectId}`);
+  };
 
   return (
     <Box sx={{ display: "flex", gap: 4, height: "100%" }}>
       {/* Left Column: Main Dashboard */}
       <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 4, minWidth: 0 }}>
-        <DashboardHeader onRefresh={handleRefresh} onNewProject={handleNewProject} />
+        <PageHeaderGeneric title="Control Center // v.3.0" subtitle="OVERVIEW OF ACTIVE OPERATIONS AND RESOURCES" />
 
         <StatsGrid stats={stats} />
 

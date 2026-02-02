@@ -1,6 +1,14 @@
 "use client";
 
-import { Box, Typography, TextField, IconButton, Button, alpha, useTheme, InputAdornment } from "@mui/material";
+import { Box, Typography, TextField, IconButton, alpha, useTheme, InputAdornment } from "@mui/material";
+import { ButtonGeneric } from "@/common/components/button/ButtonGeneric";
+import { 
+  IconAdd, 
+  IconVisibility, 
+  IconVisibilityOff, 
+  IconDelete, 
+  IconInfo 
+} from "@/common/icons/icons";
 import { useState } from "react";
 
 interface EnvVar {
@@ -24,20 +32,22 @@ export function ProjectEnvVariables() {
     setShowValues((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
+  const onAdd = () => {
+    // Placeholder for add functionality
+    console.log("Add new variable");
+  };
+
   return (
     <Box sx={{ py: 1 }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
         <Typography variant="subtitle2" sx={{ color: "text.secondary", fontWeight: 600 }}>
           Environment Variables ({vars.length})
         </Typography>
-        <Button
-          size="small"
-          startIcon={<span className="material-symbols-outlined">add</span>}
-          variant="outlined"
-          sx={{ borderRadius: 2, height: 32, fontSize: "0.75rem" }}
-        >
-          Add New
-        </Button>
+        <ButtonGeneric.Primary
+          onClick={onAdd}
+          startIcon={<IconAdd />}
+          label="Add Variable"
+        />
       </Box>
 
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -59,7 +69,6 @@ export function ProjectEnvVariables() {
                 variant="caption"
                 sx={{
                   display: "block",
-                  fontFamily: "monospace",
                   color: "primary.main",
                   fontWeight: 700,
                   mb: 0.5,
@@ -77,16 +86,17 @@ export function ProjectEnvVariables() {
                   disableUnderline: true,
                   readOnly: true,
                   sx: {
-                    fontFamily: "monospace",
                     fontSize: "0.875rem",
                     color: "text.primary",
                   },
                   endAdornment: v.isSecret && (
                     <InputAdornment position="end">
                       <IconButton size="small" onClick={() => toggleShow(v.key)}>
-                        <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
-                          {showValues[v.key] ? "visibility_off" : "visibility"}
-                        </span>
+                        {showValues[v.key] ? (
+                          <IconVisibilityOff sx={{ fontSize: 18 }} />
+                        ) : (
+                          <IconVisibility sx={{ fontSize: 18 }} />
+                        )}
                       </IconButton>
                     </InputAdornment>
                   ),
@@ -94,7 +104,7 @@ export function ProjectEnvVariables() {
               />
             </Box>
             <IconButton size="small" sx={{ color: "text.secondary" }}>
-              <span className="material-symbols-outlined" style={{ fontSize: 20 }}>delete</span>
+              <IconDelete sx={{ fontSize: 20 }} />
             </IconButton>
           </Box>
         ))}
@@ -102,7 +112,7 @@ export function ProjectEnvVariables() {
 
       <Box sx={{ mt: 4, p: 2, borderRadius: 2, bgcolor: alpha(theme.palette.info.main, 0.05), border: `1px solid ${alpha(theme.palette.info.main, 0.2)}` }}>
         <Typography variant="caption" sx={{ color: "info.main", display: "flex", alignItems: "center", gap: 1 }}>
-          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>info</span>
+          <IconInfo sx={{ fontSize: 16 }} />
           Secrets are encrypted at rest and only readable by the runtime engine.
         </Typography>
       </Box>

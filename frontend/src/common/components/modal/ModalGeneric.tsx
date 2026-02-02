@@ -1,6 +1,5 @@
 /**
- * ModalGeneric - Componente dialog/modale generico e stilizzato
- * Basato su MUI Dialog con styling premium/industrial
+ * ModalGeneric - Componente modale semplice
  */
 
 "use client";
@@ -12,19 +11,19 @@ import {
   DialogContent,
   DialogActions,
   IconButton,
-  Box,
   Typography,
-  useTheme,
-  alpha,
-  DialogProps,
+  Box,
 } from "@mui/material";
+import { IconClose } from "@/common/icons/icons";
 
-export interface ModalGenericProps extends Omit<DialogProps, "title" | "content"> {
+export interface ModalGenericProps {
+  open: boolean;
+  onClose: () => void;
   title: React.ReactNode;
   content: React.ReactNode;
   actions?: React.ReactNode;
-  onClose: () => void;
-  showCloseButton?: boolean;
+  maxWidth?: "xs" | "sm" | "md" | "lg" | "xl";
+  fullWidth?: boolean;
 }
 
 export function ModalGeneric({
@@ -33,97 +32,35 @@ export function ModalGeneric({
   title,
   content,
   actions,
-  showCloseButton = true,
   maxWidth = "sm",
   fullWidth = true,
-  ...props
 }: ModalGenericProps) {
-  const theme = useTheme();
-
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      maxWidth={maxWidth}
+    <Dialog 
+      open={open} 
+      onClose={onClose} 
+      maxWidth={maxWidth} 
       fullWidth={fullWidth}
-      PaperProps={{
-        sx: {
-          bgcolor: "background.paper",
-          backgroundImage: "none",
-          border: `1px solid ${theme.palette.divider}`,
-          borderRadius: 2,
-          boxShadow: theme.shadows[10],
-          ...props.PaperProps?.sx,
-        },
-      }}
-      {...props}
     >
-      <DialogTitle
-        sx={{
-          m: 0,
-          p: 2,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          textTransform: "uppercase",
-          letterSpacing: "0.05em",
-          fontWeight: 700,
-          fontSize: "0.9rem",
-          color: "text.primary",
-        }}
-      >
-        <Typography
-          variant="inherit"
-          component="span"
-          sx={{ fontWeight: "inherit" }}
-        >
+      <DialogTitle sx={{ m: 0, p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h6" component="div" sx={{ fontWeight: 700 }}>
           {title}
         </Typography>
-        {showCloseButton && (
-          <IconButton
-            aria-label="close"
-            onClick={onClose}
-            sx={{
-              color: "text.secondary",
-              "&:hover": {
-                color: "text.primary",
-                bgcolor: alpha(theme.palette.text.primary, 0.05),
-              },
-            }}
-            size="small"
-          >
-            <Box
-              component="span"
-              className="material-symbols-outlined"
-              sx={{ fontSize: 20 }}
-            >
-              close
-            </Box>
-          </IconButton>
-        )}
+        <IconButton
+          aria-label="close"
+          onClick={onClose}
+          sx={{ color: (theme) => theme.palette.grey[500] }}
+        >
+          <IconClose />
+        </IconButton>
       </DialogTitle>
 
-      <DialogContent
-        dividers
-        sx={{
-          p: 3,
-          borderColor: theme.palette.divider,
-          bgcolor: alpha(theme.palette.background.default, 0.2),
-        }}
-      >
+      <DialogContent dividers sx={{ p: 3 }}>
         {content}
       </DialogContent>
 
       {actions && (
-        <DialogActions
-          sx={{
-            p: 2,
-            px: 3,
-            bgcolor: alpha(theme.palette.background.default, 0.5),
-            borderTop: `1px solid ${theme.palette.divider}`,
-            gap: 1,
-          }}
-        >
+        <DialogActions sx={{ p: 2 }}>
           {actions}
         </DialogActions>
       )}

@@ -2,10 +2,14 @@
  * Componente principale per il pannello di controllo sinistro
  */
 
-import { Box, Typography, IconButton } from "@mui/material";
+import { Box, Typography, IconButton, Icon } from "@mui/material";
+import { 
+  ViewModule as ViewModuleIcon, 
+  List as ListIcon 
+} from "@mui/icons-material";
 import { ProjectTabs } from "./ProjectTabs";
 import { ProjectTabContent } from "./ProjectTabContent";
-import { TabValue } from "../types";
+import { TabValue } from "../../types/types";
 
 interface ProjectControlGridProps {
   projectId: string;
@@ -49,7 +53,6 @@ export function ProjectControlGrid({ projectId, activeTab, onTabChange, onCardCl
               sx={{
                 color: "text.secondary",
                 fontSize: "0.875rem",
-                fontFamily: "monospace",
                 textTransform: "uppercase",
                 letterSpacing: "0.05em",
               }}
@@ -59,14 +62,10 @@ export function ProjectControlGrid({ projectId, activeTab, onTabChange, onCardCl
           </Box>
           <Box sx={{ display: "flex", gap: 1 }}>
             <IconButton size="small" sx={{ color: "text.secondary", "&:hover": { color: "white" } }}>
-              <Box component="span" className="material-symbols-outlined">
-                view_module
-              </Box>
+              <ViewModuleIcon />
             </IconButton>
             <IconButton size="small" sx={{ color: "text.secondary", "&:hover": { color: "white" } }}>
-              <Box component="span" className="material-symbols-outlined">
-                list
-              </Box>
+              <ListIcon />
             </IconButton>
           </Box>
         </Box>

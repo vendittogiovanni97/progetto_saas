@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { useTheme, alpha } from "@mui/material/styles";
 import { ModalGeneric } from "@/common/components/modal/ModalGeneric";
-import { Client, ClientFormData } from "../types";
+import { Client, ClientFormData } from "../types/types";
 
 interface ClientDialogProps {
   open: boolean;

@@ -3,18 +3,15 @@
 import { useState, useEffect } from "react";
 import {
   Box,
-  TextField,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Button,
   Slider,
   Typography,
 } from "@mui/material";
-import { useTheme, alpha } from "@mui/material/styles";
+import { InputGeneric } from "@/common/components/form/InputGeneric";
+import { SelectGeneric } from "@/common/components/form/SelectGeneric";
+import { ButtonGeneric } from "@/common/components/button/ButtonGeneric";
+import { useTheme } from "@mui/material/styles";
 import { ModalGeneric } from "@/common/components/modal/ModalGeneric";
-import { Project, ProjectFormData, ProjectStatus } from "../types";
+import { Project, ProjectFormData, ProjectStatus } from "../../types/types";
 
 interface ProjectDialogProps {
   open: boolean;
@@ -29,7 +26,6 @@ export function ProjectDialog({
   onClose,
   onSave,
 }: ProjectDialogProps) {
-  const theme = useTheme();
   const [formData, setFormData] = useState<ProjectFormData>({
     name: "",
     status: "Active",
@@ -70,40 +66,29 @@ export function ProjectDialog({
         pt: 1,
       }}
     >
-      <TextField
+      <InputGeneric
         label="Project Name"
         value={formData.name}
         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
         required
-        fullWidth
-        sx={{
-          "& .MuiOutlinedInput-root": {
-            bgcolor: alpha(theme.palette.background.paper, 0.3),
-          },
-        }}
       />
 
-      <FormControl fullWidth>
-        <InputLabel>Status</InputLabel>
-        <Select
-          value={formData.status}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              status: e.target.value as ProjectStatus,
-            })
-          }
-          label="Status"
-          sx={{
-            bgcolor: alpha(theme.palette.background.paper, 0.3),
-          }}
-        >
-          <MenuItem value="Active">Active</MenuItem>
-          <MenuItem value="Paused">Paused</MenuItem>
-          <MenuItem value="Pending">Pending</MenuItem>
-          <MenuItem value="Error">Error</MenuItem>
-        </Select>
-      </FormControl>
+      <SelectGeneric
+        label="Status"
+        value={formData.status}
+        onChange={(e) =>
+          setFormData({
+            ...formData,
+            status: e.target.value as ProjectStatus,
+          })
+        }
+        options={[
+          { value: "Active", label: "Active" },
+          { value: "Paused", label: "Paused" },
+          { value: "Pending", label: "Pending" },
+          { value: "Error", label: "Error" },
+        ]}
+      />
 
       <Box>
         <Typography gutterBottom sx={{ fontSize: "0.75rem", color: "text.secondary", mb: 2 }}>
@@ -124,22 +109,12 @@ export function ProjectDialog({
 
   const dialogActions = (
     <>
-      <Button
-        onClick={onClose}
-        variant="outlined"
-        size="small"
-        sx={{ color: "text.secondary", borderColor: theme.palette.divider }}
-      >
-        Cancel
-      </Button>
-      <Button
+      <ButtonGeneric.Secondary onClick={onClose} label="Cancel" />
+      <ButtonGeneric.Primary
         type="submit"
         form="project-form"
-        variant="contained"
-        size="small"
-      >
-        {project ? "Update" : "Create"} Project
-      </Button>
+        label={project ? "Update Project" : "Create Project"}
+      />
     </>
   );
 

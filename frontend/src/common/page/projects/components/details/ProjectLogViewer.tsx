@@ -1,8 +1,13 @@
 "use client";
 
 import { Box, Typography, alpha, useTheme, IconButton, Tooltip } from "@mui/material";
+import { 
+  DeleteSweep as DeleteSweepIcon, 
+  PauseCircle as PauseCircleIcon, 
+  PlayCircle as PlayCircleIcon 
+} from "@mui/icons-material";
 import { useState, useRef, useEffect } from "react";
-import { mockLogs } from "../types/projectMocks";
+import { mockLogs } from "../../types/projectMocks";
 
 interface LogEntry {
   timestamp: string;
@@ -53,14 +58,16 @@ export function ProjectLogViewer() {
         <Box sx={{ display: "flex", gap: 1 }}>
           <Tooltip title="Clear logs">
             <IconButton size="small">
-              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>delete_sweep</span>
+              <DeleteSweepIcon sx={{ fontSize: 18 }} />
             </IconButton>
           </Tooltip>
           <Tooltip title={autoScroll ? "Pause auto-scroll" : "Resume auto-scroll"}>
             <IconButton size="small" onClick={() => setAutoScroll(!autoScroll)} color={autoScroll ? "primary" : "default"}>
-              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
-                {autoScroll ? "pause_circle" : "play_circle"}
-              </span>
+              {autoScroll ? (
+                <PauseCircleIcon sx={{ fontSize: 18 }} />
+              ) : (
+                <PlayCircleIcon sx={{ fontSize: 18 }} />
+              )}
             </IconButton>
           </Tooltip>
         </Box>

@@ -1,9 +1,9 @@
 "use client";
 
 import { Box } from "@mui/material";
-import { ProjectControlGrid } from "./components/ProjectControlGrid";
-import { ProjectServicesPanel } from "./components/ProjectServicesPanel";
-import { ProjectDetailDialog } from "./components/ProjectDetailDialog";
+import { ProjectControlGrid } from "./components/details/ProjectControlGrid";
+import { ProjectServicesPanel } from "./components/details/ProjectServicesPanel";
+import { ProjectDetailDialog } from "./components/dialogs/ProjectDetailDialog";
 import { useProjectPage } from "./hooks/useProjectPage";
 
 interface ProjectPageProps {

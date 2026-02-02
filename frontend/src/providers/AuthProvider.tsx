@@ -1,60 +1,56 @@
 'use client';
 
 import { AuthContext, User } from '@/types/authcontext';
-import { useState, useMemo, ReactNode, useContext } from 'react';
+import { useState, useMemo, ReactNode, useContext, useEffect } from 'react';
+import { setTokens, clearTokens as apiClearTokens, getAccessToken } from '@/services/api/auth';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('auth_user');
-      if (saved) {
-        return JSON.parse(saved);
-      }
+  const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+
+  // Inizializzazione semplice da localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('auth_user');
+    if (saved && getAccessToken()) {
+      setUser(JSON.parse(saved));
+      setIsAuthenticated(true);
+    } else {
+      // Mock user per sviluppo se non c'è nulla, ma solo per prova
+      // TODO: Rimuovere questo mock quando l'integrazione API è completa
+      const mockUser: User = { id: 1, accountId: 1, email: 'mario@test.com', role: 'admin' };
+      setUser(mockUser);
+      setIsAuthenticated(true);
     }
-    return {
-      id: 1,
-      accountId: 1,
-      email: 'mario@test.com',
-      role: 'admin',
-    };
-  });
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!user);
+  }, []);
 
   const login = async (email: string, password: string) => {
-    void password;
-    // TODO: Implementare chiamata API reale qui
+    // TODO: Usare apiClient.post(API_ENDPOINTS.AUTH.LOGIN, { email, password })
+    console.log('Login con:', email, password);
     
-    // Simulazione ritardo API
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    // Mock di login avvenuto con successo
-    const mockUser: User = { 
-      id: 1,
-      email: email,
-      accountId: 1,
-      role: 'admin',
-    };
+    // Simulazione mock
+    const mockUser: User = { id: 1, email, accountId: 1, role: 'admin' };
+    const mockToken = 'mock-jwt-token';
+    const mockRefreshToken = 'mock-refresh-token';
 
+    setTokens(mockToken, mockRefreshToken, 3600);
+    localStorage.setItem('auth_user', JSON.stringify(mockUser));
     setUser(mockUser);
     setIsAuthenticated(true);
-    localStorage.setItem('auth_user', JSON.stringify(mockUser));
   };
 
   const logout = () => {
+    apiClearTokens();
+    localStorage.removeItem('auth_user');
     setUser(null);
     setIsAuthenticated(false);
-    localStorage.removeItem('auth_user');
   };
 
-  const value = useMemo(
-    () => ({
-      user,
-      isAuthenticated,
-      login,
-      logout,
-    }),
-    [user, isAuthenticated]
-  );
+  const value = useMemo(() => ({
+    user,
+    isAuthenticated,
+    login,
+    logout,
+  }), [user, isAuthenticated]);
 
   return (
     <AuthContext.Provider value={value}>

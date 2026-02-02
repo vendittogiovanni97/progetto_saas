@@ -2,6 +2,7 @@
 
 import { Box, Paper, Typography } from "@mui/material";
 import { useTheme, alpha } from "@mui/material/styles";
+import { IconSecurity } from "@/common/icons/icons";
 import { LoginForm } from "./components/LoginForm";
 
 export function LoginPage() {
@@ -68,13 +69,7 @@ export function LoginPage() {
               boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.3)}`,
             }}
           >
-            <Box
-              component="span"
-              className="material-symbols-outlined"
-              sx={{ fontSize: 32, color: "white" }}
-            >
-              security
-            </Box>
+            <IconSecurity sx={{ fontSize: 32, color: "white" }} />
           </Box>
           <Typography
             variant="h1"
@@ -92,7 +87,6 @@ export function LoginPage() {
             sx={{
               color: "text.secondary",
               fontSize: "0.875rem",
-              fontFamily: "monospace",
             }}
           >
             ACCESS CONTROL SYSTEM
@@ -137,7 +131,6 @@ export function LoginPage() {
             sx={{
               fontSize: "0.75rem",
               color: "text.secondary",
-              fontFamily: "monospace",
             }}
           >
             v3.0.0 // 2024

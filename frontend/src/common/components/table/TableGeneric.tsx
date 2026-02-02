@@ -1,21 +1,3 @@
-/**
- * TableGeneric - Componente tabella generico e completo
- * Basato su TanStack Table con styling MUI
- *
- * Usage:
- * ```tsx
- * <TableGeneric
- *   data={users}
- *   columns={[
- *     { id: 'name', header: 'Name', accessorKey: 'name' },
- *     { id: 'email', header: 'Email', accessorKey: 'email' },
- *   ]}
- *   enableSorting
- *   enablePagination
- * />
- * ```
- */
-
 "use client";
 
 import {
@@ -32,19 +14,14 @@ import {
   Typography,
   useTheme,
   alpha,
+  Pagination,
 } from "@mui/material";
-import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  getPaginationRowModel,
-  getFilteredRowModel,
-  flexRender,
-  type ColumnDef,
-  type SortingState,
-  type ColumnFiltersState,
-} from "@tanstack/react-table";
-import { useState } from "react";
+import { 
+  IconVisibility, 
+  IconEdit, 
+  IconDelete 
+} from "@/common/icons/icons";
+import { useState, useMemo } from "react";
 
 export interface TableGenericColumn<T = any> {
   id: string;
@@ -61,7 +38,6 @@ export interface TableGenericProps<T = any> {
   columns: TableGenericColumn<T>[];
   enableSorting?: boolean;
   enablePagination?: boolean;
-  enableFiltering?: boolean;
   pageSize?: number;
   emptyMessage?: string;
   onRowClick?: (row: T) => void;
@@ -76,7 +52,6 @@ export function TableGeneric<T extends Record<string, any>>({
   columns,
   enableSorting = true,
   enablePagination = false,
-  enableFiltering = false,
   pageSize = 10,
   emptyMessage = "No data available",
   onRowClick,
@@ -86,295 +61,190 @@ export function TableGeneric<T extends Record<string, any>>({
   stickyHeader = false,
 }: TableGenericProps<T>) {
   const theme = useTheme();
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
+  const [page, setPage] = useState(1);
 
-  // Converti le colonne custom in formato TanStack Table
-  const tableColumns: ColumnDef<T>[] = columns.map((col) => ({
-    id: col.id,
-    accessorKey: col.accessorKey as string,
-    header: col.header,
-    enableSorting: col.enableSorting ?? enableSorting,
-    cell: ({ getValue, row }) => {
-      const value = getValue();
-      if (col.cell) {
-        return col.cell(value, row.original);
-      }
-      return value ?? "-";
-    },
-    size: typeof col.width === "number" ? col.width : undefined,
-    minSize: typeof col.width === "number" ? col.width : undefined,
-    maxSize: typeof col.width === "number" ? col.width : undefined,
-  }));
-
-  // Aggiungi la colonna azioni se necessario
-  if (onView || onEdit || onDelete) {
-    tableColumns.push({
-      id: "actions",
-      header: "Actions",
-      enableSorting: false,
-      size: 100,
-      cell: ({ row }) => (
-        <Box sx={{ display: "flex", gap: 1, justifyContent: "flex-end" }}>
-          {onView && (
-            <IconButton
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                onView(row.original);
-              }}
-              sx={{
-                color: "text.secondary",
-                "&:hover": { color: theme.palette.primary.main },
-              }}
-            >
-              <Box component="span" className="material-symbols-outlined" sx={{ fontSize: 20 }}>
-                visibility
-              </Box>
-            </IconButton>
-          )}
-          {onEdit && (
-            <IconButton
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit(row.original);
-              }}
-              sx={{
-                color: "text.secondary",
-                "&:hover": { color: theme.palette.info.main },
-              }}
-            >
-              <Box component="span" className="material-symbols-outlined" sx={{ fontSize: 20 }}>
-                edit
-              </Box>
-            </IconButton>
-          )}
-          {onDelete && (
-            <IconButton
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(row.original);
-              }}
-              sx={{
-                color: "text.secondary",
-                "&:hover": { color: theme.palette.error.main },
-              }}
-            >
-              <Box component="span" className="material-symbols-outlined" sx={{ fontSize: 20 }}>
-                delete
-              </Box>
-            </IconButton>
-          )}
-        </Box>
-      ),
+  // Sorting Logic
+  const sortedData = useMemo(() => {
+    if (!sortConfig) return data;
+    const sorted = [...data].sort((a, b) => {
+      const aValue = a[sortConfig.key];
+      const bValue = b[sortConfig.key];
+      if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
     });
-  }
+    return sorted;
+  }, [data, sortConfig]);
 
-  const table = useReactTable({
-    data,
-    columns: tableColumns,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: enableSorting ? getSortedRowModel() : undefined,
-    getPaginationRowModel: enablePagination
-      ? getPaginationRowModel()
-      : undefined,
-    getFilteredRowModel: enableFiltering ? getFilteredRowModel() : undefined,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    state: {
-      sorting,
-      columnFilters,
-    },
-    initialState: {
-      pagination: {
-        pageSize,
-      },
-    },
-  });
+  // Pagination Logic
+  const paginatedData = useMemo(() => {
+    if (!enablePagination) return sortedData;
+    const start = (page - 1) * pageSize;
+    return sortedData.slice(start, start + pageSize);
+  }, [sortedData, enablePagination, page, pageSize]);
 
-  const rows = table.getRowModel().rows;
+  const handleSort = (columnId: string) => {
+    if (!enableSorting) return;
+    let direction: "asc" | "desc" = "asc";
+    if (sortConfig && sortConfig.key === columnId && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key: columnId, direction });
+  };
+
+  const hasActions = !!(onView || onEdit || onDelete);
 
   return (
     <TableContainer
       component={Paper}
+      elevation={0}
       sx={{
-        bgcolor: "background.paper",
-        border: `1px solid ${theme.palette.divider}`,
-        borderRadius: 2,
-        overflow: "auto",
-        maxHeight: stickyHeader ? "calc(100vh - 200px)" : "none",
+        bgcolor: alpha(theme.palette.background.paper, 0.4),
+        backdropFilter: "blur(20px)",
+        border: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
+        borderRadius: 4,
+        overflow: "hidden",
+        "&::-webkit-scrollbar": { width: 8, height: 8 },
+        "&::-webkit-scrollbar-thumb": { 
+          bgcolor: alpha(theme.palette.primary.main, 0.2), 
+          borderRadius: 4 
+        },
       }}
     >
       <Table stickyHeader={stickyHeader} sx={{ minWidth: 650 }}>
         <TableHead>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow
-              key={headerGroup.id}
-              sx={{
-                bgcolor: alpha(theme.palette.background.default, 0.5),
-                "& th": {
-                  borderBottom: `1px solid ${theme.palette.divider}`,
-                },
-              }}
-            >
-              {headerGroup.headers.map((header) => {
-                const column = columns.find((c) => c.id === header.id);
-                const canSort = header.column.getCanSort();
-                const sortDirection = header.column.getIsSorted();
-
-                return (
-                  <TableCell
-                    key={header.id}
-                    align={column?.align || "left"}
-                    sx={{
-                      fontSize: "0.75rem",
-                      fontFamily: "monospace",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.05em",
-                      color: "text.secondary",
-                      fontWeight: 700,
-                      width: column?.width,
-                      cursor: canSort ? "pointer" : "default",
-                    }}
-                    onClick={header.column.getToggleSortingHandler()}
-                  >
-                    {canSort ? (
-                      <TableSortLabel
-                        active={!!sortDirection}
-                        direction={sortDirection === "desc" ? "desc" : "asc"}
-                      >
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                      </TableSortLabel>
-                    ) : (
-                      flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )
-                    )}
-                  </TableCell>
-                );
-              })}
-            </TableRow>
-          ))}
-        </TableHead>
-        <TableBody>
-          {rows.length === 0 ? (
-            <TableRow>
+          <TableRow>
+            {columns.map((col) => (
               <TableCell
-                colSpan={columns.length}
+                key={col.id}
+                align={col.align || "left"}
+                sortDirection={sortConfig?.key === col.id ? sortConfig.direction : false}
                 sx={{
-                  textAlign: "center",
-                  py: 6,
+                  bgcolor: alpha(theme.palette.common.black, 0.3),
+                  borderBottom: `2px solid ${alpha(theme.palette.divider, 0.5)}`,
+                  py: 2.5,
+                  fontSize: "0.7rem",
+                  fontWeight: 800,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.15em",
+                  color: "text.secondary",
+                  width: col.width,
+                }}
+              >
+                {col.enableSorting !== false && enableSorting ? (
+                  <TableSortLabel
+                    active={sortConfig?.key === col.id}
+                    direction={sortConfig?.key === col.id ? sortConfig.direction : "asc"}
+                    onClick={() => handleSort(col.id)}
+                    sx={{
+                      "&.Mui-active": { color: "primary.main" },
+                      "& .MuiTableSortLabel-icon": { color: "primary.main !important" },
+                    }}
+                  >
+                    {col.header}
+                  </TableSortLabel>
+                ) : (
+                  col.header
+                )}
+              </TableCell>
+            ))}
+            {hasActions && (
+              <TableCell 
+                align="right" 
+                sx={{ 
+                  bgcolor: alpha(theme.palette.common.black, 0.3),
+                  borderBottom: `2px solid ${alpha(theme.palette.divider, 0.5)}`,
+                  py: 2.5,
+                  fontSize: "0.7rem",
+                  fontWeight: 800,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.15em",
                   color: "text.secondary",
                 }}
               >
-                <Typography variant="body2">{emptyMessage}</Typography>
+                Actions
+              </TableCell>
+            )}
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {paginatedData.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={columns.length + (hasActions ? 1 : 0)} sx={{ py: 10, textAlign: "center" }}>
+                <Typography variant="body2" sx={{ opacity: 0.5, letterSpacing: "0.1em" }}>
+                  {emptyMessage.toUpperCase()}
+                </Typography>
               </TableCell>
             </TableRow>
           ) : (
-            rows.map((row) => (
+            paginatedData.map((row, index) => (
               <TableRow
-                key={row.id}
-                onClick={() => onRowClick?.(row.original)}
-                hover
+                key={row.id || index}
+                onClick={() => onRowClick?.(row)}
                 sx={{
                   cursor: onRowClick ? "pointer" : "default",
+                  transition: "all 0.2s",
                   "&:hover": {
-                    bgcolor: onRowClick
-                      ? alpha(theme.palette.common.white, 0.05)
-                      : "transparent",
+                    bgcolor: alpha(theme.palette.primary.main, 0.04),
+                    "& td": { color: "primary.main" }
                   },
-                  "& td": {
-                    borderBottom: `1px solid ${alpha(
-                      theme.palette.divider,
-                      0.5
-                    )}`,
-                  },
+                  "& td": { 
+                    borderBottom: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
+                    py: 2,
+                    fontSize: "0.85rem",
+                  }
                 }}
               >
-                {row.getVisibleCells().map((cell) => {
-                  const column = columns.find((c) => c.id === cell.column.id);
-                  return (
-                    <TableCell
-                      key={cell.id}
-                      align={column?.align || "left"}
-                      sx={{
-                        fontFamily: "monospace",
-                        fontSize: "0.875rem",
-                        color: "text.primary",
-                      }}
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
+                {columns.map((col) => (
+                  <TableCell key={col.id} align={col.align || "left"}>
+                    {col.cell 
+                      ? col.cell(row[col.accessorKey as string || col.id], row) 
+                      : (row[col.accessorKey as string || col.id] ?? "-")}
+                  </TableCell>
+                ))}
+                {hasActions && (
+                  <TableCell align="right">
+                    <Box sx={{ display: "flex", gap: 0.5, justifyContent: "flex-end" }}>
+                      {onView && (
+                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); onView(row); }} sx={{ "&:hover": { color: "primary.main" } }}>
+                          <IconVisibility sx={{ fontSize: 18 }} />
+                        </IconButton>
                       )}
-                    </TableCell>
-                  );
-                })}
+                      {onEdit && (
+                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); onEdit(row); }} sx={{ "&:hover": { color: "info.main" } }}>
+                          <IconEdit sx={{ fontSize: 18 }} />
+                        </IconButton>
+                      )}
+                      {onDelete && (
+                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); onDelete(row); }} sx={{ "&:hover": { color: "error.main" } }}>
+                          <IconDelete sx={{ fontSize: 18 }} />
+                        </IconButton>
+                      )}
+                    </Box>
+                  </TableCell>
+                )}
               </TableRow>
             ))
           )}
         </TableBody>
       </Table>
 
-      {/* Pagination Controls */}
-      {enablePagination && rows.length > 0 && (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            px: 3,
-            py: 2,
-            borderTop: `1px solid ${theme.palette.divider}`,
-            bgcolor: alpha(theme.palette.background.default, 0.3),
-          }}
-        >
-          <Typography
+      {enablePagination && sortedData.length > pageSize && (
+        <Box sx={{ p: 2.5, display: "flex", justifyContent: "center", borderTop: `1px solid ${alpha(theme.palette.divider, 0.2)}`, bgcolor: alpha(theme.palette.common.black, 0.1) }}>
+          <Pagination 
+            count={Math.ceil(sortedData.length / pageSize)} 
+            page={page} 
+            onChange={(_, val) => setPage(val)}
+            size="small"
+            color="primary"
             sx={{
-              fontSize: "0.75rem",
-              color: "text.secondary",
-              fontFamily: "monospace",
+              "& .MuiPaginationItem-root": {
+                fontWeight: 700,
+                borderRadius: 1,
+              }
             }}
-          >
-            Page {table.getState().pagination.pageIndex + 1} of{" "}
-            {table.getPageCount()}
-          </Typography>
-          <Box sx={{ display: "flex", gap: 1 }}>
-            <IconButton
-              size="small"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-              sx={{ color: "text.secondary" }}
-            >
-              <Box
-                component="span"
-                className="material-symbols-outlined"
-                sx={{ fontSize: 20 }}
-              >
-                chevron_left
-              </Box>
-            </IconButton>
-            <IconButton
-              size="small"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-              sx={{ color: "text.secondary" }}
-            >
-              <Box
-                component="span"
-                className="material-symbols-outlined"
-                sx={{ fontSize: 20 }}
-              >
-                chevron_right
-              </Box>
-            </IconButton>
-          </Box>
+          />
         </Box>
       )}
     </TableContainer>

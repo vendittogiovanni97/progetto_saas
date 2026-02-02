@@ -4,7 +4,14 @@
 
 import { Paper, Box, Typography } from "@mui/material";
 import { useTheme, alpha } from "@mui/material/styles";
-import { SystemLog as SystemLogType } from "../types";
+
+
+interface SystemLogType {
+  text: string;
+  time: string;
+  isPrimary?: boolean;
+  isWarning?: boolean;
+}
 
 interface SystemLogProps {
   logs: SystemLogType[];
@@ -66,7 +73,6 @@ export function SystemLog({ logs }: SystemLogProps) {
               <Typography
                 sx={{
                   fontSize: "0.625rem",
-                  fontFamily: "monospace",
                   color: "text.secondary",
                   mt: 0.25,
                 }}

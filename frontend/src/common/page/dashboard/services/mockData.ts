@@ -2,13 +2,37 @@
  * Mock data per la pagina Dashboard
  */
 
-import { Stat, Project, ComponentLibraryItem, SystemLog } from "../types";
+import { Stat, Project, ComponentLibraryItem, SystemLog } from "../types/index";
 
 export const stats: Stat[] = [
-  { label: "Total Active", value: "12" },
-  { label: "Pending Review", value: "04" },
-  { label: "Resource Load", value: "68%", isPrimary: true },
-  { label: "Errors", value: "0", isSuccess: true },
+  { 
+    label: "Total Active Projects", 
+    value: "12", 
+    icon: "account_tree",
+    trend: { value: 8, isPositive: true },
+    color: "primary" as const
+  },
+  { 
+    label: "Pending Review", 
+    value: "04", 
+    icon: "assignment_late",
+    description: "SYSTEM_SYNC_REQUIRED",
+    color: "warning" as const
+  },
+  { 
+    label: "Resource Load", 
+    value: "68%", 
+    icon: "memory",
+    trend: { value: 12, isPositive: false },
+    color: "info" as const
+  },
+  { 
+    label: "Critical Errors", 
+    value: "0", 
+    icon: "verified_user",
+    description: "NO_THREATS_DETECTED",
+    color: "success" as const
+  },
 ];
 
 export const projects: Project[] = [
@@ -32,7 +56,7 @@ export const projects: Project[] = [
     id: "PRJ-006",
     name: "Project Gamma Ray",
     status: "Pending",
-    statusColor: "default",
+    statusColor: "default" as const,
     progress: 0,
     time: "--:--:--",
   },

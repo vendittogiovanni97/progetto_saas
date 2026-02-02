@@ -5,13 +5,14 @@ import {
   Typography,
   LinearProgress,
   Chip,
+  alpha,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import {
   TableGeneric,
   TableGenericColumn,
 } from "@/common/components/table/TableGeneric";
-import { Project } from "../types";
+import { Project } from "../../types/types";
 
 interface ProjectsTableProps {
   projects: Project[];
@@ -32,24 +33,13 @@ export function ProjectsTable({
       header: "ID",
       accessorKey: "id",
       width: 100,
-      cell: (value) => (
-        <Typography
-          sx={{
-            fontFamily: "monospace",
-            fontSize: "0.875rem",
-            color: "text.secondary",
-          }}
-        >
-          {value}
-        </Typography>
-      ),
     },
     {
       id: "name",
       header: "Project Name",
       accessorKey: "name",
       cell: (value) => (
-        <Typography sx={{ fontWeight: 500 }}>{value}</Typography>
+        <Typography sx={{ fontWeight: 700, color: "primary.main" }}>{value}</Typography>
       ),
     },
     {
@@ -59,16 +49,19 @@ export function ProjectsTable({
       width: 120,
       cell: (value, row) => (
         <Chip
-          label={value}
+          label={String(value || "").toUpperCase()}
           size="small"
           color={row.statusColor as any}
           variant="outlined"
           sx={{
-            fontSize: "0.625rem",
-            fontWeight: 700,
+            fontSize: "0.6rem",
+            fontWeight: 900,
             textTransform: "uppercase",
-            letterSpacing: "0.05em",
-            height: 24,
+            letterSpacing: "0.1em",
+            height: 22,
+            borderRadius: 1,
+            borderWidth: 2,
+            bgcolor: alpha(theme.palette[row.statusColor as 'primary' | 'success' | 'error']?.main || theme.palette.primary.main, 0.05),
           }}
         />
       ),
@@ -79,14 +72,14 @@ export function ProjectsTable({
       accessorKey: "progress",
       width: 200,
       cell: (value, row) => (
-        <Box>
+        <Box sx={{ width: "100%", pr: 2 }}>
           <Box
-            sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}
+            sx={{ display: "flex", justifyContent: "space-between", mb: 0.5, px: 0.5 }}
           >
-            <Typography sx={{ fontSize: "0.625rem", color: "text.secondary" }}>
-              {value > 0 ? "Processing" : "Queued"}
+            <Typography sx={{ fontSize: "0.6rem", fontWeight: 800, color: "text.secondary", textTransform: "uppercase" }}>
+              {value > 0 ? "In Progress" : "Queued"}
             </Typography>
-            <Typography sx={{ fontSize: "0.625rem", color: "white" }}>
+            <Typography sx={{ fontSize: "0.6rem", fontWeight: 900, color: "primary.main" }}>
               {value}%
             </Typography>
           </Box>
@@ -97,7 +90,8 @@ export function ProjectsTable({
             sx={{
               height: 4,
               borderRadius: 2,
-              bgcolor: theme.palette.divider,
+              bgcolor: alpha(theme.palette.common.white, 0.1),
+              "& .MuiLinearProgress-bar": { borderRadius: 2 }
             }}
           />
         </Box>
@@ -107,20 +101,8 @@ export function ProjectsTable({
       id: "time",
       header: "Last Update",
       accessorKey: "time",
-      width: 120,
+      width: 140,
       align: "right",
-      cell: (value) => (
-        <Typography
-          sx={{
-            textAlign: "right",
-            fontFamily: "monospace",
-            fontSize: "0.75rem",
-            color: "text.secondary",
-          }}
-        >
-          {value}
-        </Typography>
-      ),
     },
   ];
 

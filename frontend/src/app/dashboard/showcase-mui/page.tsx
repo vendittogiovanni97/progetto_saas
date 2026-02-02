@@ -3,36 +3,42 @@
 import React, { useState } from 'react';
 
 // Centralized Import
-import { 
-  UiButton, 
-  UiInput, 
-  UiSelect, 
-  UiCheckbox, 
-  UiSwitch, 
-  UiSlider,
-  UiCard, UiCardHeader, UiCardContent, UiCardActions,
-  UiDialog, UiDialogTitle, UiDialogContent, UiDialogActions,
-  UiAlert,
-  UiAvatar,
-  UiBadge,
-  UiChip,
-  UiTooltip,
-  UiSkeleton,
-  UiLinearProgress,
-  UiTabs, UiTab,
-  UiBreadcrumbs,
-  UiPagination,
-  UiAccordion, UiAccordionSummary, UiAccordionDetails,
-  UiDivider,
-  UiStack,
-  UiTypography,
-  UiTable, UiTableHead, UiTableBody, UiTableRow, UiTableCell, UiTableContainer
-} from '@/common/components/ui-mui'; 
+import { ButtonGeneric } from "@/common/components/button/ButtonGeneric";
+import { InputGeneric } from "@/common/components/form/InputGeneric";
+import { SelectGeneric } from "@/common/components/form/SelectGeneric";
+import {
+  IconMail,
+  IconSearch,
+  IconRocket,
+  IconNext,
+} from "@/common/icons/icons";
+import { UiButton } from '@/common/components/ui-mui/UiButton';
+import { UiInput } from '@/common/components/ui-mui/UiInput';
+import { UiSelect } from '@/common/components/ui-mui/UiSelect';
+import { UiCheckbox } from '@/common/components/ui-mui/UiCheckbox';
+import { UiSwitch } from '@/common/components/ui-mui/UiSwitch';
+import { UiSlider } from '@/common/components/ui-mui/UiSlider';
+import { UiCard, UiCardHeader, UiCardContent, UiCardActions } from '@/common/components/ui-mui/UiCard';
+import { UiDialog, UiDialogTitle, UiDialogContent, UiDialogActions } from '@/common/components/ui-mui/UiDialog';
+import { UiAlert } from '@/common/components/ui-mui/UiAlert';
+import { UiAvatar } from '@/common/components/ui-mui/UiAvatar';
+import { UiBadge } from '@/common/components/ui-mui/UiBadge';
+import { UiChip } from '@/common/components/ui-mui/UiChip';
+import { UiTooltip } from '@/common/components/ui-mui/UiTooltip';
+import { UiSkeleton } from '@/common/components/ui-mui/UiSkeleton';
+import { UiLinearProgress } from '@/common/components/ui-mui/UiLinearProgress';
+import { UiTabs, UiTab } from '@/common/components/ui-mui/UiTabs';
+import { UiBreadcrumbs } from '@/common/components/ui-mui/UiBreadcrumbs';
+import { UiPagination } from '@/common/components/ui-mui/UiPagination';
+import { UiAccordion, UiAccordionSummary, UiAccordionDetails } from '@/common/components/ui-mui/UiAccordion';
+import { UiDivider } from '@/common/components/ui-mui/UiDivider';
+import { UiStack } from '@/common/components/ui-mui/UiStack';
+import { UiTypography } from '@/common/components/ui-mui/UiTypography';
+import { UiTable, UiTableHead, UiTableBody, UiTableRow, UiTableCell, UiTableContainer } from '@/common/components/ui-mui/UiTable';
 
 // External MUI / Icons imports for demo data
 import MenuItem from '@mui/material/MenuItem';
 import Link from '@mui/material/Link'; // Standard MUI Link for navigation example
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import Box from '@mui/material/Box'; // Basic layout utility from MUI
 import { Grid } from '@mui/material';
 
@@ -190,7 +196,7 @@ export default function ShowcaseMuiPage() {
         {/* Navigation */}
         <ShowcaseSection title="5. Navigation">
            <UiStack spacing={4}>
-              <UiBreadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
+              <UiBreadcrumbs separator={<IconNext fontSize="small" />}>
                  <Link underline="hover" color="inherit" href="/">Home</Link>
                  <Link underline="hover" color="inherit" href="#">Catalog</Link>
                  <UiTypography color="text.primary">Product</UiTypography>
@@ -318,6 +324,76 @@ export default function ShowcaseMuiPage() {
               </Grid>
            </UiStack>
 
+        </ShowcaseSection>
+        <ShowcaseSection title="8. Premium ButtonGeneric & Wrappers">
+          <UiStack spacing={4}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(5, 1fr)' }, gap: 2 }}>
+              <ButtonGeneric.Primary label="Primary Action" />
+              <ButtonGeneric.Secondary label="Secondary Action" />
+              <ButtonGeneric.Danger label="Critical Error" />
+              <ButtonGeneric.Ghost label="Subtle Link" />
+              <ButtonGeneric.Success label="Positive Action" />
+            </Box>
+            
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(4, 1fr)' }, gap: 2 }}>
+              <ButtonGeneric loading label="Processing..." />
+              <ButtonGeneric.Primary startIcon={<IconRocket sx={{ fontSize: 18 }} />} label="With Icon" />
+              <ButtonGeneric.Secondary label="Regular Text" />
+              <ButtonGeneric.Danger disabled label="Disabled Danger" />
+            </Box>
+            
+            <UiTypography variant="caption" color="textSecondary">
+              * Nota: ButtonGeneric è ora più semplice e leggero, con supporto per la prop 'label' e caricamento integrato.
+            </UiTypography>
+          </UiStack>
+        </ShowcaseSection>
+
+        <ShowcaseSection title="9. High-Performance Form Components">
+          <UiStack spacing={4}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 3 }}>
+              <InputGeneric 
+                label="Standard Input" 
+                placeholder="Enter some text..." 
+              />
+              <InputGeneric 
+                label="Input with Icon" 
+                placeholder="Search resources..." 
+                startIcon={<IconSearch sx={{ fontSize: 20 }} />}
+              />
+              <InputGeneric 
+                label="Email Field" 
+                type="email" 
+                placeholder="user@example.com"                 startIcon={<IconMail sx={{ fontSize: 20 }} />}
+                helperText="We'll never share your email."
+              />
+              <InputGeneric 
+                label="Error State" 
+                placeholder="Invalid input" 
+                error 
+                helperText="This field is required" 
+              />
+            </Box>
+
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 3 }}>
+              <SelectGeneric 
+                label="Standard Select"
+                options={[
+                  { value: 'opt1', label: 'Option 1' },
+                  { value: 'opt2', label: 'Option 2' },
+                  { value: 'opt3', label: 'Option 3' },
+                ]}
+              />
+              <SelectGeneric 
+                label="Select with Helper"
+                helperText="Please select your preferred region"
+                options={[
+                  { value: 'eu', label: 'Europe (Main)' },
+                  { value: 'us', label: 'United States' },
+                  { value: 'as', label: 'Asia Pacific' },
+                ]}
+              />
+            </Box>
+          </UiStack>
         </ShowcaseSection>
       </Box>
     </Box>

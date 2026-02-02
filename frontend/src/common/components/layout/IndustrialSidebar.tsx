@@ -3,8 +3,24 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Box, Drawer, List, ListItemButton, ListItemIcon, ListItemText, Typography, Avatar, Tooltip, IconButton, Collapse, Menu, MenuItem } from "@mui/material";
+import {
+  Box,
+  Drawer,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Typography,
+  Avatar,
+  Tooltip,
+  IconButton,
+  Collapse,
+  Menu,
+  MenuItem,
+} from "@mui/material";
 import { useTheme, alpha } from "@mui/material/styles";
+import { IconNext, IconSettings, IconMenu } from "@/common/icons/icons";
+import { DynamicIcon } from "@/common/icons/DynamicIcon";
 import { useSidebar } from "@/providers/SidebarProvider";
 import { navLinks } from "@/common/config/navigazioneSidebar";
 
@@ -65,7 +81,7 @@ export default function IndustrialSidebar() {
                 '&:hover': { color: 'white', bgcolor: 'background.paper' }
               }}
             >
-              <Box component="span" className="material-symbols-outlined">menu</Box>
+              <IconMenu />
             </IconButton>
             {!isCollapsed && (
               <Typography variant="h6" sx={{ 
@@ -113,7 +129,7 @@ export default function IndustrialSidebar() {
                       mr: isCollapsed ? 0 : 1.5,
                       color: isActive ? 'primary.main' : 'inherit',
                     }}>
-                      <Box component="span" className="material-symbols-outlined">{link.icon}</Box>
+                      <DynamicIcon name={link.icon} />
                     </ListItemIcon>
                     {!isCollapsed && (
                       <>
@@ -125,14 +141,14 @@ export default function IndustrialSidebar() {
                           }}
                         />
                         {hasSubItems && (
-                          <Box component="span" className="material-symbols-outlined" sx={{ 
-                            fontSize: 18, 
-                            opacity: 0.5,
-                            transform: isMenuOpen ? 'rotate(180deg)' : 'none',
-                            transition: 'transform 0.2s'
-                          }}>
-                            expand_more
-                          </Box>
+                             <IconNext 
+                               sx={{ 
+                                 fontSize: 18, 
+                                 opacity: 0.5,
+                                 transform: isMenuOpen ? 'rotate(90deg)' : 'none', // NavigateNext rotates 90 for 'down'
+                                 transition: 'transform 0.2s'
+                               }} 
+                             />
                         )}
                       </>
                     )}
@@ -223,7 +239,7 @@ export default function IndustrialSidebar() {
                 }}
               >
                 <ListItemIcon sx={{ minWidth: 0, mr: 1.5, color: 'inherit' }}>
-                  <Box component="span" className="material-symbols-outlined" sx={{ fontSize: 18 }}>{subItem.icon}</Box>
+                  <DynamicIcon name={subItem.icon} sx={{ fontSize: 18 }} />
                 </ListItemIcon>
                 {subItem.name}
               </MenuItem>
@@ -251,7 +267,7 @@ export default function IndustrialSidebar() {
               }}
             >
               <ListItemIcon sx={{ minWidth: 0, mr: isCollapsed ? 0 : 1.5 }}>
-                <Box component="span" className="material-symbols-outlined">settings</Box>
+                <IconSettings />
               </ListItemIcon>
               {!isCollapsed && (
                 <ListItemText 

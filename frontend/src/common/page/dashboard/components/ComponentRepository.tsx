@@ -2,8 +2,11 @@
  * Panel Component Repository (sidebar)
  */
 
-import { Paper, Box, Typography, Button } from "@mui/material";
+import { Paper, Box, Typography } from "@mui/material";
+import { ButtonGeneric } from "@/common/components/button/ButtonGeneric";
 import { useTheme, alpha } from "@mui/material/styles";
+import { IconWidgets } from "@/common/icons/icons";
+import { DynamicIcon } from "@/common/icons/DynamicIcon";
 import { ComponentLibraryItem } from "../types";
 
 interface ComponentRepositoryProps {
@@ -37,13 +40,7 @@ export function ComponentRepository({ items }: ComponentRepositoryProps) {
         <Typography variant="h3" sx={{ fontSize: "0.75rem" }}>
           Component Repository
         </Typography>
-        <Box
-          component="span"
-          className="material-symbols-outlined"
-          sx={{ fontSize: 18, color: "text.secondary" }}
-        >
-          widgets
-        </Box>
+        <IconWidgets sx={{ fontSize: 18, color: "text.secondary" }} />
       </Box>
       <Box sx={{ p: 1 }}>
         {items.map((item) => (
@@ -83,9 +80,7 @@ export function ComponentRepository({ items }: ComponentRepositoryProps) {
                 transition: "all 0.2s",
               }}
             >
-              <Box component="span" className="material-symbols-outlined" sx={{ fontSize: 18 }}>
-                {item.icon}
-              </Box>
+              <DynamicIcon name={item.icon} sx={{ fontSize: 18 }} />
             </Box>
             <Box>
               <Typography
@@ -112,10 +107,10 @@ export function ComponentRepository({ items }: ComponentRepositoryProps) {
           bgcolor: alpha(theme.palette.background.default, 0.3),
         }}
       >
-        <Button
+        <ButtonGeneric.Secondary
           fullWidth
-          variant="outlined"
           size="small"
+          label="Browse Full Library"
           sx={{
             borderColor: theme.palette.divider,
             color: "text.secondary",
@@ -124,9 +119,7 @@ export function ComponentRepository({ items }: ComponentRepositoryProps) {
               bgcolor: alpha(theme.palette.common.white, 0.05),
             },
           }}
-        >
-          Browse Full Library
-        </Button>
+        />
       </Box>
     </Paper>
   );

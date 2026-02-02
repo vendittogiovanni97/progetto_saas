@@ -1,6 +1,8 @@
 "use client";
 
-import { Box, Typography, TextField, Button, alpha, useTheme, Grid, Stack } from "@mui/material";
+import { Box, Typography, alpha, useTheme, Grid, Stack } from "@mui/material";
+import { InputGeneric } from "@/common/components/form/InputGeneric";
+import { ButtonGeneric } from "@/common/components/button/ButtonGeneric";
 import { useState } from "react";
 import { useAuth } from "@/providers/AuthProvider";
 import { chatbotService } from "@/services/api/chatbot";
@@ -19,13 +21,19 @@ interface ChatbotConfig {
   primaryColor: string;
 }
 
+import { SectionGeneric } from "@/common/components/section/SectionGeneric";
+
 const colors = ["#3b82f6", "#10b981", "#ef4444", "#f59e0b", "#8b5cf6", "#ec4899", "#111827"];
 
 export function ChatbotWizard({ open, onClose, onSave }: ChatbotWizardProps) {
   const theme = useTheme();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [config, setConfig] = useState<ChatbotConfig>({ name: "My Assistant", welcomeMessage: "Ciao! Come posso aiutarti oggi?", primaryColor: "#3b82f6" });
+  const [config, setConfig] = useState<ChatbotConfig>({ 
+    name: "My Assistant", 
+    welcomeMessage: "Ciao! Come posso aiutarti oggi?", 
+    primaryColor: "#3b82f6" 
+  });
 
   const handleSave = async () => {
     if (!user) return;
@@ -39,7 +47,7 @@ export function ChatbotWizard({ open, onClose, onSave }: ChatbotWizardProps) {
         onSave(response.data);
       }
     } catch (error) {
-      void error;
+      console.error("Errore durante la creazione del chatbot:", error);
       alert("Errore durante la creazione del chatbot.");
     } finally {
       setLoading(false);
@@ -47,31 +55,22 @@ export function ChatbotWizard({ open, onClose, onSave }: ChatbotWizardProps) {
   };
 
   const content = (
-      <Box sx={{ p: 0 }}>
-      <Box sx={{ p: 4 }}>
-        <Grid container spacing={5}>
-          {/* Form Side */}
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Stack spacing={4}>
-              <Box>
-                <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700 }}>
-                  Nome del Bot
-                </Typography>
-                <TextField
-                  fullWidth
+    <Box sx={{ p: 4 }}>
+      <Grid container spacing={5}>
+        {/* Form Side */}
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Stack spacing={4}>
+            <SectionGeneric title="Informazioni Base" showDivider={false}>
+                <InputGeneric
+                  label="Nome del Bot"
+                  placeholder="es. Support Bot"
                   value={config.name}
                   onChange={(e) => setConfig({ ...config, name: e.target.value })}
-                  placeholder="es. Support Bot"
                   disabled={loading}
                 />
-              </Box>
 
-              <Box>
-                <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700 }}>
-                  Messaggio di Benvenuto
-                </Typography>
-                <TextField
-                  fullWidth
+                <InputGeneric
+                  label="Messaggio di Benvenuto"
                   multiline
                   rows={2}
                   value={config.welcomeMessage}
@@ -79,8 +78,9 @@ export function ChatbotWizard({ open, onClose, onSave }: ChatbotWizardProps) {
                   placeholder="Scrivi cosa dirà il bot all'inizio..."
                   disabled={loading}
                 />
-              </Box>
+            </SectionGeneric>
 
+            <SectionGeneric title="Personalizzazione" showDivider={false}>
               <Box>
                 <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700 }}>
                   Colore Brand
@@ -105,33 +105,29 @@ export function ChatbotWizard({ open, onClose, onSave }: ChatbotWizardProps) {
                   ))}
                 </Box>
               </Box>
+            </SectionGeneric>
 
-              <Box sx={{ pt: 2, display: "flex", gap: 2 }}>
-                <Button variant="outlined" fullWidth onClick={onClose} disabled={loading}>
-                  Annulla
-                </Button>
-                <Button
-                  variant="contained"
-                  fullWidth
-                  onClick={handleSave}
-                  disabled={loading}
-                  sx={{ bgcolor: config.primaryColor, "&:hover": { bgcolor: alpha(config.primaryColor, 0.8) } }}
-                >
-                  {loading ? "Creazione..." : "Crea Chatbot"}
-                </Button>
-              </Box>
-            </Stack>
-          </Grid>
-
-          {/* Preview Side */}
-          <Grid size={{ xs: 12, md: 6 }} sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", bgcolor: alpha(theme.palette.divider, 0.1), borderRadius: 4, py: 4 }}>
-            <Typography variant="overline" sx={{ mb: 2, color: "text.secondary", fontWeight: 700 }}>
-              Anteprima Live
-            </Typography>
-            <ChatbotPreview config={config} />
-          </Grid>
+            <Box sx={{ pt: 2, display: "flex", gap: 2 }}>
+              <ButtonGeneric.Secondary fullWidth onClick={onClose} disabled={loading} label="Annulla" />
+              <ButtonGeneric.Primary
+                fullWidth
+                onClick={handleSave}
+                loading={loading}
+                label="Crea Chatbot"
+                sx={{ bgcolor: config.primaryColor, "&:hover": { bgcolor: alpha(config.primaryColor, 0.8) } }}
+              />
+            </Box>
+          </Stack>
         </Grid>
-      </Box>
+
+        {/* Preview Side */}
+        <Grid size={{ xs: 12, md: 6 }} sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", bgcolor: alpha(theme.palette.divider, 0.05), borderRadius: 4, py: 4, border: `1px dashed ${theme.palette.divider}` }}>
+          <Typography variant="overline" sx={{ mb: 2, color: "text.secondary", fontWeight: 700 }}>
+            Anteprima Live
+          </Typography>
+          <ChatbotPreview config={config} />
+        </Grid>
+      </Grid>
     </Box>
   );
 
@@ -139,17 +135,10 @@ export function ChatbotWizard({ open, onClose, onSave }: ChatbotWizardProps) {
     <ModalGeneric
       open={open}
       onClose={onClose}
-      title={<Typography sx={{ fontWeight: 800 }}>Configura il tuo Chatbot</Typography>}
+      title={<Typography variant="h6" sx={{ fontWeight: 800 }}>Configura il tuo Chatbot</Typography>}
       content={content}
       maxWidth="lg"
       fullWidth
-      PaperProps={{
-        sx: {
-          bgcolor: alpha(theme.palette.background.paper, 0.9),
-          backdropFilter: "blur(20px)",
-          borderRadius: 4,
-        }
-      }}
     />
   );
 }

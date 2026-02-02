@@ -3,7 +3,7 @@
  */
 
 import { useState, useMemo } from "react";
-import { Client, ClientsFilter } from "../types";
+import { Client, ClientsFilter } from "../types/types";
 
 export function useClientsPage() {
   const [search, setSearch] = useState("");

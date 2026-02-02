@@ -2,7 +2,7 @@
  * Utility per filtrare i clients
  */
 
-import { Client, ClientsFilter } from "../types";
+import { Client, ClientsFilter } from "../types/types";
 
 export function filterClients(clients: Client[], filters: ClientsFilter): Client[] {
   return clients.filter((client) => {

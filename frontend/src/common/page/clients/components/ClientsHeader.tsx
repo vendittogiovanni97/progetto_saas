@@ -5,14 +5,20 @@
 import {
   Box,
   Typography,
-  Button,
   TextField,
   Select,
   MenuItem,
   InputAdornment,
+  Icon,
 } from "@mui/material";
+import { ButtonGeneric } from "@/common/components/button/ButtonGeneric";
+import { PageHeaderGeneric } from "@/common/components/header/PageHeaderGeneric";
+import { 
+  IconAdd, 
+  IconSearch 
+} from "@/common/icons/icons";
 import { useTheme, alpha } from "@mui/material/styles";
-import { Client } from "../types";
+import { Client } from "../types/types";
 
 interface ClientsHeaderProps {
   search: string;
@@ -45,58 +51,17 @@ export function ClientsHeader({
         pb: 3,
       }}
     >
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "flex-end",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: 2,
-        }}
-      >
-        <Box>
-          <Typography
-            variant="h1"
-            sx={{
-              fontSize: { xs: "1.875rem", md: "2.25rem" },
-              mb: 1,
-            }}
-          >
-            Clients{" "}
-            <Box component="span" sx={{ color: "primary.main" }}>
-              {"//"}
-            </Box>{" "}
-            Management
-          </Typography>
-          <Typography
-            sx={{
-              color: "text.secondary",
-              fontSize: { xs: "0.875rem", md: "1rem" },
-              letterSpacing: "0.05em",
-            }}
-          >
-            MANAGE YOUR CLIENTS AND RELATIONSHIPS
-          </Typography>
-        </Box>
-        <Button
-          variant="contained"
-          onClick={onCreateClient}
-          startIcon={
-            <Box
-              component="span"
-              className="material-symbols-outlined"
-              sx={{ fontSize: 18 }}
-            >
-              add
-            </Box>
-          }
-          sx={{
-            boxShadow: `0 0 15px ${alpha(theme.palette.primary.main, 0.3)}`,
-          }}
-        >
-          New Client
-        </Button>
-      </Box>
+      <PageHeaderGeneric 
+        title="Clients // Management"
+        subtitle="MANAGE YOUR CLIENTS AND RELATIONSHIPS"
+        actions={(
+          <ButtonGeneric.Primary
+            onClick={onCreateClient}
+            startIcon={<IconAdd sx={{ fontSize: 18 }} />}
+            label="New Client"
+          />
+        )}
+      />
 
       <Box
         sx={{ display: "flex", gap: 2, flexWrap: "wrap", alignItems: "center" }}
@@ -109,13 +74,7 @@ export function ClientsHeader({
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <Box
-                  component="span"
-                  className="material-symbols-outlined"
-                  sx={{ fontSize: 20, color: "text.secondary" }}
-                >
-                  search
-                </Box>
+                  <IconSearch sx={{ fontSize: 20, color: "text.secondary" }} />
               </InputAdornment>
             ),
           }}
