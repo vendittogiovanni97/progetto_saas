@@ -3,23 +3,28 @@
 import { Box } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useProjectsPage } from "./hooks/useProjectsPage";
-import { TextField, alpha, useTheme } from "@mui/material";
+import { TextField, alpha, useTheme, CircularProgress, Typography } from "@mui/material";
 import { ButtonGeneric } from "@/components/ui/button";
 import { ProjectsTable } from "./components/list/ProjectsTable";
 import { ProjectDialog } from "./components/dialogs/ProjectDialog";
 import { TemplateGallery } from "./components/list/TemplateGallery";
-import { projects } from "./services/mockData";
-import { Project, ProjectFormData } from "./types/types";
-import { useState } from "react";
-import { ChatbotWizard } from "../chatbots/components/ChatbotWizard";
+import { useState, useEffect } from "react";
+import { ChatbotWizard } from "./components/chatbot/ChatbotWizard";
 import { IconAdd } from "@/components/icons/icons";
 import { PageHeaderGeneric } from "@/components/layout/page-header";
+import { useThemeContext } from "@/providers/ThemeContext";
+import { CreateProjectDTO, Project } from "./interfaces/Project.entity";
+import { projectService } from "@/lib/api/project";
 
 export function ProjectsPage() {
   const router = useRouter();
   const theme = useTheme();
+  const { showSnack } = useThemeContext();
   const [isTemplateGalleryOpen, setIsTemplateGalleryOpen] = useState(false);
   const [isChatbotWizardOpen, setIsChatbotWizardOpen] = useState(false);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   const {
     search,
@@ -31,12 +36,34 @@ export function ProjectsPage() {
     handleCloseDialog,
   } = useProjectsPage();
 
+  // Fetch projects on mount
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  const fetchProjects = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await projectService.getProjects(1); // TODO: Get accountId from auth
+      if (response.data) {
+        setProjects(response.data);
+      }
+    } catch (err) {
+      console.error("Errore nel recupero dei progetti:", err);
+      setError("Impossibile caricare i progetti");
+      showSnack("Errore nel caricamento dei progetti // SYSTEM_FAIL", "alert");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const filteredProjects = projects.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
-    p.id.toLowerCase().includes(search.toLowerCase())
+    p.id.toString().toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleSaveProject = (data: ProjectFormData) => {
+  const handleSaveProject = (data: CreateProjectDTO) => {
     // TODO: Integrare con API
     console.log("Save project:", data);
     handleCloseDialog();
@@ -55,10 +82,12 @@ export function ProjectsPage() {
     }
   };
 
-  const handleChatbotSave = (chatbot: any) => {
+  const handleChatbotSave = (project: any) => {
     setIsChatbotWizardOpen(false);
-    // Reindirizza l'utente alla pagina del chatbot appena creato
-    router.push(`/dashboard/chatbots/${chatbot.id}`);
+    // Ricarica la lista progetti
+    fetchProjects();
+    // Reindirizza l'utente alla pagina del progetto appena creato
+    router.push(`/dashboard/projects/${project.id}`);
   };
 
   const headerActions = (
@@ -85,6 +114,38 @@ export function ProjectsPage() {
       </ButtonGeneric.Primary>
     </>
   );
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <PageHeaderGeneric
+          title="Projects Control"
+          subtitle="SYSTEM_VERSION: 1.0.4 // ACTIVE_PROXIES: 04"
+          actions={headerActions}
+        />
+        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", py: 8 }}>
+          <CircularProgress />
+        </Box>
+      </Box>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <PageHeaderGeneric
+          title="Projects Control"
+          subtitle="SYSTEM_VERSION: 1.0.4 // ACTIVE_PROXIES: 04"
+          actions={headerActions}
+        />
+        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", py: 8 }}>
+          <Typography color="error">{error}</Typography>
+        </Box>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>

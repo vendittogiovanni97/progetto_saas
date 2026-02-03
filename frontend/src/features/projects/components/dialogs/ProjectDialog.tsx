@@ -1,22 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  Box,
-  Slider,
-  Typography,
-} from "@mui/material";
+import { Box } from "@mui/material";
 import { InputGeneric } from "@/components/ui/input";
 import { SelectGeneric } from "@/components/ui/select";
 import { ButtonGeneric } from "@/components/ui/button";
 import { ModalGeneric } from "@/components/ui/modal";
-import { Project, ProjectFormData, ProjectStatus } from "../../types/types";
+import { ProjectType } from "@/types/shared.types";
+import { CreateProjectDTO, Project } from "../../interfaces/Project.entity";
 
 interface ProjectDialogProps {
   open: boolean;
   project: Project | null;
   onClose: () => void;
-  onSave: (data: ProjectFormData) => void;
+  onSave: (data: CreateProjectDTO) => void;
 }
 
 export function ProjectDialog({
@@ -25,24 +22,25 @@ export function ProjectDialog({
   onClose,
   onSave,
 }: ProjectDialogProps) {
-  const [formData, setFormData] = useState<ProjectFormData>({
+  const [formData, setFormData] = useState<CreateProjectDTO>({
     name: "",
-    status: "Active",
-    progress: 0,
+    type: ProjectType.CHATBOT,
+    accountId: 1, // TODO: Get from auth
   });
 
   useEffect(() => {
     if (project) {
       setFormData({
         name: project.name,
-        status: project.status,
-        progress: project.progress,
+        description: project.description || undefined,
+        type: project.type,
+        accountId: project.accountId,
       });
     } else {
       setFormData({
         name: "",
-        status: "Active",
-        progress: 0,
+        type: ProjectType.CHATBOT,
+        accountId: 1,
       });
     }
   }, [project, open]);
@@ -72,37 +70,30 @@ export function ProjectDialog({
         required
       />
 
+      <InputGeneric
+        label="Description"
+        value={formData.description || ""}
+        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+        multiline
+        rows={3}
+      />
+
       <SelectGeneric
-        label="Status"
-        value={formData.status}
+        label="Type"
+        value={formData.type}
         onChange={(e) =>
           setFormData({
             ...formData,
-            status: e.target.value as ProjectStatus,
+            type: e.target.value as ProjectType,
           })
         }
         options={[
-          { value: "Active", label: "Active" },
-          { value: "Paused", label: "Paused" },
-          { value: "Pending", label: "Pending" },
-          { value: "Error", label: "Error" },
+          { value: ProjectType.CHATBOT, label: "Chatbot" },
+          { value: ProjectType.FORM, label: "Form" },
+          { value: ProjectType.WORKFLOW, label: "Workflow" },
+          { value: ProjectType.API, label: "API" },
         ]}
       />
-
-      <Box>
-        <Typography gutterBottom sx={{ fontSize: "0.75rem", color: "text.secondary", mb: 2 }}>
-          PROGRESS: {formData.progress}%
-        </Typography>
-        <Slider
-          value={formData.progress}
-          onChange={(_, value) => setFormData({ ...formData, progress: value as number })}
-          valueLabelDisplay="auto"
-          step={5}
-          marks
-          min={0}
-          max={100}
-        />
-      </Box>
     </Box>
   );
 

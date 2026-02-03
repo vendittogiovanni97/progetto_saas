@@ -1,10 +1,7 @@
 import { Router } from 'express';
 import { 
-  createChatbot, 
   getUserChatbots, 
   getChatbot, 
-  updateChatbot, 
-  deleteChatbot,
   createConversation, 
   getConversations, 
   deleteConversation,
@@ -16,17 +13,15 @@ import {
 const router = Router();
 
 /* CHATBOT ROUTES
+ * NOTA: La creazione e l'eliminazione dei chatbot avviene tramite i progetti (/api/projects)
  * TODO: Aggiungere middleware di autenticazione a tutte le rotte
  * TODO: Aggiungere middleware di validazione dei dati
  * TODO: Aggiungere middleware di autorizzazione (user ownership check)
  */
 
 // CHATBOT ROUTES - Gestione dei chatbot
-router.post('/', createChatbot); // POST /chatbots - Crea un nuovo chatbot
 router.get('/', getUserChatbots); // GET /chatbots - Prendi tutti i chatbot di un utente (usa ?accountId=123)
 router.get('/:id', getChatbot); // GET /chatbots/:id - Prendi un chatbot specifico
-router.put('/:id', updateChatbot); // PUT /chatbots/:id - Aggiorna un chatbot
-router.delete('/:id', deleteChatbot); // DELETE /chatbots/:id - Elimina un chatbot
 
 // CONVERSATION ROUTES - Gestione delle conversazioni
 router.post('/conversations', createConversation); // POST /conversations - Crea una nuova conversazione

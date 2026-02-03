@@ -18,15 +18,21 @@ export interface ChatMessage {
   createdAt?: string;
 }
 
+/**
+ * Servizio per gestire i chatbot
+ * NOTA: La creazione e l'eliminazione dei chatbot avviene tramite projectService
+ */
 export const chatbotService = {
-  createChatbot: async (config: ChatbotConfig): Promise<ApiResponse<ChatbotConfig>> => {
-    return apiClient.post<ChatbotConfig>(API_ENDPOINTS.CHATBOT.BASE, config);
-  },
-
+  /**
+   * Recupera tutti i chatbot di un account
+   */
   getChatbots: async (accountId?: number): Promise<ApiResponse<ChatbotConfig[]>> => {
     return apiClient.get<ChatbotConfig[]>(`${API_ENDPOINTS.CHATBOT.BASE}${accountId ? `?accountId=${accountId}` : ''}`);
   },
 
+  /**
+   * Invia un messaggio al chatbot
+   */
   sendMessage: async (chatbotId: string, message: string, visitorId: string): Promise<ApiResponse<ChatMessage>> => {
     return apiClient.post<ChatMessage>('/chatbots/message', { chatbotId, message, visitorId });
   },

@@ -32,29 +32,55 @@ enum ChatbotTemplate {
   CUSTOM        
 }
 
+enum ProjectType {
+  CHATBOT
+  FORM
+  WORKFLOW
+  API
+}
+
 model Account {
   id        Int         @id @default(autoincrement())
   email     String      @unique
   password  String
   role      Role        @default(USER)
-  chatbots  Chatbot[]   
+  chatbots  Chatbot[]
+  projects  Project[]
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
 }
+model Project {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String?     @db.Text
+  type        ProjectType @default(CHATBOT)
+  config      String?     @db.Text  // JSON configuration specifica per tipo
+  accountId   Int
+  account     Account     @relation(fields: [accountId], references: [id])
+  chatbot     Chatbot?    // Relazione uno-a-uno opzionale
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([accountId])
+  @@index([type])
+  @@index([createdAt])
+}
+
 model Chatbot {
-  id               Int            @id @default(autoincrement())
-  name             String
-  welcomeMessage   String         @default("Ciao! Come posso aiutarti?")
-  encodedPrompt    String?        @db.Text
-  type             ChatbotType    @default(DEFAULT)
-  template         ChatbotTemplate @default(GENERIC)
+  id               Int                @id @default(autoincrement())
+  welcomeMessage   String             @default("Ciao! Come posso aiutarti?")
+  encodedPrompt    String?            @db.Text
+  type             ChatbotType        @default(DEFAULT)
+  template         ChatbotTemplate    @default(GENERIC)
   personality      ChatbotPersonality @default(PROFESSIONALE)
-  primaryColor     String         @default("#3b82f6")
+  primaryColor     String             @default("#3b82f6")
   accountId        Int
-  account          Account        @relation(fields: [accountId], references: [id])
+  account          Account            @relation(fields: [accountId], references: [id])
+  projectId        Int                @unique  // Relazione uno-a-uno con Project
+  project          Project            @relation(fields: [projectId], references: [id])
   conversations    Conversation[]
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
 
   @@index([accountId])
   @@index([createdAt])

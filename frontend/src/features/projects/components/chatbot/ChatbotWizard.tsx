@@ -9,12 +9,14 @@ import { ModalGeneric } from "@/components/ui/modal";
 import { ChatbotPreview } from "./ChatbotPreview";
 import { SectionGeneric } from "@/components/ui/section";
 import { useThemeContext } from "@/providers/ThemeContext";
-import { chatbotService } from "@/lib/api/chatbot";
+import { projectService } from "@/lib/api/project";
+import { DEFAULT_CHATBOT_CONFIG, CHATBOT_COLORS } from "@/lib/api/configs/chatbot";
+import { ProjectType, ChatbotType, ChatbotTemplate, ChatbotPersonality } from "@/types/shared.types";
 
 interface ChatbotWizardProps {
   open: boolean;
   onClose: () => void;
-  onSave: (chatbot: any) => void;
+  onSave: (project: any) => void;
 }
 
 interface ChatbotConfig {
@@ -22,8 +24,6 @@ interface ChatbotConfig {
   welcomeMessage: string;
   primaryColor: string;
 }
-
-const colors = ["#3b82f6", "#10b981", "#ef4444", "#f59e0b", "#8b5cf6", "#ec4899", "#111827"];
 
 export function ChatbotWizard({ open, onClose, onSave }: ChatbotWizardProps) {
   const theme = useTheme();
@@ -41,17 +41,26 @@ export function ChatbotWizard({ open, onClose, onSave }: ChatbotWizardProps) {
     setIsSubmitting(true);
     setLoading(true);
     try {
-      const response = await chatbotService.createChatbot({
-        ...config,
+      const response = await projectService.createProject({
+        name: config.name,
+        description: `Chatbot AI - ${config.name}`,
+        type: ProjectType.CHATBOT,
         accountId: 1,
+        config: {
+          welcomeMessage: config.welcomeMessage,
+          type: ChatbotType.AI,
+          template: ChatbotTemplate.GENERIC,
+          personality: ChatbotPersonality.PROFESSIONALE,
+          primaryColor: config.primaryColor,
+        },
       });
       if (response.data) {
         onSave(response.data);
-        showSnack("Chatbot creato con successo! // SYSTEM_INIT_OK", "success");
+        showSnack("Progetto chatbot creato con successo! // SYSTEM_INIT_OK", "success");
         onClose();
       }
     } catch (error) {
-      console.error("Errore durante la creazione del chatbot:", error);
+      console.error("Errore durante la creazione del progetto:", error);
       showSnack("Errore critico durante la creazione // SYSTEM_FAIL", "alert");
     } finally {
       setIsSubmitting(false);
@@ -93,7 +102,7 @@ export function ChatbotWizard({ open, onClose, onSave }: ChatbotWizardProps) {
                   Colore Brand
                 </Typography>
                 <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
-                  {colors.map((color) => (
+                  {CHATBOT_COLORS.map((color) => (
                     <Box
                       key={color}
                       onClick={() => !isSubmitting && setConfig({ ...config, primaryColor: color })}

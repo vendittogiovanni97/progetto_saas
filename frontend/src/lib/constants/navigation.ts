@@ -58,15 +58,6 @@ export const navLinksConfig: NavLink[] = [
     active: true,
     roles: ["admin", "editor", "viewer"],
   },
-  {
-    id: "chatbots",
-    name: "AI Chatbots",
-    href: "/dashboard/chatbots",
-    icon: "smart_toy",
-    priority: 5,
-    active: true,
-    roles: ["admin", "editor", "viewer"],
-  },
 ];
 
 export function getNavLinksByRole(userRole: UserRole): NavLink[] {

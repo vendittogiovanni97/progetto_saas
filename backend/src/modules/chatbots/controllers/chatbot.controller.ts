@@ -3,56 +3,19 @@ import { prisma } from "../../../config/prisma";
 import { encodePrompt, decodePrompt, getFinalSystemPrompt } from "../../../modules/chatbots/utils/utils-chatbot";
 import { callOllama } from "../../../config/ollama";
 
-export async function createChatbot(req: Request, res: Response): Promise<void> {
-  try {
-    const { 
-      name, 
-      welcomeMessage, 
-      type,
-      template, 
-      personality,
-      customPrompt,
-      primaryColor,
-      accountId 
-    } = req.body;
-
-    // Se template è CUSTOM, salva il prompt in base64
-    const encodedPrompt = (template === 'CUSTOM' && customPrompt) 
-      ? encodePrompt(customPrompt) 
-      : null;
-
-    const chatbot = await prisma.chatbot.create({
-      data: {
-        name,
-        welcomeMessage: welcomeMessage || "Ciao! Come posso aiutarti?",
-        type: type || "DEFAULT",
-        template: template || "GENERIC",
-        personality: personality || "PROFESSIONALE",
-        encodedPrompt,
-        primaryColor: primaryColor || "#3b82f6",
-        accountId,
-      },
-    });
-
-    res.status(201).json({
-      success: true,
-      data: chatbot,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Errore nella creazione del chatbot",
-      error: error instanceof Error ? error.message : "Errore sconosciuto",
-    });
-  }
-}
-
+/**
+ * GET /chatbots
+ * Recupera tutti i chatbot di un account (tramite i progetti)
+ */
 export async function getUserChatbots(req: Request, res: Response): Promise<void> {
   try {
     const { accountId } = req.query;
 
     const chatbots = await prisma.chatbot.findMany({
       where: { accountId: Number(accountId) },
+      include: {
+        project: true, // Include il progetto associato
+      },
       orderBy: { createdAt: "desc" },
     });
 
@@ -69,12 +32,23 @@ export async function getUserChatbots(req: Request, res: Response): Promise<void
   }
 }
 
+/**
+ * GET /chatbots/:id
+ * Recupera un singolo chatbot con il progetto associato
+ */
 export async function getChatbot(req: Request, res: Response): Promise<void> {
   try {
     const { id } = req.params;
 
     const chatbot = await prisma.chatbot.findUnique({
       where: { id: Number(id) },
+      include: {
+        project: true, // Include il progetto
+        conversations: {
+          orderBy: { createdAt: "desc" },
+          take: 10,
+        },
+      },
     });
 
     if (!chatbot) {
@@ -101,74 +75,6 @@ export async function getChatbot(req: Request, res: Response): Promise<void> {
     res.status(500).json({
       success: false,
       message: "Errore nel recupero del chatbot",
-      error: error instanceof Error ? error.message : "Errore sconosciuto",
-    });
-  }
-}
-
-export async function updateChatbot(req: Request, res: Response): Promise<void> {
-  try {
-    const { id } = req.params;
-    const { 
-      name,
-      welcomeMessage,
-      type,
-      template,
-      personality,
-      customPrompt,
-      primaryColor
-    } = req.body;
-
-    // Prepara i dati da aggiornare
-    const data: any = {};
-    if (name) data.name = name;
-    if (welcomeMessage) data.welcomeMessage = welcomeMessage;
-    if (type) data.type = type;
-    if (template) data.template = template;
-    if (personality) data.personality = personality;
-    if (primaryColor) data.primaryColor = primaryColor;
-
-    // Gestisci il prompt
-    if (template === 'CUSTOM' && customPrompt) {
-      data.encodedPrompt = encodePrompt(customPrompt);
-    } else if (template === 'GENERIC') {
-      data.encodedPrompt = null; // Rimuovi prompt se torni a GENERIC
-    }
-
-    const chatbot = await prisma.chatbot.update({
-      where: { id: Number(id) },
-      data,
-    });
-
-    res.status(200).json({
-      success: true,
-      data: chatbot,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Errore nell'aggiornamento del chatbot",
-      error: error instanceof Error ? error.message : "Errore sconosciuto",
-    });
-  }
-}
-
-export async function deleteChatbot(req: Request, res: Response): Promise<void> {
-  try {
-    const { id } = req.params;
-
-    await prisma.chatbot.delete({
-      where: { id: Number(id) },
-    });
-
-    res.status(200).json({
-      success: true,
-      message: "Chatbot eliminato",
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Errore nell'eliminazione del chatbot",
       error: error instanceof Error ? error.message : "Errore sconosciuto",
     });
   }

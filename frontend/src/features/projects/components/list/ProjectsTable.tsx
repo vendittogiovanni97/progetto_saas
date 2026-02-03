@@ -3,12 +3,12 @@
 import {
   Box,
   Typography,
-  LinearProgress,
   Chip,
   alpha,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { Project } from "../../types/types";
+import { Project } from "../../interfaces/Project.entity";
+import { ProjectType } from "@/types/shared.types";
 import { TableGenericColumn, TableGeneric } from "@/components/ui/table";
 
 interface ProjectsTableProps {
@@ -16,6 +16,29 @@ interface ProjectsTableProps {
   onEditProject: (project: Project) => void;
   onViewProject: (project: Project) => void;
 }
+
+// Helper per formattare la data
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('it-IT', { 
+    day: '2-digit', 
+    month: '2-digit', 
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
+
+// Helper per ottenere il colore del tipo
+const getTypeColor = (type: ProjectType): "primary" | "success" | "warning" | "error" => {
+  switch (type) {
+    case ProjectType.CHATBOT: return 'primary';
+    case ProjectType.FORM: return 'success';
+    case ProjectType.WORKFLOW: return 'warning';
+    case ProjectType.API: return 'error';
+    default: return 'primary';
+  }
+};
 
 export function ProjectsTable({
   projects,
@@ -29,7 +52,12 @@ export function ProjectsTable({
       id: "id",
       header: "ID",
       accessorKey: "id",
-      width: 100,
+      width: 80,
+      cell: (value) => (
+        <Typography sx={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>
+          #{value}
+        </Typography>
+      ),
     },
     {
       id: "name",
@@ -40,15 +68,15 @@ export function ProjectsTable({
       ),
     },
     {
-      id: "status",
-      header: "Status",
-      accessorKey: "status",
+      id: "type",
+      header: "Type",
+      accessorKey: "type",
       width: 120,
       cell: (value, row) => (
         <Chip
           label={String(value || "").toUpperCase()}
           size="small"
-          color={row.statusColor as any}
+          color={getTypeColor(row.type)}
           variant="outlined"
           sx={{
             fontSize: "0.6rem",
@@ -58,48 +86,32 @@ export function ProjectsTable({
             height: 22,
             borderRadius: 1,
             borderWidth: 2,
-            bgcolor: alpha(theme.palette[row.statusColor as 'primary' | 'success' | 'error']?.main || theme.palette.primary.main, 0.05),
+            bgcolor: alpha(theme.palette[getTypeColor(row.type)]?.main || theme.palette.primary.main, 0.05),
           }}
         />
       ),
     },
     {
-      id: "progress",
-      header: "Progress",
-      accessorKey: "progress",
-      width: 200,
-      cell: (value, row) => (
-        <Box sx={{ width: "100%", pr: 2 }}>
-          <Box
-            sx={{ display: "flex", justifyContent: "space-between", mb: 0.5, px: 0.5 }}
-          >
-            <Typography sx={{ fontSize: "0.6rem", fontWeight: 800, color: "text.secondary", textTransform: "uppercase" }}>
-              {value > 0 ? "In Progress" : "Queued"}
-            </Typography>
-            <Typography sx={{ fontSize: "0.6rem", fontWeight: 900, color: "primary.main" }}>
-              {value}%
-            </Typography>
-          </Box>
-          <LinearProgress
-            variant="determinate"
-            value={value}
-            color={row.statusColor as any}
-            sx={{
-              height: 4,
-              borderRadius: 2,
-              bgcolor: alpha(theme.palette.common.white, 0.1),
-              "& .MuiLinearProgress-bar": { borderRadius: 2 }
-            }}
-          />
-        </Box>
+      id: "description",
+      header: "Description",
+      accessorKey: "description",
+      cell: (value) => (
+        <Typography sx={{ fontSize: "0.875rem", color: "text.secondary" }}>
+          {value || "-"}
+        </Typography>
       ),
     },
     {
-      id: "time",
+      id: "updatedAt",
       header: "Last Update",
-      accessorKey: "time",
-      width: 140,
+      accessorKey: "updatedAt",
+      width: 160,
       align: "right",
+      cell: (value) => (
+        <Typography sx={{ fontSize: "0.75rem", fontFamily: 'monospace' }}>
+          {formatDate(String(value))}
+        </Typography>
+      ),
     },
   ];
 

@@ -1,13 +1,10 @@
 /**
  * Tipi TypeScript per le risposte API
+ * NOTA: ApiResponse e PaginatedResponse sono definiti in shared.types.ts
  */
 
-export interface ApiResponse<T = unknown> {
-  data: T;
-  message?: string;
-  status: number;
-  timestamp?: string;
-}
+// Re-export shared types
+export type { ApiResponse, PaginatedResponse } from './shared.types';
 
 export interface ApiError {
   message: string;
@@ -15,16 +12,6 @@ export interface ApiError {
   status: number;
   errors?: Record<string, string[]>;
   timestamp?: string;
-}
-
-export interface PaginatedResponse<T> {
-  data: T[];
-  pagination: {
-    page: number;
-    pageSize: number;
-    total: number;
-    totalPages: number;
-  };
 }
 
 export interface ApiRequestConfig extends RequestInit {
