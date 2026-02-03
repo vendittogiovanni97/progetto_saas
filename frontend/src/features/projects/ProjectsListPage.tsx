@@ -115,37 +115,31 @@ export function ProjectsPage() {
     </>
   );
 
-  // Loading state
-  if (isLoading) {
-    return (
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-        <PageHeaderGeneric
-          title="Projects Control"
-          subtitle="SYSTEM_VERSION: 1.0.4 // ACTIVE_PROXIES: 04"
-          actions={headerActions}
-        />
+  const renderContent = () => {
+    if (isLoading) {
+      return (
         <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", py: 8 }}>
           <CircularProgress />
         </Box>
-      </Box>
-    );
-  }
+      );
+    }
 
-  // Error state
-  if (error) {
-    return (
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-        <PageHeaderGeneric
-          title="Projects Control"
-          subtitle="SYSTEM_VERSION: 1.0.4 // ACTIVE_PROXIES: 04"
-          actions={headerActions}
-        />
+    if (error) {
+      return (
         <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", py: 8 }}>
           <Typography color="error">{error}</Typography>
         </Box>
-      </Box>
+      );
+    }
+
+    return (
+      <ProjectsTable
+        projects={filteredProjects}
+        onEditProject={handleEditProject}
+        onViewProject={handleViewProject}
+      />
     );
-  }
+  };
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -155,11 +149,7 @@ export function ProjectsPage() {
         actions={headerActions}
       />
 
-      <ProjectsTable
-        projects={filteredProjects}
-        onEditProject={handleEditProject}
-        onViewProject={handleViewProject}
-      />
+      {renderContent()}
 
       <TemplateGallery
         open={isTemplateGalleryOpen}
