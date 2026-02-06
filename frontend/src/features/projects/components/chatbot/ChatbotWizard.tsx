@@ -2,6 +2,7 @@
 
 import { Box, Typography, alpha, useTheme, Grid, Stack } from "@mui/material";
 import { InputGeneric } from "@/components/ui/input";
+import { SelectGeneric } from "@/components/ui/select";
 import { ButtonGeneric } from "@/components/ui/button";
 import { useState } from "react";
 import { useAuth } from "@/providers/AuthProvider";
@@ -10,7 +11,7 @@ import { ChatbotPreview } from "./ChatbotPreview";
 import { SectionGeneric } from "@/components/ui/section";
 import { useThemeContext } from "@/providers/ThemeContext";
 import { projectService } from "@/lib/api/project";
-import { DEFAULT_CHATBOT_CONFIG, CHATBOT_COLORS } from "@/lib/api/configs/chatbot";
+import { CHATBOT_COLORS } from "@/lib/api/configs/chatbot";
 import { ProjectType, ChatbotType, ChatbotTemplate, ChatbotPersonality } from "@/types/shared.types";
 
 interface ChatbotWizardProps {
@@ -22,6 +23,9 @@ interface ChatbotWizardProps {
 interface ChatbotConfig {
   name: string;
   welcomeMessage: string;
+  type: ChatbotType;
+  template: ChatbotTemplate;
+  personality: ChatbotPersonality;
   primaryColor: string;
 }
 
@@ -31,9 +35,12 @@ export function ChatbotWizard({ open, onClose, onSave }: ChatbotWizardProps) {
   const { setLoading, showSnack } = useThemeContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [config, setConfig] = useState<ChatbotConfig>({ 
-    name: "My Assistant", 
-    welcomeMessage: "Ciao! Come posso aiutarti oggi?", 
-    primaryColor: "#3b82f6" 
+    name: '', 
+    welcomeMessage: '', 
+    type: ChatbotType.DEFAULT,
+    template: ChatbotTemplate.GENERIC,
+    personality: ChatbotPersonality.PROFESSIONALE,
+    primaryColor: CHATBOT_COLORS.blue 
   });
 
   const handleSave = async () => {
@@ -48,9 +55,9 @@ export function ChatbotWizard({ open, onClose, onSave }: ChatbotWizardProps) {
         accountId: 1,
         config: {
           welcomeMessage: config.welcomeMessage,
-          type: ChatbotType.AI,
-          template: ChatbotTemplate.GENERIC,
-          personality: ChatbotPersonality.PROFESSIONALE,
+          type: config.type,
+          template: config.template,
+          personality: config.personality,
           primaryColor: config.primaryColor,
         },
       });
@@ -93,6 +100,43 @@ export function ChatbotWizard({ open, onClose, onSave }: ChatbotWizardProps) {
                   placeholder="Scrivi cosa dirà il bot all'inizio..."
                   disabled={isSubmitting}
                 />
+
+                <SelectGeneric
+                  label="Tipo di Chatbot"
+                  options={[
+                    { value: ChatbotType.DEFAULT, label: "Default" },
+                    { value: ChatbotType.AI, label: "AI" },
+                  ]}
+                  value={config.type}
+                  onChange={(e) => setConfig({ ...config, type: e.target.value as ChatbotType })}
+                  disabled={isSubmitting}
+                />
+
+                <SelectGeneric
+                  label="Template"
+                  options={[
+                    { value: ChatbotTemplate.GENERIC, label: "Generico" },
+                    { value: ChatbotTemplate.CUSTOM, label: "Personalizzato" },
+                  ]}
+                  value={config.template}
+                  onChange={(e) => setConfig({ ...config, template: e.target.value as ChatbotTemplate })}
+                  disabled={isSubmitting}
+                />
+
+                <SelectGeneric
+                  label="Personalità"
+                  options={[
+                    { value: ChatbotPersonality.AMICHEVOLE, label: "Amichevole" },
+                    { value: ChatbotPersonality.PROFESSIONALE, label: "Professionale" },
+                    { value: ChatbotPersonality.ESPERTO, label: "Esperto" },
+                    { value: ChatbotPersonality.DETTAGLIATO, label: "Dettagliato" },
+                    { value: ChatbotPersonality.TECNICO, label: "Tecnico" },
+                    { value: ChatbotPersonality.DIVERTENTE, label: "Divertente" },
+                  ]}
+                  value={config.personality}
+                  onChange={(e) => setConfig({ ...config, personality: e.target.value as ChatbotPersonality })}
+                  disabled={isSubmitting}
+                />
               </Stack>
             </SectionGeneric>
 
@@ -102,7 +146,7 @@ export function ChatbotWizard({ open, onClose, onSave }: ChatbotWizardProps) {
                   Colore Brand
                 </Typography>
                 <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
-                  {CHATBOT_COLORS.map((color) => (
+                  {Object.values(CHATBOT_COLORS).map((color) => (
                     <Box
                       key={color}
                       onClick={() => !isSubmitting && setConfig({ ...config, primaryColor: color })}

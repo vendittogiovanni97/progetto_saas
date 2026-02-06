@@ -4,12 +4,12 @@
 
 import { Box, Typography, Paper } from "@mui/material";
 import { useTheme, alpha } from "@mui/material/styles";
-import { TabValue } from "../../types/types";
 import { projectCards } from "../../services/mockData";
 
 import { ProjectEnvVariables } from "./ProjectEnvVariables";
 import { ProjectDeploymentTimeline } from "./ProjectDeploymentTimeline";
 import { CardGeneric } from "@/components/ui/card";
+import { TabValue } from "../../types/types";
 
 interface ProjectTabContentProps {
   activeTab: TabValue;

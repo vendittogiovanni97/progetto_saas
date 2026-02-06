@@ -1,38 +1,49 @@
-import { Project, ProjectCard, Service } from "./types";
+import { ProjectCard, Service } from "./types";
+import { Project } from "@/types/shared.types";
+
+import { ProjectType } from "@/types/shared.types";
 
 // Projects list (used by ProjectsTable / ProjectsListPage)
 export const projects: Project[] = [
   {
-    id: "PRJ-004",
+    id: 1,
     name: "Project Alpha Protocol",
-    status: "Active",
-    statusColor: "success",
-    progress: 80,
-    time: "10:42:00",
+    description: "Main development project",
+    type: ProjectType.CHATBOT,
+    accountId: 1,
+    config: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   },
   {
-    id: "PRJ-005",
+    id: 2,
     name: "Project Beta Synthesis",
-    status: "Paused",
-    statusColor: "warning",
-    progress: 22,
-    time: "09:15:33",
+    description: "Frontend components library",
+    type: ProjectType.FORM,
+    accountId: 1,
+    config: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   },
   {
-    id: "PRJ-006",
+    id: 3,
     name: "Project Gamma Ray",
-    status: "Pending",
-    statusColor: "default",
-    progress: 0,
-    time: "--:--:--",
+    description: "Backend infrastructure",
+    type: ProjectType.API,
+    accountId: 1,
+    config: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   },
   {
-    id: "PRJ-007",
+    id: 4,
     name: "Orbital Calibration",
-    status: "Active",
-    statusColor: "success",
-    progress: 45,
-    time: "08:00:12",
+    description: "Satellite data processing",
+    type: ProjectType.WORKFLOW,
+    accountId: 1,
+    config: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   },
 ];
 

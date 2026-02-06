@@ -194,6 +194,7 @@ export interface SendMessageDTO {
  */
 export interface ApiResponse<T> {
   success: boolean;
+  status: number;
   data?: T;
   error?: string;
   message?: string;

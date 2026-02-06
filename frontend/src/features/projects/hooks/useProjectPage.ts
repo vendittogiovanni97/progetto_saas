@@ -1,10 +1,6 @@
-/**
- * Hook custom per gestire lo stato della pagina Project Detail
- */
-
 import { useState } from "react";
-import { TabValue } from "../types/types";
 import { projectCards } from "../services/mockData";
+import { TabValue } from "../types/types";
 
 export function useProjectPage() {
   const [activeTab, setActiveTab] = useState<TabValue>(0);

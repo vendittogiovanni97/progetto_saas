@@ -8,6 +8,7 @@ import {
   ChatbotPersonality,
   ChatbotProjectConfig,
 } from '@/types/shared.types';
+import { blue } from '@mui/material/colors';
 
 /**
  * Valori di default per un nuovo chatbot
@@ -24,15 +25,15 @@ export const DEFAULT_CHATBOT_CONFIG: ChatbotProjectConfig = {
 /**
  * Colori disponibili per il chatbot
  */
-export const CHATBOT_COLORS = [
-  "#3b82f6", // Blue
-  "#10b981", // Green
-  "#ef4444", // Red
-  "#f59e0b", // Orange
-  "#8b5cf6", // Purple
-  "#ec4899", // Pink
-  "#111827", // Dark
-];
+export enum CHATBOT_COLORS {
+  blue = "#3b82f6", // Blue
+  green = "#10b981", // Green
+  red = "#ef4444", // Red
+  orange = "#f59e0b", // Orange
+  purple = "#8b5cf6", // Purple
+  pink = "#ec4899", // Pink
+  dark = "#111827", // Dark
+}
 
 // Re-export types for convenience
 export type {

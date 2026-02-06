@@ -6,8 +6,9 @@ import { StatsGrid } from "./components/StatsGrid";
 import { ProjectsTable } from "./components/ProjectsTable";
 import { ComponentRepository } from "./components/ComponentRepository";
 import { SystemLog } from "./components/SystemLog";
-import { stats, projects, componentLibrary, systemLogs } from "./services/mockData";
+import { stats, componentLibrary, systemLogs } from "./services/mockData";
 import { useRouter } from "next/navigation";
+import { projects } from "../projects/types/projectMocks";
 
 export function DashboardPage() {
   const router = useRouter();

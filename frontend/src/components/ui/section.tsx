@@ -5,7 +5,7 @@ import { Box, Typography, Divider } from "@mui/material";
 
 interface SectionGenericProps {
   title: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   showDivider?: boolean;
 }
 

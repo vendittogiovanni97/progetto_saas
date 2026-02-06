@@ -7,7 +7,8 @@ import { SelectGeneric } from "@/components/ui/select";
 import { ButtonGeneric } from "@/components/ui/button";
 import { ModalGeneric } from "@/components/ui/modal";
 import { ProjectType } from "@/types/shared.types";
-import { CreateProjectDTO, Project } from "../../interfaces/Project.entity";
+import { CreateProjectDTO } from "../../interfaces/Project.entity";
+import { Project } from "@/types/shared.types";
 
 interface ProjectDialogProps {
   open: boolean;

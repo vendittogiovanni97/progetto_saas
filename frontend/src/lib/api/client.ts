@@ -1,15 +1,8 @@
-/**
- * Client API (Semplificato)
- */
-
 import { API_CONFIG } from './config';
 import { ApiRequestConfig, ApiResponse, HttpMethod } from '@/types/api';
 import { ApiError } from './errors';
 import { getAccessToken } from './auth';
 
-/**
- * Funzione base per fare le richieste
- */
 async function request<T>(
   endpoint: string,
   method: HttpMethod = HttpMethod.GET,
@@ -44,8 +37,9 @@ async function request<T>(
     }
 
     return {
-      data: responseData.data || responseData,
+      success: true,
       status: response.status,
+      data: responseData.data || responseData,
       message: responseData.message,
     };
   } catch (error) {

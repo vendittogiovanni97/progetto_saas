@@ -1,4 +1,3 @@
-import { ProjectStatus } from "../../projects/types/types";
 
 export interface Stat {
   label: string;
@@ -10,15 +9,6 @@ export interface Stat {
   };
   color?: "primary" | "success" | "error" | "info" | "warning";
   description?: string;
-}
-
-export interface Project {
-  id: string;
-  name: string;
-  status: ProjectStatus;
-  statusColor: "success" | "warning" | "default" | "error";
-  progress: number;
-  time: string;
 }
 
 export interface ComponentLibraryItem {

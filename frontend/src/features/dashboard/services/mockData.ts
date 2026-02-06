@@ -1,8 +1,5 @@
-/**
- * Mock data per la pagina Dashboard
- */
 
-import { Stat, Project, ComponentLibraryItem, SystemLog } from "../types/index";
+import { Stat, ComponentLibraryItem, SystemLog } from "../types/index";
 
 export const stats: Stat[] = [
   { 
@@ -33,42 +30,7 @@ export const stats: Stat[] = [
     description: "NO_THREATS_DETECTED",
     color: "success" as const
   },
-];
-
-export const projects: Project[] = [
-  {
-    id: "PRJ-004",
-    name: "Project Alpha Protocol",
-    status: "Active",
-    statusColor: "success",
-    progress: 80,
-    time: "10:42:00",
-  },
-  {
-    id: "PRJ-005",
-    name: "Project Beta Synthesis",
-    status: "Paused",
-    statusColor: "warning",
-    progress: 22,
-    time: "09:15:33",
-  },
-  {
-    id: "PRJ-006",
-    name: "Project Gamma Ray",
-    status: "Pending",
-    statusColor: "default" as const,
-    progress: 0,
-    time: "--:--:--",
-  },
-  {
-    id: "PRJ-007",
-    name: "Orbital Calibration",
-    status: "Active",
-    statusColor: "success",
-    progress: 45,
-    time: "08:00:12",
-  },
-];
+]
 
 export const componentLibrary: ComponentLibraryItem[] = [
   { icon: "input", title: "Input Controls", desc: "Forms, Toggles, Selects" },
