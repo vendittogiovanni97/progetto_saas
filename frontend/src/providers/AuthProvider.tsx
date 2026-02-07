@@ -1,8 +1,27 @@
 'use client';
 
 import { getAccessToken, setTokens, clearTokens } from "@/services/auth";
-import { AuthContext, User } from '@/types/authcontext';
-import { useState, useMemo, ReactNode, useContext, useEffect } from 'react';
+import { useState, useMemo, ReactNode, useContext, useEffect, createContext } from 'react';
+
+export interface User {
+  id: number;
+  name?: string;
+  email: string;
+  accountId: number;
+  role: 'admin' | 'editor' | 'viewer' | 'guest';
+}
+
+export interface AuthContextType {
+  // Stato Auth
+  user: User | null;
+  isAuthenticated: boolean;
+  
+  // Azioni Auth
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => void;
+}
+
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
