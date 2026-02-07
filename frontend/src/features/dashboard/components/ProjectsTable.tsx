@@ -7,7 +7,7 @@ import {
 import { useTheme, alpha } from "@mui/material/styles";
 import { SectionGeneric } from "@/components/ui/section";
 import { TableGenericColumn, TableGeneric } from "@/components/ui/table";
-import { Project, ProjectType } from "@/types/shared.types";
+import { Project } from "@/features/projects/interfaces/Project.entity";
 
 // Helper per formattare la data
 const formatDate = (dateString: string | Date) => {
@@ -21,13 +21,11 @@ const formatDate = (dateString: string | Date) => {
   });
 };
 
-// Helper per ottenere il colore del tipo
-const getTypeColor = (type: ProjectType): "primary" | "success" | "warning" | "error" => {
-  switch (type) {
-    case ProjectType.CHATBOT: return 'primary';
-    case ProjectType.FORM: return 'success';
-    case ProjectType.WORKFLOW: return 'warning';
-    case ProjectType.API: return 'error';
+// Helper per ottenere il colore del tipo (Placeholder, andrebbe mappato su category)
+const getTypeColor = (categoryId: number): "primary" | "success" | "warning" | "error" => {
+  switch (categoryId) {
+    case 1: return 'primary';
+    case 2: return 'success';
     default: return 'primary';
   }
 };
@@ -64,15 +62,15 @@ export function ProjectsTable({
       ),
     },
     {
-      id: "type",
-      header: "Type",
-      accessorKey: "type",
+      id: "categoryId",
+      header: "Category",
+      accessorKey: "categoryId",
       width: 120,
       cell: (value, row) => (
         <Chip
-          label={String(value || "").toUpperCase()}
+          label={value === 1 ? "CHATBOT" : "GENERIC"}
           size="small"
-          color={getTypeColor(row.type)}
+          color={getTypeColor(row.categoryId)}
           variant="outlined"
           sx={{
             fontSize: "0.6rem",
@@ -82,7 +80,7 @@ export function ProjectsTable({
             height: 22,
             borderRadius: 1,
             borderWidth: 2,
-            bgcolor: alpha(theme.palette[getTypeColor(row.type)]?.main || theme.palette.primary.main, 0.05),
+            bgcolor: alpha(theme.palette[getTypeColor(row.categoryId)]?.main || theme.palette.primary.main, 0.05),
           }}
         />
       ),

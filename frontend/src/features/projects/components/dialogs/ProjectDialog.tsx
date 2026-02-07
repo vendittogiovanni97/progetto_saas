@@ -6,7 +6,7 @@ import { InputGeneric } from "@/components/ui/input";
 import { ButtonGeneric } from "@/components/ui/button";
 import { ModalGeneric } from "@/components/ui/modal";
 import { ProjectWithRelations, CreateProjectDTO, ProjectStatus } from "../../interfaces/Project.entity";
-import { getCategories } from "../../services/services";
+import { categoryService } from "../../services/services";
 import { SelectGeneric } from "@/components/ui/select";
 
 interface ProjectDialogProps {
@@ -34,7 +34,7 @@ export function ProjectDialog({
     if (open) {
       const fetchCategories = async () => {
         try {
-          const data = await getCategories();
+          const data = await categoryService.getCategories();
           setCategories(data || []);
           if (!project && data && data.length > 0) {
             setFormData(prev => ({ ...prev, categoryId: data[0].id }));

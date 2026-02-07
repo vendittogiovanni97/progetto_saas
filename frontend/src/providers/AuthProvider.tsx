@@ -1,6 +1,6 @@
 'use client';
 
-import { getAccessToken, setTokens } from '@/lib/api/auth';
+import { getAccessToken, setTokens, clearTokens } from "@/services/auth";
 import { AuthContext, User } from '@/types/authcontext';
 import { useState, useMemo, ReactNode, useContext, useEffect } from 'react';
 
@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    setTokens('', '', 0);
+    clearTokens();
     localStorage.removeItem('auth_user');
     setUser(null);
     setIsAuthenticated(false);

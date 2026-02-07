@@ -1,10 +1,18 @@
-/**
- * Tipi TypeScript per le risposte API
- * NOTA: ApiResponse e PaginatedResponse sono definiti in shared.types.ts
- */
+export interface ApiResponse<T> {
+  success: boolean;
+  status: number;
+  data?: T;
+  message?: string;
+  error?: string;
+}
 
-// Re-export shared types
-export type { ApiResponse, PaginatedResponse } from './shared.types';
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
 
 export interface ApiError {
   message: string;

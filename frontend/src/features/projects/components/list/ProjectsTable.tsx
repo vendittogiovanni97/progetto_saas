@@ -7,7 +7,7 @@ import {
   alpha,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { Project, ProjectWithRelations, ProjectStatus } from "../../interfaces/Project.entity";
+import { ProjectWithRelations, ProjectStatus } from "../../interfaces/Project.entity";
 import { TableGenericColumn, TableGeneric } from "@/components/ui/table";
 
 interface ProjectsTableProps {
@@ -88,8 +88,8 @@ export function ProjectsTable({
         // Helper per estrarre il colore esadecimale dalla palette
         const getHexColor = () => {
           if (color === 'default') return theme.palette.grey[500];
-          const paletteColor = theme.palette[color];
-          return 'main' in paletteColor ? paletteColor.main : theme.palette.primary.main;
+          const paletteColor = theme.palette[color as 'success' | 'warning' | 'error' | 'primary'];
+          return (paletteColor as any).main || theme.palette.primary.main;
         };
 
         const hexColor = getHexColor();

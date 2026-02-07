@@ -14,7 +14,7 @@ import { IconAdd } from "@/components/icons/icons";
 import { PageHeaderGeneric } from "@/components/layout/page-header";
 import { useThemeContext } from "@/providers/ThemeContext";
 import { CreateProjectDTO, ProjectWithRelations } from "./interfaces/Project.entity";
-import { projectService } from "@/lib/api/project";
+import { projectService } from "./services/services";
 
 export function ProjectsPage() {
   const router = useRouter();

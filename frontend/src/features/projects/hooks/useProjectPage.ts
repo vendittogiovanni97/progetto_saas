@@ -1,12 +1,13 @@
 import { useState } from "react";
-import { projectCards } from "../services/services";
+// import { projectCards } from "../services/services";
 import { TabValue } from "../types/types";
 
 export function useProjectPage() {
   const [activeTab, setActiveTab] = useState<TabValue>(0);
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
 
-  const selectedCard = projectCards.find((c) => c.id === selectedCardId);
+  // const selectedCard = projectCards.find((c) => c.id === selectedCardId);
+  const selectedCard = undefined;
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: TabValue) => {
     setActiveTab(newValue);

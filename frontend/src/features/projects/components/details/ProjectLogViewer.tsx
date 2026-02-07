@@ -7,7 +7,8 @@ import {
   PlayCircle as PlayCircleIcon 
 } from "@mui/icons-material";
 import { useState, useRef, useEffect } from "react";
-import { mockLogs } from "../../types/projectMocks";
+// import { mockLogs } from "../../types/projectMocks";
+const mockLogs: any[] = [];
 
 interface LogEntry {
   timestamp: string;
@@ -88,7 +89,7 @@ export function ProjectLogViewer() {
           "&::-webkit-scrollbar-thumb": { bgcolor: alpha(theme.palette.common.white, 0.1), borderRadius: 3 }
         }}
       >
-  {(mockLogs as LogEntry[]).map((log, i) => (
+        {/* {(mockLogs as LogEntry[]).map((log, i) => (
           <Box key={i} sx={{ display: "flex", gap: 2, mb: 0.5, "&:hover": { bgcolor: alpha(theme.palette.common.white, 0.05) } }}>
             <Typography variant="caption" sx={{ color: alpha(theme.palette.common.white, 0.3), minWidth: 65, userSelect: "none" }}>
               {log.timestamp}
@@ -100,7 +101,12 @@ export function ProjectLogViewer() {
               {log.message}
             </Typography>
           </Box>
-        ))}
+        ))} */}
+        {mockLogs.length === 0 && (
+          <Box sx={{ p: 4, textAlign: 'center' }}>
+            <Typography color="text.secondary" variant="caption">Log buffer empty</Typography>
+          </Box>
+        )}
         {autoScroll && (
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1 }}>
             <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: theme.palette.primary.main, animation: "pulse 1.5s infinite" }} />

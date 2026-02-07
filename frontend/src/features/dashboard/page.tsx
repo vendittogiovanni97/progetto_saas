@@ -1,14 +1,14 @@
 "use client";
 
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { PageHeaderGeneric } from "@/components/layout/page-header";
 import { StatsGrid } from "./components/StatsGrid";
-import { ProjectsTable } from "./components/ProjectsTable";
 import { ComponentRepository } from "./components/ComponentRepository";
 import { SystemLog } from "./components/SystemLog";
 import { stats, componentLibrary, systemLogs } from "./services/mockData";
 import { useRouter } from "next/navigation";
-import { projects } from "../projects/types/projectMocks";
+// import { projects } from "../projects/types/projectMocks";
+const projects: any[] = [];
 
 export function DashboardPage() {
   const router = useRouter();
@@ -25,7 +25,10 @@ export function DashboardPage() {
 
         <StatsGrid stats={stats} />
 
-        <ProjectsTable projects={projects} onProjectClick={handleProjectClick} />
+        {/* <ProjectsTable projects={projects} onProjectClick={handleProjectClick} /> */}
+        <Box sx={{ p: 4, textAlign: 'center', bgcolor: 'rgba(255,255,255,0.05)', borderRadius: 2 }}>
+           <Typography color="text.secondary">No projects to display</Typography>
+        </Box>
       </Box>
 
       {/* Right Column: Library & Log */}

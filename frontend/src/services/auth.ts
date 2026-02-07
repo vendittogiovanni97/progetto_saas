@@ -1,29 +1,16 @@
-/**
- * Gestione autenticazione e token (Semplificata)
- */
 
-import { STORAGE_KEYS, API_CONFIG, API_ENDPOINTS } from './config';
+import { STORAGE_KEYS, API_CONFIG, API_ENDPOINTS } from '@/lib/api/config';
 import { RefreshTokenResponse } from '@/types/api';
 
-/**
- * Recupera l'access token dal localStorage
- */
 export const getAccessToken = (): string | null => {
   if (typeof window === 'undefined') return null;
   return localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
 };
-
-/**
- * Recupera il refresh token dal localStorage
- */
 export const getRefreshToken = (): string | null => {
   if (typeof window === 'undefined') return null;
   return localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
 };
 
-/**
- * Salva i token nel localStorage
- */
 export const setTokens = (accessToken: string, refreshToken: string, expiresIn: number): void => {
   if (typeof window === 'undefined') return;
   
@@ -34,9 +21,6 @@ export const setTokens = (accessToken: string, refreshToken: string, expiresIn: 
   localStorage.setItem(STORAGE_KEYS.TOKEN_EXPIRY, expiryTime.toString());
 };
 
-/**
- * Rimuove i token (Logout)
- */
 export const clearTokens = (): void => {
   if (typeof window === 'undefined') return;
   
@@ -45,9 +29,6 @@ export const clearTokens = (): void => {
   localStorage.removeItem(STORAGE_KEYS.TOKEN_EXPIRY);
 };
 
-/**
- * Controlla se il token è scaduto
- */
 export const isTokenExpired = (): boolean => {
   if (typeof window === 'undefined') return true;
   
@@ -57,14 +38,9 @@ export const isTokenExpired = (): boolean => {
   const expiryTime = parseInt(expiry, 10);
   const now = Date.now();
   
-  // Scade se siamo oltre il tempo limite
   return now >= expiryTime;
 };
 
-/**
- * Funzione semplice per refreshare il token
- * TODO: Da implementare meglio in futuro se serve
- */
 export const refreshAccessToken = async (): Promise<string> => {
   const refreshToken = getRefreshToken();
   if (!refreshToken) {
@@ -86,13 +62,11 @@ export const refreshAccessToken = async (): Promise<string> => {
 
   const data: RefreshTokenResponse = await response.json();
   
-  // Aggiorniamo i token
   setTokens(data.accessToken, refreshToken, data.expiresIn);
 
   return data.accessToken;
 };
 
-// Esportiamo un oggetto per retrocompatibilità se serve, ma meglio usare le funzioni dirette
 export const authManager = {
   getAccessToken,
   getRefreshToken,
@@ -100,6 +74,4 @@ export const authManager = {
   clearTokens,
   isTokenExpired,
   refreshAccessToken,
-  // TODO: Aggiungere logica più avanzata qui in futuro
 };
-

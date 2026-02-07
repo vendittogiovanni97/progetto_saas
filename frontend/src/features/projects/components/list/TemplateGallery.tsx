@@ -5,16 +5,11 @@ import { Box, Typography, Card, CardContent, CardMedia, Grid, alpha, useTheme, C
 import { ButtonGeneric } from "@/components/ui/button";
 import { DynamicIcon } from "@/components/icons/DynamicIcon";
 import { ModalGeneric } from "@/components/ui/modal";
-import { getCategories } from "../../services/services";
+import { categoryService } from "../../services/services";
+import { Category as ICategory } from "../../interfaces/Category.entity";
 
-
-interface Category {
-  id: number;
-  name: string;
-  description: string;
-  icon?: string;
-  color?: string;
-  image?: string; // Not in schema but used for UI, using fallback
+interface Category extends ICategory {
+  image?: string; // Estensione solo per la UI (fallback gestito nel componente)
 }
 
 interface TemplateGalleryProps {
@@ -35,7 +30,7 @@ export function TemplateGallery({ open, onClose, onSelect }: TemplateGalleryProp
         setLoading(true);
         setError(null);
         try {
-          const data = await getCategories();
+          const data = await categoryService.getCategories();
           setCategories(data || []);
         } catch (err) {
 

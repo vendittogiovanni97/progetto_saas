@@ -10,9 +10,9 @@ import { ModalGeneric } from "@/components/ui/modal";
 import { ChatbotPreview } from "./ChatbotPreview";
 import { SectionGeneric } from "@/components/ui/section";
 import { useThemeContext } from "@/providers/ThemeContext";
-import { projectService } from "@/lib/api/project";
-import { CHATBOT_COLORS } from "@/lib/api/configs/chatbot";
-import { ProjectType, ChatbotType, ChatbotTemplate, ChatbotPersonality } from "@/types/shared.types";
+import { projectService } from "../../services/services";
+import { CHATBOT_COLORS } from "../config/chatbot";
+import { ChatbotType, ChatbotTemplate, ChatbotPersonality } from "../../interfaces/Chatbot.entity";
 
 interface ChatbotWizardProps {
   open: boolean;

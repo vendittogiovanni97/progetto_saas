@@ -1,7 +1,7 @@
 import { API_CONFIG } from './config';
 import { ApiRequestConfig, ApiResponse, HttpMethod } from '@/types/api';
 import { ApiError } from './errors';
-import { getAccessToken } from './auth';
+import { getAccessToken } from '@/services/auth';
 
 async function request<T>(
   endpoint: string,

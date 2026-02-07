@@ -1,36 +1,36 @@
-export type ProjectStatus = 'ATTIVO' | 'DISATTIVATO' | 'ARCHIVIATO';
+import { Category } from './Category.entity';
+import { Account } from './Account.entity';
+import { Chatbot } from './Chatbot.entity';
+
+export enum ProjectStatus {
+  ATTIVO = 'ATTIVO',
+  DISATTIVATO = 'DISATTIVATO',
+  ARCHIVIATO = 'ARCHIVIATO',
+}
 
 /**
  * Entity class per Project
- * Rappresenta un progetto con valori di default e costruttore flessibile
+ * Funge sia da interfaccia dati che da classe con logic helper
  */
 export class Project {
   id: number = 0;
   name: string = '';
-  status: ProjectStatus = 'ATTIVO';
+  status: ProjectStatus = ProjectStatus.ATTIVO;
   categoryId: number = 0;
-  structure: string | null = null; // JSON stringificato
+  structure: string | null = null;
   accountId: number = 0;
-  createdAt: Date = new Date();
-  updatedAt: Date = new Date();
+  createdAt: Date | string = new Date();
+  updatedAt: Date | string = new Date();
 
   constructor(data?: Partial<Project>) {
     if (data) {
       Object.assign(this, data);
       
-      // Converti date se arrivano come stringhe
-      if (data.createdAt && typeof data.createdAt === 'string') {
-        this.createdAt = new Date(data.createdAt);
-      }
-      if (data.updatedAt && typeof data.updatedAt === 'string') {
-        this.updatedAt = new Date(data.updatedAt);
-      }
+      if (data.createdAt && typeof data.createdAt === 'string') this.createdAt = new Date(data.createdAt);
+      if (data.updatedAt && typeof data.updatedAt === 'string') this.updatedAt = new Date(data.updatedAt);
     }
   }
 
-  /**
-   * Ottiene la struttura parsata come oggetto
-   */
   getParsedStructure<T = any>(): T | null {
     if (!this.structure) return null;
     try {
@@ -40,24 +40,18 @@ export class Project {
     }
   }
 
-  /**
-   * Imposta la struttura da un oggetto
-   */
   setStructure(data: any): void {
     this.structure = JSON.stringify(data);
   }
 }
 
 /**
- * Project con relazioni incluse (chatbots, account, category)
+ * Project con relazioni (Chatbots, Category, Account)
  */
 export class ProjectWithRelations extends Project {
-  chatbots: any[] = [];
-  category?: any = null;
-  account?: {
-    id: number;
-    email: string;
-  } = undefined;
+  chatbots: Chatbot[] = [];
+  category?: Category;
+  account?: Partial<Account>;
 
   constructor(data?: Partial<ProjectWithRelations>) {
     super(data);
@@ -69,14 +63,10 @@ export class ProjectWithRelations extends Project {
   }
 }
 
-
 // ============================================
-// DTOs (Data Transfer Objects)
+// DTOs
 // ============================================
 
-/**
- * DTO per creare un nuovo progetto
- */
 export interface CreateProjectDTO {
   name: string;
   categoryId: number;
@@ -84,31 +74,8 @@ export interface CreateProjectDTO {
   structure?: Record<string, any>;
 }
 
-/**
- * DTO per aggiornare un progetto
- */
 export interface UpdateProjectDTO {
   name?: string;
   status?: ProjectStatus;
   structure?: Record<string, any>;
-}
-
-/**
- * DTO per la risposta API
- */
-export interface ProjectResponse {
-  id: number;
-  name: string;
-  status: ProjectStatus;
-  categoryId: number;
-  structure: string | null;
-  accountId: number;
-  createdAt: string;
-  updatedAt: string;
-  chatbots?: any[];
-  category?: any;
-  account?: {
-    id: number;
-    email: string;
-  };
 }

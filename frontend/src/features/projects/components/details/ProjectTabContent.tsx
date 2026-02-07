@@ -4,11 +4,10 @@
 
 import { Box, Typography, Paper } from "@mui/material";
 import { useTheme, alpha } from "@mui/material/styles";
-import { projectCards } from "../../services/services";
+// import { projectCards } from "../../services/services";
 
 import { ProjectEnvVariables } from "./ProjectEnvVariables";
 import { ProjectDeploymentTimeline } from "./ProjectDeploymentTimeline";
-import { CardGeneric } from "@/components/ui/card";
 import { TabValue } from "../../types/types";
 
 interface ProjectTabContentProps {
@@ -29,7 +28,7 @@ export function ProjectTabContent({ activeTab, onCardClick }: ProjectTabContentP
           pb: 5,
         }}
       >
-        {projectCards.map((card) => (
+        {/* {projectCards.map((card) => (
           <CardGeneric
             key={card.id}
             title={card.title}
@@ -39,7 +38,10 @@ export function ProjectTabContent({ activeTab, onCardClick }: ProjectTabContentP
             isActive={card.isActive}
             isError={card.isError}
           />
-        ))}
+        ))} */}
+        <Box sx={{ gridColumn: '1 / -1', p: 4, textAlign: 'center' }}>
+          <Typography color="text.secondary">No project components available</Typography>
+        </Box>
       </Box>
     );
   }

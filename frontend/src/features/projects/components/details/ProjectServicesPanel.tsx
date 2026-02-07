@@ -5,7 +5,6 @@
 import { Paper, Box, Typography, Chip, Icon } from "@mui/material";
 import { ButtonGeneric } from "@/components/ui/button";
 import { useTheme, alpha } from "@mui/material/styles";
-import { services } from "../../services/services";
 import { DynamicIcon } from "@/components/icons/DynamicIcon";
 import { IconRefresh, IconBug } from "@/components/icons/icons";
 
@@ -92,7 +91,7 @@ export function ProjectServicesPanel() {
               Status
             </Typography>
           </Box>
-          {services.map((s: any) => (
+          {/* {services.map((s: any) => (
             <Box
               key={s.name}
               sx={{
@@ -137,7 +136,10 @@ export function ProjectServicesPanel() {
                 {s.uptime && <span>Uptime: {s.uptime}</span>}
               </Box>
             </Box>
-          ))}
+          ))} */}
+          <Box sx={{ p: 3, textAlign: 'center' }}>
+            <Typography color="text.secondary" variant="caption">No services currently monitored</Typography>
+          </Box>
         </Box>
 
         {/* Bottom Actions */}
