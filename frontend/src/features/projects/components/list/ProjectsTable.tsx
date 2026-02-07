@@ -7,20 +7,19 @@ import {
   alpha,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { Project } from "../../interfaces/Project.entity";
-import { ProjectType } from "@/types/shared.types";
+import { Project, ProjectWithRelations, ProjectStatus } from "../../interfaces/Project.entity";
 import { TableGenericColumn, TableGeneric } from "@/components/ui/table";
 
 interface ProjectsTableProps {
-  projects: Project[];
-  onEditProject: (project: Project) => void;
-  onViewProject: (project: Project) => void;
+  projects: ProjectWithRelations[];
+  onEditProject: (project: ProjectWithRelations) => void;
+  onViewProject: (project: ProjectWithRelations) => void;
 }
 
 // Helper per formattare la data
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('it-IT', { 
+const formatDate = (date: Date | string) => {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return d.toLocaleDateString('it-IT', { 
     day: '2-digit', 
     month: '2-digit', 
     year: 'numeric',
@@ -29,14 +28,13 @@ const formatDate = (dateString: string) => {
   });
 };
 
-// Helper per ottenere il colore del tipo
-const getTypeColor = (type: ProjectType): "primary" | "success" | "warning" | "error" => {
-  switch (type) {
-    case ProjectType.CHATBOT: return 'primary';
-    case ProjectType.FORM: return 'success';
-    case ProjectType.WORKFLOW: return 'warning';
-    case ProjectType.API: return 'error';
-    default: return 'primary';
+// Helper per ottenere il colore dello stato
+const getStatusColor = (status: ProjectStatus): "success" | "warning" | "error" | "default" => {
+  switch (status) {
+    case 'ATTIVO': return 'success';
+    case 'DISATTIVATO': return 'warning';
+    case 'ARCHIVIATO': return 'error';
+    default: return 'default';
   }
 };
 
@@ -47,7 +45,7 @@ export function ProjectsTable({
 }: ProjectsTableProps) {
   const theme = useTheme();
 
-  const columns: TableGenericColumn<Project>[] = [
+  const columns: TableGenericColumn<ProjectWithRelations>[] = [
     {
       id: "id",
       header: "ID",
@@ -68,39 +66,55 @@ export function ProjectsTable({
       ),
     },
     {
-      id: "type",
-      header: "Type",
-      accessorKey: "type",
-      width: 120,
-      cell: (value, row) => (
-        <Chip
-          label={String(value || "").toUpperCase()}
-          size="small"
-          color={getTypeColor(row.type)}
-          variant="outlined"
-          sx={{
-            fontSize: "0.6rem",
-            fontWeight: 900,
-            textTransform: "uppercase",
-            letterSpacing: "0.1em",
-            height: 22,
-            borderRadius: 1,
-            borderWidth: 2,
-            bgcolor: alpha(theme.palette[getTypeColor(row.type)]?.main || theme.palette.primary.main, 0.05),
-          }}
-        />
-      ),
-    },
-    {
-      id: "description",
-      header: "Description",
-      accessorKey: "description",
+      id: "category",
+      header: "Category",
+      accessorKey: "category",
+      width: 150,
       cell: (value) => (
-        <Typography sx={{ fontSize: "0.875rem", color: "text.secondary" }}>
-          {value || "-"}
+        <Typography sx={{ fontSize: "0.875rem", fontWeight: 500 }}>
+          {value?.name || "Generic"}
         </Typography>
       ),
     },
+    {
+      id: "status",
+      header: "Status",
+      accessorKey: "status",
+      width: 120,
+      cell: (value) => {
+        const status = value as ProjectStatus;
+        const color = getStatusColor(status);
+        
+        // Helper per estrarre il colore esadecimale dalla palette
+        const getHexColor = () => {
+          if (color === 'default') return theme.palette.grey[500];
+          const paletteColor = theme.palette[color];
+          return 'main' in paletteColor ? paletteColor.main : theme.palette.primary.main;
+        };
+
+        const hexColor = getHexColor();
+
+        return (
+          <Chip
+            label={status}
+            size="small"
+            color={color}
+            variant="outlined"
+            sx={{
+              fontSize: "0.6rem",
+              fontWeight: 900,
+              textTransform: "uppercase",
+              letterSpacing: "0.1em",
+              height: 22,
+              borderRadius: 1,
+              borderWidth: 2,
+              bgcolor: alpha(hexColor, 0.05),
+            }}
+          />
+        );
+      },
+    },
+
     {
       id: "updatedAt",
       header: "Last Update",
@@ -109,7 +123,7 @@ export function ProjectsTable({
       align: "right",
       cell: (value) => (
         <Typography sx={{ fontSize: "0.75rem", fontFamily: 'monospace' }}>
-          {formatDate(String(value))}
+          {formatDate(value as string)}
         </Typography>
       ),
     },
@@ -126,3 +140,4 @@ export function ProjectsTable({
     />
   );
 }
+

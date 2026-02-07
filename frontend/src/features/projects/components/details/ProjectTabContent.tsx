@@ -4,7 +4,7 @@
 
 import { Box, Typography, Paper } from "@mui/material";
 import { useTheme, alpha } from "@mui/material/styles";
-import { projectCards } from "../../services/mockData";
+import { projectCards } from "../../services/services";
 
 import { ProjectEnvVariables } from "./ProjectEnvVariables";
 import { ProjectDeploymentTimeline } from "./ProjectDeploymentTimeline";

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { projectCards } from "../services/mockData";
+import { projectCards } from "../services/services";
 import { TabValue } from "../types/types";
 
 export function useProjectPage() {

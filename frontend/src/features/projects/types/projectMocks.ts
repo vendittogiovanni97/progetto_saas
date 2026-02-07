@@ -1,51 +1,4 @@
 import { ProjectCard, Service } from "./types";
-import { Project } from "@/types/shared.types";
-
-import { ProjectType } from "@/types/shared.types";
-
-// Projects list (used by ProjectsTable / ProjectsListPage)
-export const projects: Project[] = [
-  {
-    id: 1,
-    name: "Project Alpha Protocol",
-    description: "Main development project",
-    type: ProjectType.CHATBOT,
-    accountId: 1,
-    config: null,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 2,
-    name: "Project Beta Synthesis",
-    description: "Frontend components library",
-    type: ProjectType.FORM,
-    accountId: 1,
-    config: null,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 3,
-    name: "Project Gamma Ray",
-    description: "Backend infrastructure",
-    type: ProjectType.API,
-    accountId: 1,
-    config: null,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 4,
-    name: "Orbital Calibration",
-    description: "Satellite data processing",
-    type: ProjectType.WORKFLOW,
-    accountId: 1,
-    config: null,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
 
 // Project detail cards
 export const projectCards: ProjectCard[] = [
@@ -146,34 +99,6 @@ export const mockLogs = [
   { timestamp: "10:42:35", level: "INFO", message: "Server listening on port 3000" },
 ];
 
-// Template gallery items
-export const templates = [
-  {
-    id: "chatbot",
-    title: "Chatbot Ai Assistant",
-    description: "Crea un assistente virtuale intelligente per il tuo sito web con integrazione LLM.",
-    icon: "smart_toy",
-    color: "#3b82f6",
-    image: "/chatbot_template.png",
-  },
-  {
-    id: "crm",
-    title: "Minimal CRM",
-    description: "Gestisci i tuoi contatti e lead in modo semplice ed efficace con una dashboard dedicata.",
-    icon: "groups",
-    color: "#10b981",
-    image: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=800",
-  },
-  {
-    id: "saas-app",
-    title: "SaaS Dashboard",
-    description: "Uno scheletro completo per la tua prossima applicazione web con login e analytics.",
-    icon: "dashboard",
-    color: "#8b5cf6",
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800",
-  },
-];
-
 // Env vars mock
 export const mockEnvVars = [
   { key: "DATABASE_URL", value: "mysql://user:pass@localhost:3306/db", isSecret: true },
@@ -182,10 +107,8 @@ export const mockEnvVars = [
 ];
 
 export default {
-  projects,
   projectCards,
   services,
   mockLogs,
-  templates,
   mockEnvVars,
 };

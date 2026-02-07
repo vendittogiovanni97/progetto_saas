@@ -1,5 +1,4 @@
-import { ProjectType } from '@/types/shared.types';
-
+export type ProjectStatus = 'ATTIVO' | 'DISATTIVATO' | 'ARCHIVIATO';
 
 /**
  * Entity class per Project
@@ -8,9 +7,9 @@ import { ProjectType } from '@/types/shared.types';
 export class Project {
   id: number = 0;
   name: string = '';
-  description: string | null = null;
-  type: ProjectType = ProjectType.CHATBOT;
-  config: string | null = null; // JSON stringificato
+  status: ProjectStatus = 'ATTIVO';
+  categoryId: number = 0;
+  structure: string | null = null; // JSON stringificato
   accountId: number = 0;
   createdAt: Date = new Date();
   updatedAt: Date = new Date();
@@ -30,30 +29,31 @@ export class Project {
   }
 
   /**
-   * Ottiene la configurazione parsata come oggetto
+   * Ottiene la struttura parsata come oggetto
    */
-  getParsedConfig<T = any>(): T | null {
-    if (!this.config) return null;
+  getParsedStructure<T = any>(): T | null {
+    if (!this.structure) return null;
     try {
-      return JSON.parse(this.config) as T;
+      return JSON.parse(this.structure) as T;
     } catch {
       return null;
     }
   }
 
   /**
-   * Imposta la configurazione da un oggetto
+   * Imposta la struttura da un oggetto
    */
-  setConfig(config: any): void {
-    this.config = JSON.stringify(config);
+  setStructure(data: any): void {
+    this.structure = JSON.stringify(data);
   }
 }
 
 /**
- * Project con relazioni incluse (chatbot, account)
+ * Project con relazioni incluse (chatbots, account, category)
  */
 export class ProjectWithRelations extends Project {
-  chatbot?: any = null;
+  chatbots: any[] = [];
+  category?: any = null;
   account?: {
     id: number;
     email: string;
@@ -62,11 +62,13 @@ export class ProjectWithRelations extends Project {
   constructor(data?: Partial<ProjectWithRelations>) {
     super(data);
     if (data) {
-      this.chatbot = data.chatbot;
+      this.chatbots = data.chatbots || [];
+      this.category = data.category;
       this.account = data.account;
     }
   }
 }
+
 
 // ============================================
 // DTOs (Data Transfer Objects)
@@ -77,10 +79,9 @@ export class ProjectWithRelations extends Project {
  */
 export interface CreateProjectDTO {
   name: string;
-  description?: string;
-  type: ProjectType;
+  categoryId: number;
   accountId: number;
-  config?: Record<string, any>;
+  structure?: Record<string, any>;
 }
 
 /**
@@ -88,8 +89,8 @@ export interface CreateProjectDTO {
  */
 export interface UpdateProjectDTO {
   name?: string;
-  description?: string;
-  config?: Record<string, any>;
+  status?: ProjectStatus;
+  structure?: Record<string, any>;
 }
 
 /**
@@ -98,13 +99,14 @@ export interface UpdateProjectDTO {
 export interface ProjectResponse {
   id: number;
   name: string;
-  description: string | null;
-  type: ProjectType;
-  config: string | null;
+  status: ProjectStatus;
+  categoryId: number;
+  structure: string | null;
   accountId: number;
   createdAt: string;
   updatedAt: string;
-  chatbot?: any;
+  chatbots?: any[];
+  category?: any;
   account?: {
     id: number;
     email: string;

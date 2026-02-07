@@ -3,61 +3,37 @@ import { prisma } from "../../../config/prisma";
 
 /**
  * POST /projects
- * Crea un nuovo progetto
- * Body: { name, description?, type, accountId, config? }
+ * Crea un nuovo progetto generico
+ * Body: { name, accountId, categoryId, structure? }
  */
 export async function createProject(req: Request, res: Response): Promise<void> {
   try {
-    const { name, description, type, accountId, config } = req.body;
+    const { name, accountId, categoryId, structure } = req.body;
 
-    if (!name || !accountId) {
+    if (!name || !accountId || !categoryId) {
       res.status(400).json({
         success: false,
-        message: "name e accountId sono richiesti",
+        message: "name, accountId e categoryId sono richiesti",
       });
       return;
     }
 
-    // Crea il progetto
     const project = await prisma.project.create({
       data: {
         name,
-        description,
-        type: type || "CHATBOT",
-        config: config ? JSON.stringify(config) : null,
         accountId: Number(accountId),
+        categoryId: Number(categoryId),
+        structure: structure ? JSON.stringify(structure) : null,
+        status: "ATTIVO",
       },
-    });
-
-    // Se il tipo è CHATBOT, crea anche il chatbot associato
-    if (project.type === "CHATBOT") {
-      const chatbotConfig = config || {};
-      
-      await prisma.chatbot.create({
-        data: {
-          welcomeMessage: chatbotConfig.welcomeMessage || "Ciao! Come posso aiutarti?",
-          type: chatbotConfig.type || "DEFAULT",
-          template: chatbotConfig.template || "GENERIC",
-          personality: chatbotConfig.personality || "PROFESSIONALE",
-          primaryColor: chatbotConfig.primaryColor || "#3b82f6",
-          encodedPrompt: chatbotConfig.encodedPrompt || null,
-          accountId: Number(accountId),
-          projectId: project.id,
-        },
-      });
-    }
-
-    // Recupera il progetto con le relazioni
-    const fullProject = await prisma.project.findUnique({
-      where: { id: project.id },
       include: {
-        chatbot: true,
+        category: true,
       },
     });
 
     res.status(201).json({
       success: true,
-      data: fullProject,
+      data: project,
     });
   } catch (error) {
     res.status(500).json({
@@ -88,7 +64,7 @@ export async function getUserProjects(req: Request, res: Response): Promise<void
     const projects = await prisma.project.findMany({
       where: { accountId: Number(accountId) },
       include: {
-        chatbot: true, // Include il chatbot se esiste
+        category: true,
       },
       orderBy: { createdAt: "desc" },
     });
@@ -108,7 +84,7 @@ export async function getUserProjects(req: Request, res: Response): Promise<void
 
 /**
  * GET /projects/:id
- * Recupera un singolo progetto con le sue relazioni
+ * Recupera un singolo progetto
  */
 export async function getProject(req: Request, res: Response): Promise<void> {
   try {
@@ -117,14 +93,7 @@ export async function getProject(req: Request, res: Response): Promise<void> {
     const project = await prisma.project.findUnique({
       where: { id: Number(id) },
       include: {
-        chatbot: {
-          include: {
-            conversations: {
-              orderBy: { createdAt: "desc" },
-              take: 10, // Ultime 10 conversazioni
-            },
-          },
-        },
+        category: true,
       },
     });
 
@@ -151,24 +120,22 @@ export async function getProject(req: Request, res: Response): Promise<void> {
 
 /**
  * PUT /projects/:id
- * Aggiorna un progetto esistente
+ * Aggiorna un progetto
  */
 export async function updateProject(req: Request, res: Response): Promise<void> {
   try {
     const { id } = req.params;
-    const { name, description, config } = req.body;
-
-    // Prepara i dati da aggiornare
-    const data: any = {};
-    if (name) data.name = name;
-    if (description !== undefined) data.description = description;
-    if (config) data.config = JSON.stringify(config);
+    const { name, status, structure } = req.body;
 
     const project = await prisma.project.update({
       where: { id: Number(id) },
-      data,
+      data: {
+        ...(name && { name }),
+        ...(status && { status }),
+        ...(structure && { structure: JSON.stringify(structure) }),
+      },
       include: {
-        chatbot: true,
+        category: true,
       },
     });
 
@@ -187,49 +154,12 @@ export async function updateProject(req: Request, res: Response): Promise<void> 
 
 /**
  * DELETE /projects/:id
- * Elimina un progetto e tutte le sue relazioni (chatbot, conversazioni, messaggi)
+ * Elimina un progetto
  */
 export async function deleteProject(req: Request, res: Response): Promise<void> {
   try {
     const { id } = req.params;
 
-    // Verifica che il progetto esista
-    const project = await prisma.project.findUnique({
-      where: { id: Number(id) },
-      include: { chatbot: true },
-    });
-
-    if (!project) {
-      res.status(404).json({
-        success: false,
-        message: "Progetto non trovato",
-      });
-      return;
-    }
-
-    // Se c'è un chatbot associato, elimina prima le conversazioni e i messaggi
-    if (project.chatbot) {
-      // Elimina tutti i messaggi delle conversazioni del chatbot
-      await prisma.message.deleteMany({
-        where: {
-          conversation: {
-            chatbotId: project.chatbot.id,
-          },
-        },
-      });
-
-      // Elimina tutte le conversazioni del chatbot
-      await prisma.conversation.deleteMany({
-        where: { chatbotId: project.chatbot.id },
-      });
-
-      // Elimina il chatbot
-      await prisma.chatbot.delete({
-        where: { id: project.chatbot.id },
-      });
-    }
-
-    // Elimina il progetto
     await prisma.project.delete({
       where: { id: Number(id) },
     });

@@ -50,10 +50,9 @@ export function ChatbotWizard({ open, onClose, onSave }: ChatbotWizardProps) {
     try {
       const response = await projectService.createProject({
         name: config.name,
-        description: `Chatbot AI - ${config.name}`,
-        type: ProjectType.CHATBOT,
-        accountId: 1,
-        config: {
+        categoryId: 1, // "Chatbot AI" come definito dal sistema
+        accountId: 1, // TODO: Get from auth
+        structure: {
           welcomeMessage: config.welcomeMessage,
           type: config.type,
           template: config.template,
@@ -67,6 +66,7 @@ export function ChatbotWizard({ open, onClose, onSave }: ChatbotWizardProps) {
         onClose();
       }
     } catch (error) {
+
       console.error("Errore durante la creazione del progetto:", error);
       showSnack("Errore critico durante la creazione // SYSTEM_FAIL", "alert");
     } finally {

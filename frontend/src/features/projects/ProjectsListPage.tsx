@@ -13,7 +13,7 @@ import { ChatbotWizard } from "./components/chatbot/ChatbotWizard";
 import { IconAdd } from "@/components/icons/icons";
 import { PageHeaderGeneric } from "@/components/layout/page-header";
 import { useThemeContext } from "@/providers/ThemeContext";
-import { CreateProjectDTO, Project } from "./interfaces/Project.entity";
+import { CreateProjectDTO, ProjectWithRelations } from "./interfaces/Project.entity";
 import { projectService } from "@/lib/api/project";
 
 export function ProjectsPage() {
@@ -22,7 +22,7 @@ export function ProjectsPage() {
   const { showSnack } = useThemeContext();
   const [isTemplateGalleryOpen, setIsTemplateGalleryOpen] = useState(false);
   const [isChatbotWizardOpen, setIsChatbotWizardOpen] = useState(false);
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<ProjectWithRelations[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -69,26 +69,28 @@ export function ProjectsPage() {
     handleCloseDialog();
   };
   
-  const handleViewProject = (project: Project) => {
+  const handleViewProject = (project: ProjectWithRelations) => {
     router.push(`/dashboard/projects/${project.id}`);
   };
 
-  const handleTemplateSelect = (templateId: string) => {
+  const handleTemplateSelect = (categoryId: number) => {
     setIsTemplateGalleryOpen(false);
-    if (templateId === "chatbot") {
+    // Supponendo che la categoria con ID 1 sia "Chatbot AI" come indicato dall'utente
+    if (categoryId === 1) {
       setIsChatbotWizardOpen(true);
     } else {
       handleCreateProject();
     }
   };
 
-  const handleChatbotSave = (project: any) => {
+  const handleChatbotSave = (project: ProjectWithRelations) => {
     setIsChatbotWizardOpen(false);
     // Ricarica la lista progetti
     fetchProjects();
     // Reindirizza l'utente alla pagina del progetto appena creato
     router.push(`/dashboard/projects/${project.id}`);
   };
+
 
   const headerActions = (
     <>
@@ -156,6 +158,7 @@ export function ProjectsPage() {
         onClose={() => setIsTemplateGalleryOpen(false)}
         onSelect={handleTemplateSelect}
       />
+
 
       <ChatbotWizard
         open={isChatbotWizardOpen}

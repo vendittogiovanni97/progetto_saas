@@ -5,7 +5,7 @@
 import { Paper, Box, Typography, Chip, Icon } from "@mui/material";
 import { ButtonGeneric } from "@/components/ui/button";
 import { useTheme, alpha } from "@mui/material/styles";
-import { services } from "../../services/mockData";
+import { services } from "../../services/services";
 import { DynamicIcon } from "@/components/icons/DynamicIcon";
 import { IconRefresh, IconBug } from "@/components/icons/icons";
 

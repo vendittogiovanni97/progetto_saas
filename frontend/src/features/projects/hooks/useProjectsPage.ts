@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Project } from "@/types/shared.types";
+import { ProjectWithRelations } from "../interfaces/Project.entity";
 
 export function useProjectsPage() {
   const [search, setSearch] = useState("");
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [selectedProject, setSelectedProject] = useState<ProjectWithRelations | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleCreateProject = () => {
@@ -13,7 +13,7 @@ export function useProjectsPage() {
     setIsDialogOpen(true);
   };
 
-  const handleEditProject = (project: Project) => {
+  const handleEditProject = (project: ProjectWithRelations) => {
     setSelectedProject(project);
     setIsDialogOpen(true);
   };
@@ -33,3 +33,4 @@ export function useProjectsPage() {
     handleCloseDialog,
   };
 }
+

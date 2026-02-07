@@ -1,18 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Box } from "@mui/material";
+import { Box, Typography, alpha, useTheme } from "@mui/material";
 import { InputGeneric } from "@/components/ui/input";
-import { SelectGeneric } from "@/components/ui/select";
 import { ButtonGeneric } from "@/components/ui/button";
 import { ModalGeneric } from "@/components/ui/modal";
-import { ProjectType } from "@/types/shared.types";
-import { CreateProjectDTO } from "../../interfaces/Project.entity";
-import { Project } from "@/types/shared.types";
+import { ProjectWithRelations, CreateProjectDTO, ProjectStatus } from "../../interfaces/Project.entity";
+import { getCategories } from "../../services/services";
+import { SelectGeneric } from "@/components/ui/select";
 
 interface ProjectDialogProps {
   open: boolean;
-  project: Project | null;
+  project: ProjectWithRelations | null;
   onClose: () => void;
   onSave: (data: CreateProjectDTO) => void;
 }
@@ -23,28 +22,47 @@ export function ProjectDialog({
   onClose,
   onSave,
 }: ProjectDialogProps) {
+  const theme = useTheme();
+  const [categories, setCategories] = useState<any[]>([]);
   const [formData, setFormData] = useState<CreateProjectDTO>({
     name: "",
-    type: ProjectType.CHATBOT,
+    categoryId: 0,
     accountId: 1, // TODO: Get from auth
   });
+
+  useEffect(() => {
+    if (open) {
+      const fetchCategories = async () => {
+        try {
+          const data = await getCategories();
+          setCategories(data || []);
+          if (!project && data && data.length > 0) {
+            setFormData(prev => ({ ...prev, categoryId: data[0].id }));
+          }
+        } catch (err) {
+          console.error("Error fetching categories:", err);
+        }
+      };
+      fetchCategories();
+    }
+  }, [open, project]);
 
   useEffect(() => {
     if (project) {
       setFormData({
         name: project.name,
-        description: project.description || undefined,
-        type: project.type,
+        categoryId: project.categoryId,
         accountId: project.accountId,
+        structure: project.getParsedStructure() || undefined,
       });
     } else {
       setFormData({
         name: "",
-        type: ProjectType.CHATBOT,
+        categoryId: categories.length > 0 ? categories[0].id : 0,
         accountId: 1,
       });
     }
-  }, [project, open]);
+  }, [project, open, categories]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,35 +84,35 @@ export function ProjectDialog({
     >
       <InputGeneric
         label="Project Name"
+        placeholder="E.g. My Awesome Project"
         value={formData.name}
         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
         required
       />
 
-      <InputGeneric
-        label="Description"
-        value={formData.description || ""}
-        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-        multiline
-        rows={3}
-      />
-
       <SelectGeneric
-        label="Type"
-        value={formData.type}
+        label="Category"
+        value={formData.categoryId}
         onChange={(e) =>
           setFormData({
             ...formData,
-            type: e.target.value as ProjectType,
+            categoryId: Number(e.target.value),
           })
         }
-        options={[
-          { value: ProjectType.CHATBOT, label: "Chatbot" },
-          { value: ProjectType.FORM, label: "Form" },
-          { value: ProjectType.WORKFLOW, label: "Workflow" },
-          { value: ProjectType.API, label: "API" },
-        ]}
+        options={categories.map(cat => ({
+          value: cat.id,
+          label: cat.name
+        }))}
       />
+
+      <Box sx={{ p: 2, bgcolor: alpha(theme.palette.info.main, 0.05), borderRadius: 2, border: `1px dashed ${theme.palette.info.main}` }}>
+        <Typography variant="caption" color="info.main" sx={{ display: 'block', mb: 1, fontWeight: 700 }}>
+          CONFIGURATION STRUCTURE (JSON)
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          The structure will be automatically initialized based on the selected category template.
+        </Typography>
+      </Box>
     </Box>
   );
 
@@ -120,3 +138,4 @@ export function ProjectDialog({
     />
   );
 }
+
