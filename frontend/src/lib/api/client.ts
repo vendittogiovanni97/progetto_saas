@@ -1,9 +1,13 @@
-import { API_CONFIG } from './config';
+import { API_CONFIG, STORAGE_KEYS } from './config';
 import { ApiRequestConfig, ApiResponse, HttpMethod } from '@/types/api';
 import { ApiError } from './errors';
-import { getAccessToken } from '@/services/auth';
 
-async function request<T>(endpoint: string,method: HttpMethod = HttpMethod.GET, data?: unknown, config: ApiRequestConfig = {}): Promise<ApiResponse<T>> {
+const getAccessToken = (): string | null => {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN) || sessionStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+};
+
+async function request<T>(endpoint: string, method: HttpMethod = HttpMethod.GET, data?: unknown, config: ApiRequestConfig = {}): Promise<ApiResponse<T>> {
   const url = `${API_CONFIG.baseURL}${endpoint}`;
   
   const headers: Record<string, string> = {
@@ -40,6 +44,7 @@ async function request<T>(endpoint: string,method: HttpMethod = HttpMethod.GET, 
     throw new ApiError(error instanceof Error ? error.message : 'Errore di rete', 500);
   }
 }
+
 
 export const apiClient = {
   get: <T>(endpoint: string, config?: ApiRequestConfig) => 

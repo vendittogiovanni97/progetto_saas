@@ -21,16 +21,6 @@ export const API_ENDPOINTS = {
     BASE: "/projects",
     BY_ID: (id: string) => `/projects/${id}`,
   },
-  // Clienti
-  CLIENTS: {
-    BASE: "/clients",
-    BY_ID: (id: string) => `/clients/${id}`,
-  },
-  // Utenti
-  USERS: {
-    BASE: "/users",
-    BY_ID: (id: string) => `/users/${id}`,
-  },
   // Chatbot
   CHATBOT: {
     BASE: "/chatbots",
@@ -41,7 +31,7 @@ export const API_ENDPOINTS = {
 } as const;
 
 export const STORAGE_KEYS = {
-  ACCESS_TOKEN: "access_token",
-  REFRESH_TOKEN: "refresh_token",
-  TOKEN_EXPIRY: "token_expiry",
+  ACCESS_TOKEN: "authToken",
+  REFRESH_TOKEN: "refreshToken",
+  TOKEN_EXPIRY: "tokenExpiry",
 } as const;

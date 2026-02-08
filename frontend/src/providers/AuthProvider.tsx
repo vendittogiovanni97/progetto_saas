@@ -1,7 +1,8 @@
 'use client';
 
-import { getAccessToken, setTokens, clearTokens } from "@/services/auth";
-import { useState, useMemo, ReactNode, useContext, useEffect, createContext } from 'react';
+import { API_CONFIG, API_ENDPOINTS, STORAGE_KEYS } from "@/lib/api/config";
+import { RefreshTokenResponse } from "@/types/api";
+import { useState, useMemo, ReactNode, useContext, useEffect, createContext, useCallback, useRef } from 'react';
 
 export interface User {
   id: number;
@@ -15,61 +16,116 @@ export interface AuthContextType {
   // Stato Auth
   user: User | null;
   isAuthenticated: boolean;
+  token: string | null;
+  isAdmin: boolean;
   
   // Azioni Auth
-  login: (email: string, password: string) => Promise<void>;
+  login: (token: string, rememberMe: boolean) => void;
   logout: () => void;
+  refreshAccessToken?: () => Promise<string>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [rememberMe, setRememberMe] = useState<boolean>(false);
+  const lastToken = useRef<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  // Inizializzazione semplice da localStorage
   useEffect(() => {
-    const saved = localStorage.getItem('auth_user');
-    if (saved && getAccessToken()) {
-      setUser(JSON.parse(saved));
-      setIsAuthenticated(true);
+    const localToken = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+    const sessionToken = sessionStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+
+    if (localToken) {
+      storeToken(localToken);
+    } else if (sessionToken) {
+      storeToken(sessionToken);
     } else {
-      // Mock user per sviluppo se non c'è nulla, ma solo per prova
-      // TODO: Rimuovere questo mock quando l'integrazione API è completa
-      const mockUser: User = { id: 1, accountId: 1, email: 'mario@test.com', role: 'admin' };
-      setUser(mockUser);
-      setIsAuthenticated(true);
+      storeToken(null);
     }
   }, []);
 
-  const login = async (email: string, password: string) => {
-    // TODO: Usare apiClient.post(API_ENDPOINTS.AUTH.LOGIN, { email, password })
-    console.log('Login con:', email, password);
+  function storeToken(_token: string | null) {
+    lastToken.current = _token;
+    setToken(_token);
     
-    // Simulazione mock
-    /// TODO: Rimuovere questo mock quando l'integrazione API è completa farlo domani
-    const mockUser: User = { id: 1, email, accountId: 1, role: 'admin' };
-    const mockToken = 'mock-jwt-token';
-    const mockRefreshToken = 'mock-refresh-token';
+    if (_token) {
+      try {
+        const payload = JSON.parse(atob(_token.split('.')[1]));
+        setUser(payload);
+        setIsAuthenticated(true);
+        setIsAdmin(payload.role === 'admin');
+      } catch (err) {
+        console.error("Errore decodifica token:", err);
+        logout();
+      }
+    } else {
+      setUser(null);
+      setIsAuthenticated(false);
+      setIsAdmin(false);
+    }
+  }
 
-    setTokens(mockToken, mockRefreshToken, 3600);
-    localStorage.setItem('auth_user', JSON.stringify(mockUser));
-    setUser(mockUser);
-    setIsAuthenticated(true);
-  };
+  const login = useCallback(async (newToken: string, rememberMe: boolean) => {
+    setRememberMe(rememberMe);
+    storeToken(newToken);
+    if(rememberMe){
+      localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, newToken);
+    } else {
+      sessionStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, newToken);
+    }
+  }, []);
 
   const logout = () => {
-    clearTokens();
-    localStorage.removeItem('auth_user');
+    clearToken();
     setUser(null);
     setIsAuthenticated(false);
   };
 
+  const clearToken = useCallback(() => {
+    storeToken(null);
+    localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
+    sessionStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
+  }, []);
+
+  // const refreshAccessToken = async (): Promise<string> => {
+  //   const refreshToken = getRefreshToken();
+  //   if (!refreshToken) {
+  //     throw new Error('Nessun refresh token disponibile');
+  //   }
+
+  //   const response = await fetch(`${API_CONFIG.baseURL}${API_ENDPOINTS.AUTH.REFRESH}`, {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify({ refreshToken }),
+  //   });
+
+  //   if (!response.ok) {
+  //     clearToken();
+  //     throw new Error('Refresh token fallito');
+  //   }
+
+  //   const data: RefreshTokenResponse = await response.json();
+    
+  //   setTokens(data.accessToken, refreshToken, data.expiresIn);
+
+  //   return data.accessToken;
+  // };
+
   const value = useMemo(() => ({
     user,
     isAuthenticated,
+    token,
+    isAdmin,
     login,
     logout,
+    // refreshAccessToken,
+
   }), [user, isAuthenticated]);
 
   return (
