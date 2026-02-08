@@ -3,21 +3,14 @@ import { ApiRequestConfig, ApiResponse, HttpMethod } from '@/types/api';
 import { ApiError } from './errors';
 import { getAccessToken } from '@/services/auth';
 
-async function request<T>(
-  endpoint: string,
-  method: HttpMethod = HttpMethod.GET,
-  data?: unknown,
-  config: ApiRequestConfig = {}
-): Promise<ApiResponse<T>> {
+async function request<T>(endpoint: string,method: HttpMethod = HttpMethod.GET, data?: unknown, config: ApiRequestConfig = {}): Promise<ApiResponse<T>> {
   const url = `${API_CONFIG.baseURL}${endpoint}`;
   
-  // Prepariamo gli header
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(config.headers as Record<string, string>),
   };
 
-  // Aggiungiamo il token se presente
   const token = getAccessToken();
   if (token && !config.skipAuth) {
     headers['Authorization'] = `Bearer ${token}`;
@@ -48,9 +41,6 @@ async function request<T>(
   }
 }
 
-/**
- * Esportiamo i metodi semplici
- */
 export const apiClient = {
   get: <T>(endpoint: string, config?: ApiRequestConfig) => 
     request<T>(endpoint, HttpMethod.GET, undefined, config),
@@ -63,7 +53,4 @@ export const apiClient = {
     
   delete: <T>(endpoint: string, config?: ApiRequestConfig) => 
     request<T>(endpoint, HttpMethod.DELETE, undefined, config),
-
-  // TODO: In futuro aggiungere retry logic
-  // TODO: In futuro aggiungere refresh token automatico
 };

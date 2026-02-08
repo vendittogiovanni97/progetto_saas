@@ -1,9 +1,4 @@
-/**
- * Configurazione Navigation Links
- * Struttura enterprise-ready per future integrazioni DB
- */
-
-export type UserRole = "admin" | "editor" | "viewer" | "guest";
+export type UserRole = "admin";
 
 export interface NavSubItem {
   id: string;
@@ -32,22 +27,13 @@ export interface NavLink {
  */
 export const navLinksConfig: NavLink[] = [
   {
-    id: "login",
-    name: "Login",
-    href: "/auth/login",
-    icon: "login",
-    priority: 0,
-    active: true,
-    roles: ["admin", "editor", "viewer", "guest"],
-  },
-  {
     id: "dashboard",
     name: "Dashboard",
     href: "/dashboard",
     icon: "dashboard",
     priority: 1,
     active: true,
-    roles: ["admin", "editor", "viewer"],
+    roles: ["admin"],
   },
   {
     id: "projects",
@@ -56,7 +42,7 @@ export const navLinksConfig: NavLink[] = [
     icon: "folder_open",
     priority: 2,
     active: true,
-    roles: ["admin", "editor", "viewer"],
+    roles: ["admin"],
   },
 ];
 

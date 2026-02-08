@@ -8,7 +8,7 @@ export interface User {
   name?: string;
   email: string;
   accountId: number;
-  role: 'admin' | 'editor' | 'viewer' | 'guest';
+  role: 'admin';
 }
 
 export interface AuthContextType {
@@ -47,6 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     console.log('Login con:', email, password);
     
     // Simulazione mock
+    /// TODO: Rimuovere questo mock quando l'integrazione API è completa farlo domani
     const mockUser: User = { id: 1, email, accountId: 1, role: 'admin' };
     const mockToken = 'mock-jwt-token';
     const mockRefreshToken = 'mock-refresh-token';
