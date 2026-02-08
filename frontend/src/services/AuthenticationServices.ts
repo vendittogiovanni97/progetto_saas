@@ -10,7 +10,7 @@ export async function loginRequest(email: string, password: string): Promise<str
   });
   const data = await response.json().catch(() => null);
   if (!response.ok) {
-    throw new Error('Login fallito');
+    throw new Error(data?.message || 'Login fallito');
   }
 
   if(!data.token){

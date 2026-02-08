@@ -1,8 +1,11 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
+const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+const JWT_EXPIRES_IN = "1d";
 
 // Registrazione utente
 export const register = async (req: Request, res: Response) => {
@@ -20,7 +23,11 @@ export const register = async (req: Request, res: Response) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const user = await prisma.account.create({
-      data: { email, password: hashedPassword, role: role || "USER" },
+      data: { 
+        email, 
+        password: hashedPassword, 
+        role: role || "USER" 
+      },
     });
 
     res.status(201).json({
@@ -39,20 +46,36 @@ export const login = async (req: Request, res: Response) => {
 
     // Trova utente
     const user = await prisma.account.findUnique({ where: { email } });
-    console.log("Trovato utente:", user);
     if (!user) {
       return res.status(401).json({ message: "Credenziali non valide" });
     }
 
     // Controlla password
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log("Password match:", isMatch);
     if (!isMatch) {
       return res.status(401).json({ message: "Credenziali non valide" });
     }
 
+    // Genera Token
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.role },
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES_IN }
+    );
+
+    // Decodifica IAT per salvarlo
+    const decoded: any = jwt.decode(token);
+    const iat = decoded.iat;
+
+    // Salva IAT nel db
+    await prisma.account.update({
+      where: { id: user.id },
+      data: { expiresTokenIat: iat },
+    });
+
     res.json({
       message: "Login effettuato con successo",
+      token,
       user: { id: user.id, email: user.email, role: user.role },
     });
   } catch (error: any) {

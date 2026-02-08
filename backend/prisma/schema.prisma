@@ -25,6 +25,7 @@ model Account {
   password  String
   role      Role      @default(USER)
   projects  Project[]
+  expiresTokenIat Int?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
