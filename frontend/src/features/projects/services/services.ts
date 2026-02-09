@@ -68,30 +68,16 @@ export const ollamaService = {
       throw error;
     }
   },
-
-  getAvailableChatbotTypes: async (): Promise<ApiResponse<OllamaTypesResponse>> => {
-    try {
-      const response = await apiClient.get<OllamaTypesResponse>(API_ENDPOINTS.CHATBOT.TYPES);
-      return response;
-    } catch (error) {
-      console.error('Errore nel recupero dei tipi di chatbot:', error);
-      throw error;
-    }
-  }
 };
 
 export const categoryService = {
   getCategories: async (): Promise<Category[]> => {
-    const response = await apiClient.get<Category[]>(API_ENDPOINTS.CHATBOT.TYPES); // O endpoint specifico se esiste
-    // Nota: Ho visto che prima puntava a /api/categories, ma in config.ts abbiamo CHATBOT.TYPES. 
-    // Manteniamo la logica precedente se differente, ma usiamo config se possibile.
-    // Ripristino /api/categories se non mappato correttamente in config.
-    const res = await apiClient.get<any[]>('/api/categories');
+    const res = await apiClient.get<any[]>(API_ENDPOINTS.CATEGORIES.BASE);
     return res.data || [];
   },
 
   getCategory: async (id: number): Promise<Category> => {
-    const response = await apiClient.get<any>(`/api/categories/${id}`);
+    const response = await apiClient.get<any>(`${API_ENDPOINTS.CATEGORIES.BASE}/${id}`);
     return response.data;
   },
 };

@@ -25,8 +25,10 @@ export const API_ENDPOINTS = {
   CHATBOT: {
     BASE: "/chatbots",
     BY_ID: (id: string) => `/chatbots/${id}`,
-    CHAT: "/api/chat",
-    TYPES: "/api/chat/types",
+    CHAT: "/chat",
+  },
+  CATEGORIES: {
+    BASE: "/categories",
   },
 } as const;
 
