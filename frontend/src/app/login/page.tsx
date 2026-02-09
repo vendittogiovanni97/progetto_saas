@@ -211,7 +211,7 @@ export default function LoginPage() {
 
         <Box sx={{ mt: 3, textAlign: "center" }}>
           <Typography sx={{ fontSize: "0.75rem", color: "text.secondary" }}>
-            v3.0.0 // 2024
+            {process.env.NEXT_PUBLIC_APP_VERSION}
           </Typography>
         </Box>
       </Box>

@@ -17,8 +17,8 @@ const notoSans = Noto_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Gestionale SaaS",
-  description: "Gestionale SaaS",
+  title: "Dashboard KODA",
+  description: "Dashboard KODA",
 };
 
 export default function RootLayout({
