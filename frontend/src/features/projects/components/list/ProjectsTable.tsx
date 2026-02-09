@@ -1,42 +1,21 @@
 "use client";
 
 import {
-  Box,
   Typography,
   Chip,
   alpha,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { ProjectWithRelations, ProjectStatus } from "../../interfaces/Project.entity";
-import { TableGenericColumn, TableGeneric } from "@/components/ui/table";
+import { TableGenericColumn, TableGeneric } from "@/components/table/TableGeneric";
+import { formatDate } from "@/utils/dateUtils";
+import { getStatusColor } from "@/utils/projectUtils";
 
 interface ProjectsTableProps {
   projects: ProjectWithRelations[];
   onEditProject: (project: ProjectWithRelations) => void;
   onViewProject: (project: ProjectWithRelations) => void;
 }
-
-// Helper per formattare la data
-const formatDate = (date: Date | string) => {
-  const d = typeof date === 'string' ? new Date(date) : date;
-  return d.toLocaleDateString('it-IT', { 
-    day: '2-digit', 
-    month: '2-digit', 
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-};
-
-// Helper per ottenere il colore dello stato
-const getStatusColor = (status: ProjectStatus): "success" | "warning" | "error" | "default" => {
-  switch (status) {
-    case 'ATTIVO': return 'success';
-    case 'DISATTIVATO': return 'warning';
-    case 'ARCHIVIATO': return 'error';
-    default: return 'default';
-  }
-};
 
 export function ProjectsTable({
   projects,

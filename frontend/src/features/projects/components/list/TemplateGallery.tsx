@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Box, Typography, Card, CardContent, CardMedia, Grid, alpha, useTheme, CircularProgress } from "@mui/material";
 import { ButtonGeneric } from "@/components/ui/button";
 import { DynamicIcon } from "@/components/icons/DynamicIcon";
-import { ModalGeneric } from "@/components/ui/modal";
+import { ModalGeneric } from "@/components/ui/customModal";
 import { categoryService } from "../../services/services";
 import { Category as ICategory } from "../../interfaces/Category.entity";
 

@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Box, Typography, alpha, useTheme } from "@mui/material";
+import { Box, Typography, alpha, useTheme, Grid } from "@mui/material";
 import { InputGeneric } from "@/components/ui/input";
-import { ButtonGeneric } from "@/components/ui/button";
-import { ModalGeneric } from "@/components/ui/modal";
-import { ProjectWithRelations, CreateProjectDTO, ProjectStatus } from "../../interfaces/Project.entity";
+import { EntityFormModal } from "@/components/modal/ModalGeneric";
+import { ActionMode } from "@/types/modal";
+import { ProjectWithRelations, CreateProjectDTO } from "../../interfaces/Project.entity";
 import { categoryService } from "../../services/services";
 import { SelectGeneric } from "@/components/ui/select";
 
@@ -64,77 +64,65 @@ export function ProjectDialog({
     }
   }, [project, open, categories]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSave(formData);
-    onClose();
+  const handleSave = async () => {
+    await onSave(formData);
   };
 
-  const dialogContent = (
-    <Box
-      component="form"
-      id="project-form"
-      onSubmit={handleSubmit}
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        gap: 3,
-        pt: 1,
-      }}
-    >
-      <InputGeneric
-        label="Project Name"
-        placeholder="E.g. My Awesome Project"
-        value={formData.name}
-        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-        required
-      />
-
-      <SelectGeneric
-        label="Category"
-        value={formData.categoryId}
-        onChange={(e) =>
-          setFormData({
-            ...formData,
-            categoryId: Number(e.target.value),
-          })
-        }
-        options={categories.map(cat => ({
-          value: cat.id,
-          label: cat.name
-        }))}
-      />
-
-      <Box sx={{ p: 2, bgcolor: alpha(theme.palette.info.main, 0.05), borderRadius: 2, border: `1px dashed ${theme.palette.info.main}` }}>
-        <Typography variant="caption" color="info.main" sx={{ display: 'block', mb: 1, fontWeight: 700 }}>
-          CONFIGURATION STRUCTURE (JSON)
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          The structure will be automatically initialized based on the selected category template.
-        </Typography>
-      </Box>
-    </Box>
-  );
-
-  const dialogActions = (
+  const renderForm = () => (
     <>
-      <ButtonGeneric.Secondary onClick={onClose} label="Cancel" />
-      <ButtonGeneric.Primary
-        type="submit"
-        form="project-form"
-        label={project ? "Update Project" : "Create Project"}
-      />
+      <Grid size={{ xs: 12 }}>
+        <InputGeneric
+          label="Project Name"
+          placeholder="E.g. My Awesome Project"
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          required
+        />
+      </Grid>
+
+      <Grid size={{ xs: 12 }}>
+        <SelectGeneric
+          label="Category"
+          value={formData.categoryId}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              categoryId: Number(e.target.value),
+            })
+          }
+          options={categories.map(cat => ({
+            value: cat.id,
+            label: cat.name
+          }))}
+        />
+      </Grid>
+
+      <Grid size={{ xs: 12 }}>
+        <Box sx={{ p: 2, bgcolor: alpha(theme.palette.info.main, 0.05), borderRadius: 2, border: `1px dashed ${theme.palette.info.main}` }}>
+          <Typography variant="caption" color="info.main" sx={{ display: 'block', mb: 1, fontWeight: 700 }}>
+            CONFIGURATION STRUCTURE (JSON)
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            The structure will be automatically initialized based on the selected category template.
+          </Typography>
+        </Box>
+      </Grid>
     </>
   );
 
   return (
-    <ModalGeneric
+    <EntityFormModal
       open={open}
       onClose={onClose}
-      title={project ? "Edit Project" : "New Project"}
-      content={dialogContent}
-      actions={dialogActions}
+      action={project ? ActionMode.EDIT : ActionMode.CREATE}
+      initialData={formData}
+      onSave={handleSave}
+      renderForm={renderForm}
       maxWidth="sm"
+      texts={{
+        titleCreate: "New Project",
+        titleEdit: "Edit Project"
+      }}
     />
   );
 }

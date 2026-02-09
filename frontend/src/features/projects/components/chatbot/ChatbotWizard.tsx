@@ -6,7 +6,7 @@ import { SelectGeneric } from "@/components/ui/select";
 import { ButtonGeneric } from "@/components/ui/button";
 import { useState } from "react";
 import { useAuth } from "@/providers/AuthProvider";
-import { ModalGeneric } from "@/components/ui/modal";
+import { ModalGeneric } from "@/components/ui/customModal";
 import { ChatbotPreview } from "./ChatbotPreview";
 import { SectionGeneric } from "@/components/ui/section";
 import { useThemeContext } from "@/providers/ThemeContext";

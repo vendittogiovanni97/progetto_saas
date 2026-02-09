@@ -26,7 +26,7 @@ export interface ModalGenericProps {
   fullWidth?: boolean;
 }
 
-export function ModalGeneric({
+export function CustomModal({
   open,
   onClose,
   title,

@@ -1,34 +1,11 @@
-import {
-  Box,
-  Typography,
-  LinearProgress,
-  Chip,
-} from "@mui/material";
-import { useTheme, alpha } from "@mui/material/styles";
+import {Typography, Chip, alpha} from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import { SectionGeneric } from "@/components/ui/section";
-import { TableGenericColumn, TableGeneric } from "@/components/ui/table";
+import { TableGenericColumn, TableGeneric } from "@/components/table/TableGeneric";
 import { Project } from "@/features/projects/interfaces/Project.entity";
+import { formatDate } from "@/utils/dateUtils";
+import { getTypeColor } from "@/utils/projectUtils";
 
-// Helper per formattare la data
-const formatDate = (dateString: string | Date) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('it-IT', { 
-    day: '2-digit', 
-    month: '2-digit', 
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-};
-
-// Helper per ottenere il colore del tipo (Placeholder, andrebbe mappato su category)
-const getTypeColor = (categoryId: number): "primary" | "success" | "warning" | "error" => {
-  switch (categoryId) {
-    case 1: return 'primary';
-    case 2: return 'success';
-    default: return 'primary';
-  }
-};
 
 interface ProjectsTableProps {
   projects: Project[];
