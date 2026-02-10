@@ -21,7 +21,7 @@ export function PageHeaderGeneric({
       <>
         {parts[0]}
         <Box component="span" sx={{ color: "primary.main", mx: 1 }}>
-          //
+          {}
         </Box>
         {parts[1]}
       </>

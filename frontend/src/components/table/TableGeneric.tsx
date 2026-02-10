@@ -27,7 +27,7 @@ import {
   IconSearch,
   IconRefresh,
 } from "@/components/icons/icons";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo } from "react";
 
 export interface TableGenericColumn<T = any> {
   id: string;
@@ -72,7 +72,7 @@ export function TableGeneric<T extends Record<string, any>>({
   onEdit,
   onDelete,
   onRefresh,
-  onExport,
+  //onExport,
   stickyHeader = false,
   renderTopToolbarCustomActions,
 }: TableGenericProps<T>) {
@@ -122,7 +122,6 @@ export function TableGeneric<T extends Record<string, any>>({
   };
 
   const hasActions = !!(onView || onEdit || onDelete);
-
   const renderTopToolbar = () => (
     <Box sx={{ 
       p: 2, 
@@ -174,14 +173,14 @@ export function TableGeneric<T extends Record<string, any>>({
           </Tooltip>
         )}
 
-        {/* TODO: Implement Export to Excel logic like in AgilaeTable */}
+        {/* TODO: Implement Export to Excel logic like in AgilaeTable
         {onExport && (
           <Tooltip title="EXPORT">
             <IconButton size="small" onClick={onExport} sx={{ color: "success.main" }}>
               <Typography variant="caption" sx={{ fontWeight: 900 }}>XLS</Typography>
             </IconButton>
           </Tooltip>
-        )}
+        )} */}
       </Box>
     </Box>
   );
@@ -193,7 +192,7 @@ export function TableGeneric<T extends Record<string, any>>({
       sx={{
         bgcolor: alpha(theme.palette.background.paper, 0.1),
         backdropFilter: "blur(20px)",
-        border: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
+        border: `1px solid white}`,
         borderRadius: 4,
         overflow: "hidden",
         position: "relative",

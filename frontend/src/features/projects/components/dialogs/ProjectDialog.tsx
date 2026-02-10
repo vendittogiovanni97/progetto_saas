@@ -3,11 +3,10 @@
 import { useState, useEffect } from "react";
 import { Box, Typography, alpha, useTheme, Grid } from "@mui/material";
 import { InputGeneric } from "@/components/ui/input";
-import { EntityFormModal } from "@/components/modal/ModalGeneric";
-import { ActionMode } from "@/types/modal";
 import { ProjectWithRelations, CreateProjectDTO } from "../../interfaces/Project.entity";
 import { categoryService } from "../../services/services";
 import { SelectGeneric } from "@/components/ui/select";
+import { ActionMode, ModalGeneric } from "@/components/modal/ModalGeneric";
 
 interface ProjectDialogProps {
   open: boolean;
@@ -111,7 +110,7 @@ export function ProjectDialog({
   );
 
   return (
-    <EntityFormModal
+    <ModalGeneric
       open={open}
       onClose={onClose}
       action={project ? ActionMode.EDIT : ActionMode.CREATE}

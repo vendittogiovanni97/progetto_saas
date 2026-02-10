@@ -1,6 +1,5 @@
 import { Box } from "@mui/material";
-import { EntityFormModal } from "@/components/modal/ModalGeneric";
-import { ActionMode } from "@/types/modal";
+import { ActionMode, ModalGeneric } from "@/components/modal/ModalGeneric";
 import { ProjectCard } from "../../types/types";
 import { CardContentRenderer } from "../details/CardContentRenderer";
 import { DynamicIcon } from "@/components/icons/DynamicIcon";
@@ -27,7 +26,7 @@ export function ProjectDetailDialog({ open, selectedCard, selectedCardId, onClos
   );
 
   return (
-    <EntityFormModal
+    <ModalGeneric
       open={open}
       onClose={onClose}
       action={ActionMode.READ}

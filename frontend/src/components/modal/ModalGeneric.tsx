@@ -17,7 +17,7 @@ export interface EntityFormModalProps<T> {
   maxWidth?: "xs" | "sm" | "md" | "lg" | "xl";
 
 }
-enum ActionMode {
+export enum ActionMode {
   CREATE = "CREATE",
   EDIT = "EDIT",
   READ = "READ",
@@ -46,7 +46,7 @@ const defaultModalTexts: EntityModalTexts = {
   deleteButtonLabel: "Elimina",
 };
 
-export function EntityFormModal<T>({
+export function ModalGeneric<T>({
   open,
   onClose,
   onSave,

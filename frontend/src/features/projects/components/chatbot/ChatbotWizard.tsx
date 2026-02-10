@@ -6,13 +6,13 @@ import { SelectGeneric } from "@/components/ui/select";
 import { ButtonGeneric } from "@/components/ui/button";
 import { useState } from "react";
 import { useAuth } from "@/providers/AuthProvider";
-import { ModalGeneric } from "@/components/ui/customModal";
 import { ChatbotPreview } from "./ChatbotPreview";
 import { SectionGeneric } from "@/components/ui/section";
 import { useThemeContext } from "@/providers/ThemeContext";
 import { projectService } from "../../services/services";
 import { CHATBOT_COLORS } from "../config/chatbot";
 import { ChatbotType, ChatbotTemplate, ChatbotPersonality } from "../../interfaces/Chatbot.entity";
+import { CustomModal } from "@/components/ui/customModal";
 
 interface ChatbotWizardProps {
   open: boolean;
@@ -198,7 +198,7 @@ export function ChatbotWizard({ open, onClose, onSave }: ChatbotWizardProps) {
   );
 
   return (
-    <ModalGeneric
+    <CustomModal
       open={open}
       onClose={onClose}
       title={<Typography variant="h6" sx={{ fontWeight: 800 }}>Configura il tuo Chatbot</Typography>}

@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { Box, Typography, Card, CardContent, CardMedia, Grid, alpha, useTheme, CircularProgress } from "@mui/material";
 import { ButtonGeneric } from "@/components/ui/button";
 import { DynamicIcon } from "@/components/icons/DynamicIcon";
-import { ModalGeneric } from "@/components/ui/customModal";
 import { categoryService } from "../../services/services";
 import { Category as ICategory } from "../../interfaces/Category.entity";
+import { CustomModal } from "@/components/ui/customModal";
 
 interface Category extends ICategory {
   image?: string; // Estensione solo per la UI (fallback gestito nel componente)
@@ -159,7 +159,7 @@ export function TemplateGallery({ open, onClose, onSelect }: TemplateGalleryProp
   };
 
   return (
-    <ModalGeneric
+    <CustomModal
       open={open}
       onClose={onClose}
       title={title}
