@@ -1,96 +1,39 @@
 "use client";
 
-import { Box } from "@mui/material";
+import { Box, TextField, alpha, useTheme, CircularProgress, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { useProjectsPage } from "./hooks/useProjectsPage";
-import { TextField, alpha, useTheme, CircularProgress, Typography } from "@mui/material";
+import { useProjects } from "./hooks/useProjects";
 import { ButtonGeneric } from "@/components/ui/button";
 import { ProjectsTable } from "./components/list/ProjectsTable";
-import { ProjectDialog } from "./components/dialogs/ProjectDialog";
-import { TemplateGallery } from "./components/list/TemplateGallery";
-import { useState, useEffect } from "react";
-import { ChatbotWizard } from "./components/chatbot/ChatbotWizard";
+import { ProjectComposer } from "./components/ProjectComposer";
 import { IconAdd } from "@/components/icons/icons";
 import { PageHeaderGeneric } from "@/components/layout/page-header";
-import { useThemeContext } from "@/providers/ThemeContext";
-import { CreateProjectDTO, ProjectWithRelations } from "./interfaces/Project.entity";
-import { projectService } from "./services/services";
 
 export function ProjectsPage() {
   const router = useRouter();
   const theme = useTheme();
-  const { showSnack } = useThemeContext();
-  const [isTemplateGalleryOpen, setIsTemplateGalleryOpen] = useState(false);
-  const [isChatbotWizardOpen, setIsChatbotWizardOpen] = useState(false);
-  const [projects, setProjects] = useState<ProjectWithRelations[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   
   const {
     search,
     setSearch,
-    selectedProject,
+    projects,
+    isLoadingList,
+    listError,
+    fetchProjects,
+    selectedProjectForDialog,
     isDialogOpen,
-    handleCreateProject,
+    setIsDialogOpen,
     handleEditProject,
     handleCloseDialog,
-  } = useProjectsPage();
+  } = useProjects();
 
-  // Fetch projects on mount
-  useEffect(() => {
-    fetchProjects();
-  }, []);
-
-  const fetchProjects = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await projectService.getProjects(1); // TODO: Get accountId from auth
-      if (response.data) {
-        setProjects(response.data);
-      }
-    } catch (err) {
-      console.error("Errore nel recupero dei progetti:", err);
-      setError("Impossibile caricare i progetti");
-      showSnack("Errore nel caricamento dei progetti // SYSTEM_FAIL", "alert");
-    } finally {
-      setIsLoading(false);
-    }
+  const handleCreateProject = () => {
+    setIsDialogOpen(true);
   };
 
-  const filteredProjects = projects.filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    p.id.toString().toLowerCase().includes(search.toLowerCase())
-  );
-
-  const handleSaveProject = (data: CreateProjectDTO) => {
-    // TODO: Integrare con API
-    console.log("Save project:", data);
-    handleCloseDialog();
-  };
-  
-  const handleViewProject = (project: ProjectWithRelations) => {
+  const handleViewProject = (project: any) => {
     router.push(`/dashboard/projects/${project.id}`);
   };
-
-  const handleTemplateSelect = (categoryId: number) => {
-    setIsTemplateGalleryOpen(false);
-    // Supponendo che la categoria con ID 1 sia "Chatbot AI" come indicato dall'utente
-    if (categoryId === 1) {
-      setIsChatbotWizardOpen(true);
-    } else {
-      handleCreateProject();
-    }
-  };
-
-  const handleChatbotSave = (project: ProjectWithRelations) => {
-    setIsChatbotWizardOpen(false);
-    // Ricarica la lista progetti
-    fetchProjects();
-    // Reindirizza l'utente alla pagina del progetto appena creato
-    router.push(`/dashboard/projects/${project.id}`);
-  };
-
 
   const headerActions = (
     <>
@@ -109,7 +52,7 @@ export function ProjectsPage() {
         autoComplete="off"
       />
       <ButtonGeneric.Primary
-        onClick={() => setIsTemplateGalleryOpen(true)}
+        onClick={handleCreateProject}
         startIcon={<IconAdd />}
       >
         New Project
@@ -118,7 +61,7 @@ export function ProjectsPage() {
   );
 
   const renderContent = () => {
-    if (isLoading) {
+    if (isLoadingList) {
       return (
         <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", py: 8 }}>
           <CircularProgress />
@@ -126,17 +69,17 @@ export function ProjectsPage() {
       );
     }
 
-    if (error) {
+    if (listError) {
       return (
         <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", py: 8 }}>
-          <Typography color="error">{error}</Typography>
+          <Typography color="error">{listError}</Typography>
         </Box>
       );
     }
 
     return (
       <ProjectsTable
-        projects={filteredProjects}
+        projects={projects}
         onEditProject={handleEditProject}
         onViewProject={handleViewProject}
       />
@@ -153,24 +96,11 @@ export function ProjectsPage() {
 
       {renderContent()}
 
-      <TemplateGallery
-        open={isTemplateGalleryOpen}
-        onClose={() => setIsTemplateGalleryOpen(false)}
-        onSelect={handleTemplateSelect}
-      />
-
-
-      <ChatbotWizard
-        open={isChatbotWizardOpen}
-        onClose={() => setIsChatbotWizardOpen(false)}
-        onSave={handleChatbotSave}
-      />
-
-      <ProjectDialog
+      <ProjectComposer
         open={isDialogOpen}
-        project={selectedProject}
         onClose={handleCloseDialog}
-        onSave={handleSaveProject}
+        onSave={() => fetchProjects()}
+        initialProject={selectedProjectForDialog}
       />
     </Box>
   );

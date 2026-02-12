@@ -1,143 +1,75 @@
 "use client";
 
-import { Box, Typography, IconButton, alpha, Avatar, Paper, InputBase } from "@mui/material";
-import { 
-  SmartToy as SmartToyIcon, 
-  Close as CloseIcon, 
-  Send as SendIcon 
-} from "@mui/icons-material";
-import { useState } from "react";
+import { Box, Typography, alpha, useTheme, Stack } from "@mui/material";
 
-interface ChatbotConfig {
-  name: string;
-  welcomeMessage: string;
-  primaryColor: string;
+export interface ChatbotConfig {
+  welcomeMessage?: string;
+  primaryColor?: string;
+  name?: string;
+  [key: string]: any;
 }
 
-interface Message {
-  role: "user" | "assistant";
-  content: string;
+interface ChatbotPreviewProps {
+  config: ChatbotConfig;
 }
 
-export function ChatbotPreview({ config }: { config: ChatbotConfig }) {
-  const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", content: config.welcomeMessage }
-  ]);
-  const [input, setInput] = useState("");
-
-  const handleSend = () => {
-    if (!input.trim()) return;
-    const userMsg = input;
-    setInput("");
-    setMessages(prev => [...prev, { role: "user", content: userMsg }]);
-    
-    // Simula risposta
-    setTimeout(() => {
-      setMessages(prev => [...prev, { role: "assistant", content: "Grazie per avermi scritto! Posso aiutarti in altro?" }]);
-    }, 1000);
-  };
+export function ChatbotPreview({ config }: ChatbotPreviewProps) {
+  const theme = useTheme();
+  const primaryColor = config.primaryColor || theme.palette.primary.main;
 
   return (
-    <Paper
-      elevation={24}
+    <Box
       sx={{
-        width: "100%",
-        maxWidth: 360,
+        width: 320,
         height: 500,
-        display: "flex",
-        flexDirection: "column",
+        bgcolor: "#111418",
         borderRadius: 4,
         overflow: "hidden",
-        bgcolor: "#ffffff",
-        boxShadow: `0 20px 40px ${alpha(config.primaryColor, 0.2)}`,
-        border: `1px solid ${alpha(config.primaryColor, 0.2)}`,
+        display: "flex",
+        flexDirection: "column",
+        boxShadow: "0 20px 40px rgba(0,0,0,0.4)",
+        border: `1px solid ${alpha('#fff', 0.1)}`,
       }}
     >
       {/* Header */}
-      <Box 
-        sx={{ 
-          p: 2, 
-          bgcolor: config.primaryColor, 
-          color: "#fff",
-          display: "flex",
-          alignItems: "center",
-          gap: 1.5
-        }}
-      >
-        <Avatar sx={{ bgcolor: alpha("#fff", 0.2), width: 32, height: 32 }}>
-          <SmartToyIcon sx={{ fontSize: 20 }} />
-        </Avatar>
-        <Box sx={{ flex: 1 }}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
-            {config.name}
-          </Typography>
-          <Typography variant="caption" sx={{ opacity: 0.8, display: "flex", alignItems: "center", gap: 0.5 }}>
-            <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "#4ade80" }} />
-            Online
-          </Typography>
-        </Box>
-        <IconButton size="small" sx={{ color: "#fff" }}>
-          <CloseIcon />
-        </IconButton>
+      <Box sx={{ p: 3, bgcolor: primaryColor, color: "#fff" }}>
+        <Typography variant="subtitle2" sx={{ fontWeight: 800, textTransform: "uppercase", letterSpacing: 1 }}>
+          {config.name || "AI Assistant"}
+        </Typography>
+        <Typography variant="caption" sx={{ opacity: 0.8 }}>Online</Typography>
       </Box>
 
-      {/* Messages Area */}
-      <Box 
-        sx={{ 
-          flex: 1, 
-          p: 2, 
-          overflow: "auto", 
-          display: "flex", 
-          flexDirection: "column", 
-          gap: 2,
-          bgcolor: "#f8fafc"
-        }}
-      >
-        {messages.map((m, i) => (
-          <Box 
-            key={i} 
-            sx={{ 
-              alignSelf: m.role === "assistant" ? "flex-start" : "flex-end",
-              maxWidth: "80%",
-            }}
-          >
-            <Box 
-              sx={{ 
-                p: 1.5, 
-                borderRadius: 2, 
-                bgcolor: m.role === "assistant" ? "#fff" : config.primaryColor,
-                color: m.role === "assistant" ? "#1e293b" : "#fff",
-                boxShadow: m.role === "assistant" ? "0 2px 4px rgba(0,0,0,0.05)" : "none",
-                fontSize: "0.875rem"
-              }}
-            >
-              {m.content}
-            </Box>
-          </Box>
-        ))}
-      </Box>
-
-      {/* Input Area */}
-      <Box sx={{ p: 2, bgcolor: "#fff", borderTop: "1px solid #e2e8f0", display: "flex", gap: 1 }}>
-        <InputBase
-          fullWidth
-          placeholder="Scrivi un messaggio..."
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-          sx={{ fontSize: "0.875rem" }}
-        />
-        <IconButton 
-          size="small" 
-          onClick={handleSend}
-          sx={{ 
-            color: config.primaryColor,
-            "&:hover": { bgcolor: alpha(config.primaryColor, 0.1) }
+      {/* Messages */}
+      <Box sx={{ flex: 1, p: 2, display: "flex", flexDirection: "column", gap: 2 }}>
+        <Box
+          sx={{
+            alignSelf: "flex-start",
+            maxWidth: "80%",
+            p: 2,
+            bgcolor: alpha('#fff', 0.05),
+            borderRadius: "0 12px 12px 12px",
+            border: `1px solid ${alpha('#fff', 0.05)}`,
           }}
         >
-          <SendIcon />
-        </IconButton>
+          <Typography variant="body2" sx={{ color: "#fff" }}>
+            {config.welcomeMessage || "Ciao! Come posso aiutarti?"}
+          </Typography>
+        </Box>
       </Box>
-    </Paper>
+
+      {/* Input Placeholder */}
+      <Box sx={{ p: 2, borderTop: `1px solid ${alpha('#fff', 0.05)}`, bgcolor: alpha('#fff', 0.02) }}>
+        <Box
+          sx={{
+            p: 1.5,
+            bgcolor: alpha('#fff', 0.05),
+            borderRadius: 2,
+            border: `1px solid ${alpha('#fff', 0.1)}`,
+          }}
+        >
+          <Typography variant="caption" color="text.secondary">Scrivi un messaggio...</Typography>
+        </Box>
+      </Box>
+    </Box>
   );
 }
