@@ -147,7 +147,7 @@ export function ProjectsPage() {
     <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
       <PageHeaderGeneric
         title="Projects Control"
-        subtitle="SYSTEM_VERSION: 1.0.4 // ACTIVE_PROXIES: 04"
+        subtitle="Manage your projects and AI agents"
         actions={headerActions}
       />
 
