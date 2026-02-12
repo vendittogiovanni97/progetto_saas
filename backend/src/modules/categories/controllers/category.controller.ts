@@ -57,3 +57,42 @@ export async function getCategory(req: Request, res: Response): Promise<void> {
   }
 }
 
+/**
+ * POST /categories
+ * Crea una nuova categoria
+ * Body: { name, description, icon?, color? }
+ */
+export async function createCategory(req: Request, res: Response): Promise<void> {
+  try {
+    const { name, description, icon, color } = req.body;
+
+    if (!name || !description) {
+      res.status(400).json({
+        success: false,
+        message: "name e description sono richiesti",
+      });
+      return;
+    }
+
+    const category = await prisma.category.create({
+      data: {
+        name,
+        description,
+        icon,
+        color,
+      },
+    });
+
+    res.status(201).json({
+      success: true,
+      data: category,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Errore nella creazione della categoria",
+      error: error instanceof Error ? error.message : "Errore sconosciuto",
+    });
+  }
+}
+
