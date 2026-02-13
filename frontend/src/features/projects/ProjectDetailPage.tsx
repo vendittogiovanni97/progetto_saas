@@ -13,7 +13,7 @@ interface ProjectPageProps {
   projectId: string;
 }
 
-export function ProjectPage({ projectId }: ProjectPageProps) {
+export function ProjectDetailPage({ projectId }: ProjectPageProps) {
   const router = useRouter();
   const [project, setProject] = useState<ProjectWithRelations | null>(null);
   const [isLoading, setIsLoading] = useState(true);

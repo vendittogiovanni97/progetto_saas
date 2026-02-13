@@ -1,28 +1,45 @@
 "use client";
 
 import {
+  Box,
   Typography,
   Chip,
+  CircularProgress,
   alpha,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { ProjectWithRelations, ProjectStatus } from "../../interfaces/Project.entity";
+import { useRouter } from "next/navigation";
+import { useProjects } from "./hooks/useProjects";
+import { ProjectWithRelations, ProjectStatus } from "./interfaces/Project.entity";
 import { TableGenericColumn, TableGeneric } from "@/components/table/TableGeneric";
+import { PageHeaderGeneric } from "@/components/layout/page-header";
+import { ProjectComposer } from "./components/ProjectComposer";
 import { formatDate } from "@/utils/dateUtils";
 import { getStatusColor } from "@/utils/projectUtils";
 
-interface ProjectsTableProps {
-  projects: ProjectWithRelations[];
-  onEditProject: (project: ProjectWithRelations) => void;
-  onViewProject: (project: ProjectWithRelations) => void;
-}
-
-export function ProjectsTable({
-  projects,
-  onEditProject,
-  onViewProject,
-}: ProjectsTableProps) {
+export function ProjectsPage() {
   const theme = useTheme();
+  const router = useRouter();
+
+  const {
+    projects,
+    isLoadingList,
+    listError,
+    fetchProjects,
+    selectedProjectForDialog,
+    isDialogOpen,
+    setIsDialogOpen,
+    handleEditProject,
+    handleCloseDialog,
+  } = useProjects();
+
+  const handleCreateProject = () => {
+    setIsDialogOpen(true);
+  };
+
+  const handleViewProject = (project: ProjectWithRelations) => {
+    router.push(`/dashboard/projects/${project.id}`);
+  };
 
   const columns: TableGenericColumn<ProjectWithRelations>[] = [
     {
@@ -64,7 +81,6 @@ export function ProjectsTable({
         const status = value as ProjectStatus;
         const color = getStatusColor(status);
         
-        // Helper per estrarre il colore esadecimale dalla palette
         const getHexColor = () => {
           if (color === 'default') return theme.palette.grey[500];
           const paletteColor = theme.palette[color as 'success' | 'warning' | 'error' | 'primary'];
@@ -93,7 +109,6 @@ export function ProjectsTable({
         );
       },
     },
-
     {
       id: "updatedAt",
       header: "Last Update",
@@ -108,15 +123,52 @@ export function ProjectsTable({
     },
   ];
 
+  const renderContent = () => {
+    if (isLoadingList) {
+      return (
+        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", py: 8 }}>
+          <CircularProgress />
+        </Box>
+      );
+    }
+
+    if (listError) {
+      return (
+        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", py: 8 }}>
+          <Typography color="error">{listError}</Typography>
+        </Box>
+      );
+    }
+
+    return (
+      <TableGeneric
+        data={projects}
+        columns={columns}
+        enableSorting
+        onView={handleViewProject}
+        onEdit={handleEditProject}
+        emptyMessage="No projects available"
+        onAdd={handleCreateProject}
+        addLabel="New Project"
+      />
+    );
+  };
+
   return (
-    <TableGeneric
-      data={projects}
-      columns={columns}
-      enableSorting
-      onView={onViewProject}
-      onEdit={onEditProject}
-      emptyMessage="No projects available"
-    />
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      <PageHeaderGeneric
+        title="Projects Control"
+        subtitle="Manage your projects and AI agents"
+      />
+
+      {renderContent()}
+
+      <ProjectComposer
+        open={isDialogOpen}
+        onClose={handleCloseDialog}
+        onSave={() => fetchProjects()}
+        initialProject={selectedProjectForDialog}
+      />
+    </Box>
   );
 }
-

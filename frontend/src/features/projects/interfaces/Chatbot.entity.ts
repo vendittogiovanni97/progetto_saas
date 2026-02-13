@@ -3,11 +3,17 @@ import { Conversation } from './Conversation.entity';
 export enum ChatbotType {
   DEFAULT = 'DEFAULT',
   AI = 'AI',
+  RULE_BASED = 'RULE_BASED',
+  HYBRID = 'HYBRID',
 }
 
 export enum ChatbotTemplate {
   GENERIC = 'GENERIC',
   CUSTOM = 'CUSTOM',
+  ECOMMERCE = 'ECOMMERCE',
+  SUPPORT = 'SUPPORT',
+  BOOKING = 'BOOKING',
+  FAQ = 'FAQ',
 }
 
 export enum ChatbotPersonality {
@@ -17,6 +23,20 @@ export enum ChatbotPersonality {
   DETTAGLIATO = 'DETTAGLIATO',
   TECNICO = 'TECNICO',
   DIVERTENTE = 'DIVERTENTE',
+}
+
+export enum ChatbotLanguage {
+  IT = 'IT',
+  EN = 'EN',
+  FR = 'FR',
+  DE = 'DE',
+  ES = 'ES',
+}
+
+export enum ChatbotPosition {
+  BOTTOM_RIGHT = 'BOTTOM_RIGHT',
+  BOTTOM_LEFT = 'BOTTOM_LEFT',
+  CENTER = 'CENTER',
 }
 
 /**

@@ -26,7 +26,9 @@ import {
   IconDelete,
   IconSearch,
   IconRefresh,
+  IconAdd,
 } from "@/components/icons/icons";
+import { ButtonGeneric } from "@/components/ui/button";
 import { useState, useMemo } from "react";
 
 export interface TableGenericColumn<T = any> {
@@ -54,6 +56,8 @@ export interface TableGenericProps<T = any> {
   onDelete?: (row: T) => void;
   onRefresh?: () => void;
   onExport?: () => void;
+  onAdd?: () => void;
+  addLabel?: string;
   stickyHeader?: boolean;
   renderTopToolbarCustomActions?: () => React.ReactNode;
 }
@@ -73,6 +77,8 @@ export function TableGeneric<T extends Record<string, any>>({
   onDelete,
   onRefresh,
   //onExport,
+  onAdd,
+  addLabel = "Nuovo",
   stickyHeader = false,
   renderTopToolbarCustomActions,
 }: TableGenericProps<T>) {
@@ -163,6 +169,14 @@ export function TableGeneric<T extends Record<string, any>>({
       </Box>
 
       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        {onAdd && (
+          <ButtonGeneric.Primary
+            onClick={onAdd}
+            startIcon={<IconAdd />}
+          >
+            {addLabel}
+          </ButtonGeneric.Primary>
+        )}
         {renderTopToolbarCustomActions?.()}
         
         {onRefresh && (

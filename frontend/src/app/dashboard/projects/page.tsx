@@ -1,6 +1,6 @@
 "use client";
 
-import { ProjectsPage } from "@/features/projects/ProjectsListPage";
+import { ProjectsPage } from "@/features/projects/ProjectsTable";
 
 
 export default function ProjectsPageRoute() {
