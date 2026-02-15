@@ -1,10 +1,6 @@
-/**
- * ModalGeneric - Componente modale semplice
- */
-
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -12,9 +8,9 @@ import {
   DialogActions,
   IconButton,
   Typography,
-  Box,
 } from "@mui/material";
 import { IconClose } from "@/components/icons/icons";
+import { ButtonGeneric } from "./button";
 
 export interface ModalGenericProps {
   open: boolean;
@@ -25,6 +21,11 @@ export interface ModalGenericProps {
   maxWidth?: "xs" | "sm" | "md" | "lg" | "xl";
   fullWidth?: boolean;
   padding?: number | string;
+  // --- Nuove props per la logica universale ---
+  onConfirm?: () => Promise<void> | void;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  confirmColor?: "primary" | "secondary" | "error" | "info" | "success" | "warning";
 }
 
 export function CustomModal({
@@ -36,11 +37,29 @@ export function CustomModal({
   maxWidth = "sm",
   fullWidth = true,
   padding = 3,
+  onConfirm,
+  confirmLabel = "CONFERMA",
+  cancelLabel = "ANNULLA",
+  confirmColor = "primary",
 }: ModalGenericProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleConfirm = async () => {
+    if (!onConfirm) return;
+    setIsSubmitting(true);
+    try {
+      await onConfirm();
+    } catch (err) {
+      console.error("CustomModal handleConfirm error:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <Dialog 
       open={open} 
-      onClose={onClose} 
+      onClose={isSubmitting ? undefined : onClose} 
       maxWidth={maxWidth} 
       fullWidth={fullWidth}
     >
@@ -48,22 +67,40 @@ export function CustomModal({
         <Typography variant="h6" component="div" sx={{ fontWeight: 700 }}>
           {title}
         </Typography>
-        <IconButton
-          aria-label="close"
-          onClick={onClose}
-          sx={{ color: (theme) => theme.palette.grey[500] }}
-        >
-          <IconClose />
-        </IconButton>
+        {!isSubmitting && (
+          <IconButton
+            aria-label="close"
+            onClick={onClose}
+            sx={{ color: (theme) => theme.palette.grey[500] }}
+          >
+            <IconClose />
+          </IconButton>
+        )}
       </DialogTitle>
 
       <DialogContent dividers sx={{ p: padding }}>
         {content}
       </DialogContent>
 
-      {actions && (
+      {(actions || onConfirm) && (
         <DialogActions sx={{ p: 2 }}>
-          {actions}
+          {actions || (
+            <>
+              <ButtonGeneric.Secondary 
+                label={cancelLabel} 
+                onClick={onClose} 
+                disabled={isSubmitting}
+                sx={{ flex: 1 }}
+              />
+              <ButtonGeneric.Primary 
+                label={confirmLabel} 
+                onClick={handleConfirm} 
+                color={confirmColor} 
+                loading={isSubmitting}
+                sx={{ flex: 1 }}
+              />
+            </>
+          )}
         </DialogActions>
       )}
     </Dialog>
