@@ -1,9 +1,7 @@
 import { apiClient } from '@/lib/api/client';
 import { API_ENDPOINTS } from '@/lib/api/config';
 import { ApiResponse } from '@/types/api';
-import { ProjectWithRelations, CreateProjectDTO, UpdateProjectDTO } from '../interfaces/Project.entity';
-import { Category } from '../interfaces/Category.entity';
-import { Message } from '../interfaces/Conversation.entity';
+import { ProjectWithRelations, CreateProjectDTO, UpdateProjectDTO, Category, Message } from '../interfaces/Project.entity';
 import { OllamaChatRequest, OllamaChatResponse, OllamaTypesResponse } from '../types/ollama.types';
 
 export const projectService = {

@@ -4,7 +4,7 @@ import {
   ChatbotPersonality,
   ChatbotLanguage,
   ChatbotPosition,
-} from "@/features/projects/interfaces/Chatbot.entity";
+} from "@/features/projects/interfaces/Project.entity";
 
 // ============================================
 // Colori disponibili per il chatbot

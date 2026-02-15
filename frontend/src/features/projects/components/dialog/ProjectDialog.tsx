@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { CustomModal } from "@/components/ui/customModal";
 import { TemplateGallery } from "../list/TemplateGallery";
 import { ProjectWithRelations } from "../../interfaces/Project.entity";
-import { ProjectConfigurator } from "../ProjectConfigurator";
+import { FormConfigurator } from "../FormConfigurator";
 
 interface ProjectDialogProps {
   open: boolean;
@@ -47,7 +47,7 @@ export function ProjectDialog({ open, onClose, onSave, project }: ProjectDialogP
       content={
         <Box sx={{ p: 0, pt: project ? 0 : 4 }}>
           {project ? (
-            <ProjectConfigurator
+            <FormConfigurator
               project={project}
               onSuccess={(p) => {
                 onSave(p);

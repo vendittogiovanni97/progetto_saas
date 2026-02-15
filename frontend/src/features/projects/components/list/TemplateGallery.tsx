@@ -5,7 +5,7 @@ import { Box, Typography, Card, CardContent, CardMedia, Grid, alpha, useTheme, C
 import { ButtonGeneric } from "@/components/ui/button";
 import { DynamicIcon } from "@/components/icons/DynamicIcon";
 import { categoryService } from "../../services/services";
-import { Category as ICategory } from "../../interfaces/Category.entity";
+import { Category as ICategory } from "../../interfaces/Project.entity";
 
 interface Category extends ICategory {
   image?: string;

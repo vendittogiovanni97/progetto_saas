@@ -5,7 +5,7 @@ import {
   ChatbotPersonality,
   ChatbotLanguage,
   ChatbotPosition,
-} from "@/features/projects/interfaces/Chatbot.entity";
+} from "@/features/projects/interfaces/Project.entity";
 import {
   CHATBOT_COLORS,
   TYPE_LABELS,

@@ -13,10 +13,12 @@ import { useThemeContext } from "@/providers/ThemeContext";
 import "@/structure/chatbot/structureChatbot";
 
 import { PageHeaderGeneric } from "@/components/layout/page-header";
-import { IconButton } from "@mui/material";
+import { IconButton, CircularProgress } from "@mui/material";
 import { IconBack } from "@/components/icons/icons";
+import { ButtonGeneric } from "@/components/ui/button";
 
-interface ProjectConfiguratorProps {
+interface FormConfiguratorProps {
+  projectId?: number | null;
   categoryId?: number | null;
   project?: ProjectWithRelations | null;
   onSuccess?: (project: ProjectWithRelations) => void;
@@ -26,11 +28,13 @@ interface ProjectConfiguratorProps {
   showHeader?: boolean;
   title?: string;
   subtitle?: string;
+  isReadOnly?: boolean;
 }
 
-export function ProjectConfigurator({
+export function FormConfigurator({
+  projectId,
   categoryId,
-  project,
+  project: projectProp,
   onSuccess,
   onCancel,
   saveLabel,
@@ -38,17 +42,22 @@ export function ProjectConfigurator({
   showHeader = false,
   title = "Configura Progetto",
   subtitle = "Personalizza il tuo progetto prima di iniziare",
-}: ProjectConfiguratorProps) {
+  isReadOnly = false,
+}: FormConfiguratorProps) {
   const theme = useTheme();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setLoading: setGlobalLoading, showSnack } = useThemeContext();
 
+  const [project, setProject] = useState<ProjectWithRelations | null>(projectProp || null);
+  const [isLoading, setIsLoading] = useState(!!projectId && !projectProp);
+  const [readOnlyMode, setReadOnlyMode] = useState(isReadOnly);
+
   const categoryIdParam = searchParams.get("categoryId");
   const extractedCategoryId = categoryId || (categoryIdParam ? Number(categoryIdParam) : null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState<CreateProjectDTO>({
+  const [formDataConfiguration, setFormDataConfiguration] = useState<CreateProjectDTO>({
     name: project?.name || "",
     categoryId: project?.categoryId || extractedCategoryId || 0,
     accountId: project?.accountId || 1,
@@ -56,21 +65,41 @@ export function ProjectConfigurator({
   });
 
   useEffect(() => {
-    if (!extractedCategoryId && !project && showHeader) {
+    if (projectId && !projectProp) {
+      const fetchProject = async () => {
+        setIsLoading(true);
+        try {
+          const response = await projectService.getProject(projectId);
+          if (response.data) {
+            setProject(response.data);
+          }
+        } catch (err) {
+          console.error("Error fetching project:", err);
+          showSnack("Impossibile caricare il progetto", "alert");
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchProject();
+    }
+  }, [projectId, projectProp]);
+
+  useEffect(() => {
+    if (!extractedCategoryId && !project && showHeader && !isLoading) {
       router.push("/dashboard/projects");
     }
-  }, [extractedCategoryId, project, router, showHeader]);
+  }, [extractedCategoryId, project, router, showHeader, isLoading]);
 
   useEffect(() => {
     if (project) {
-      setFormData({
+      setFormDataConfiguration({
         name: project.name,
         categoryId: project.categoryId,
         accountId: project.accountId,
         structure: project.getParsedStructure() || {},
       });
     } else if (extractedCategoryId) {
-      setFormData({
+      setFormDataConfiguration({
         name: "",
         categoryId: extractedCategoryId,
         accountId: 1,
@@ -80,7 +109,7 @@ export function ProjectConfigurator({
   }, [project, extractedCategoryId]);
 
   const setStructureValue = useCallback((attributeName: string, value: any) => {
-    setFormData(prev => ({
+    setFormDataConfiguration(prev => ({
       ...prev,
       structure: { ...(prev.structure || {}), [attributeName]: value }
     }));
@@ -92,9 +121,9 @@ export function ProjectConfigurator({
     try {
       let response;
       if (project) {
-        response = await projectService.updateProject(project.id, formData);
+        response = await projectService.updateProject(project.id, formDataConfiguration);
       } else {
-        response = await projectService.createProject(formData);
+        response = await projectService.createProject(formDataConfiguration);
       }
 
       if (response.data) {
@@ -116,7 +145,7 @@ export function ProjectConfigurator({
 
   const handleCancel = onCancel || (() => router.back());
 
-  const effectiveCategoryId = formData.categoryId;
+  const effectiveCategoryId = formDataConfiguration.categoryId;
   const structureConfig = getStructure(effectiveCategoryId);
 
   if (!structureConfig) {
@@ -132,31 +161,116 @@ export function ProjectConfigurator({
     );
   }
 
+  if (isLoading) {
+    return (
+      <Box sx={{ p: 8, display: "flex", justifyContent: "center", alignItems: "center", gap: 2, height: "100%" }}>
+        <CircularProgress size={30} />
+        <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600, letterSpacing: 1 }}>
+          CARICAMENTO_SISTEMA...
+        </Typography>
+      </Box>
+    );
+  }
+
   const { sections, previewComponent: PreviewComponent } = structureConfig;
   const hasPreview = !!PreviewComponent;
+
+  const dashboardInfo = (
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      <Box sx={{ 
+        p: 4, 
+        borderRadius: 5,
+        bgcolor: alpha(theme.palette.background.paper, 0.8),
+        backdropFilter: "blur(12px)",
+        border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+        boxShadow: `0 8px 32px ${alpha(theme.palette.common.black, 0.1)}`,
+      }}>
+        <Typography variant="overline" sx={{ color: "primary.main", fontWeight: 900, letterSpacing: 2, mb: 2, display: "block" }}>
+          DETTAGLI_PROGETTO
+        </Typography>
+        <Typography variant="h3" sx={{ fontWeight: 900, mb: 4, letterSpacing: -1 }}>
+          {project?.name || "Senza Nome"}
+        </Typography>
+        
+        <Grid container spacing={3}>
+          {[
+            { label: "ID", value: project?.id },
+            { label: "STATO", value: project?.status?.toUpperCase() },
+            { label: "CATEGORIA", value: project?.category?.name || "Chatbot" },
+            { label: "CREATO_IL", value: project ? new Date(project.createdAt).toLocaleDateString() : "-" }
+          ].map((info) => (
+            <Grid size={{ xs: 6 }} key={info.label}>
+              <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 800, letterSpacing: 1 }}>
+                {info.label}
+              </Typography>
+              <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                {info.value}
+              </Typography>
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
+
+      <Box sx={{ 
+        p: 4, 
+        borderRadius: 5,
+        bgcolor: alpha(theme.palette.primary.main, 0.03),
+        border: `1px dashed ${alpha(theme.palette.primary.main, 0.2)}`,
+        display: "flex",
+        flexDirection: "column",
+        gap: 2
+      }}>
+        <Typography variant="body2" color="text.secondary">
+          Vuoi modificare la configurazione o il comportamento di questo progetto?
+        </Typography>
+        <ButtonGeneric.Primary 
+          label="Modifica Configurazione" 
+          onClick={() => setReadOnlyMode(false)}
+          fullWidth
+        />
+      </Box>
+    </Box>
+  );
 
   const content = (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12, md: hasPreview ? 7 : 12 }}>
-        <Box sx={{ 
-          p: { xs: 3, md: 5 },
-          borderRadius: 6,
-          bgcolor: alpha(theme.palette.background.paper, 0.8),
-          backdropFilter: "blur(12px)",
-          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-          boxShadow: `0 8px 32px ${alpha(theme.palette.common.black, 0.1)}`,
-          animation: "fadeInUp 0.6s ease-out"
-        }}>
-          <FormGeneric
-            sections={sections}
-            config={formData.structure || {}}
-            onConfigChange={setStructureValue}
-            onSave={handleSave}
-            onCancel={handleCancel}
-            saveLabel={saveLabel || (project ? "Aggiorna" : "Crea Progetto")}
-            loading={isSubmitting}
-          />
-        </Box>
+        {readOnlyMode ? (
+          dashboardInfo
+        ) : (
+          <Box sx={{ 
+            p: { xs: 3, md: 5 },
+            borderRadius: 6,
+            bgcolor: alpha(theme.palette.background.paper, 0.8),
+            backdropFilter: "blur(12px)",
+            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+            boxShadow: `0 8px 32px ${alpha(theme.palette.common.black, 0.1)}`,
+            animation: "fadeInUp 0.6s ease-out"
+          }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4 }}>
+              <Typography variant="h5" sx={{ fontWeight: 800 }}>Impostazioni</Typography>
+              {project && (
+                <ButtonGeneric.Secondary 
+                  label="Annulla" 
+                  onClick={() => setReadOnlyMode(true)}
+                  size="small"
+                />
+              )}
+            </Box>
+            <FormGeneric
+              sections={sections}
+              config={formDataConfiguration.structure || {}}
+              onConfigChange={setStructureValue}
+              onSave={async () => {
+                await handleSave();
+                if (project) setReadOnlyMode(true);
+              }}
+              onCancel={project ? () => setReadOnlyMode(true) : handleCancel}
+              saveLabel={saveLabel || (project ? "Salva Modifiche" : "Crea Progetto")}
+              loading={isSubmitting}
+            />
+          </Box>
+        )}
       </Grid>
 
       {hasPreview && PreviewComponent && (
@@ -232,7 +346,7 @@ export function ProjectConfigurator({
                 transform: "translateY(-10px) rotateX(5deg)",
               }
             }}>
-              <PreviewComponent config={formData.structure || {}} />
+              <PreviewComponent config={formDataConfiguration.structure || {}} />
             </Box>
           </Box>
         </Grid>
