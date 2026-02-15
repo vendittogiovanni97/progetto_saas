@@ -1,11 +1,12 @@
 import React from 'react';
-import { Box, Typography, Stack, alpha, Grid } from "@mui/material";
+import { Box, Typography, Stack, alpha, Grid, Switch, FormControlLabel } from "@mui/material";
 import { InputGeneric } from "../ui/input";
 import { SelectGeneric } from "../ui/select";
 import { SectionGeneric } from "../ui/section";
 import { ButtonGeneric } from "../ui/button";
+import { DynamicIcon } from "@/components/icons/DynamicIcon";
 
-export type FieldType = 'text' | 'textarea' | 'select' | 'color_picker';
+export type FieldType = 'text' | 'textarea' | 'select' | 'color_picker' | 'number' | 'switch';
 
 export interface FormOption {
   value: string;
@@ -20,12 +21,18 @@ export interface FormField {
   options?: FormOption[];
   defaultValue: any;
   rows?: number;
-  colSize?: any; // To support size={{ xs: 12, md: 6 }}
+  colSize?: any;
   visible?: (config: Record<string, any>) => boolean;
+  min?: number;
+  max?: number;
+  step?: number;
+  helperText?: string;
 }
 
 export interface FormSection {
   title: string;
+  description?: string;
+  icon?: string;
   fields: FormField[];
 }
 
@@ -117,6 +124,46 @@ export const FormGeneric: React.FC<FormGenericProps> = ({
         );
         break;
 
+      case 'number':
+        fieldContent = (
+          <InputGeneric
+            key={field.attributeName}
+            label={field.label}
+            type="number"
+            value={config[field.attributeName] ?? field.defaultValue ?? ""}
+            onChange={(e) => onConfigChange(field.attributeName, Number(e.target.value))}
+            placeholder={field.placeholder}
+            disabled={disabled}
+            inputProps={{ min: field.min, max: field.max, step: field.step }}
+          />
+        );
+        break;
+
+      case 'switch':
+        fieldContent = (
+          <FormControlLabel
+            key={field.attributeName}
+            control={
+              <Switch
+                checked={!!config[field.attributeName]}
+                onChange={(e) => onConfigChange(field.attributeName, e.target.checked)}
+                disabled={disabled}
+                color="primary"
+              />
+            }
+            label={
+              <Box>
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>{field.label}</Typography>
+                {field.helperText && (
+                  <Typography variant="caption" sx={{ color: "text.secondary" }}>{field.helperText}</Typography>
+                )}
+              </Box>
+            }
+            sx={{ ml: 0 }}
+          />
+        );
+        break;
+
       case 'text':
       default:
         fieldContent = (
@@ -147,6 +194,11 @@ export const FormGeneric: React.FC<FormGenericProps> = ({
     <Stack spacing={4}>
       {sections.map((section, idx) => (
         <SectionGeneric key={idx} title={section.title} showDivider={false}>
+          {section.description && (
+            <Typography variant="body2" sx={{ color: "text.secondary", mb: 2.5, mt: -1 }}>
+              {section.description}
+            </Typography>
+          )}
           <Grid container spacing={2.5}>
             {section.fields.map(field => renderField(field))}
           </Grid>

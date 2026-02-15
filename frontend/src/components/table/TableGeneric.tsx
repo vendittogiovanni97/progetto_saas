@@ -186,15 +186,6 @@ export function TableGeneric<T extends Record<string, any>>({
             </IconButton>
           </Tooltip>
         )}
-
-        {/* TODO: Implement Export to Excel logic like in AgilaeTable
-        {onExport && (
-          <Tooltip title="EXPORT">
-            <IconButton size="small" onClick={onExport} sx={{ color: "success.main" }}>
-              <Typography variant="caption" sx={{ fontWeight: 900 }}>XLS</Typography>
-            </IconButton>
-          </Tooltip>
-        )} */}
       </Box>
     </Box>
   );
