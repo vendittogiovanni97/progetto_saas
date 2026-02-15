@@ -16,6 +16,8 @@ import { ProjectWithRelations, ProjectStatus } from "./interfaces/Project.entity
 import { TableGenericColumn, TableGeneric } from "@/components/table/TableGeneric";
 import { PageHeaderGeneric } from "@/components/layout/page-header";
 import { ProjectDialog } from "./components/dialog/ProjectDialog";
+import { CustomModal } from "@/components/ui/customModal";
+import { ButtonGeneric } from "@/components/ui/button";
 import { formatDate } from "@/utils/dateUtils";
 import { getStatusColor } from "@/utils/projectUtils";
 
@@ -30,6 +32,7 @@ export function ProjectsPage() {
 
   const [selectedProjectForDialog, setSelectedProjectForDialog] = useState<ProjectWithRelations | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [dialogMode, setDialogMode] = useState<"edit" | "delete">("edit");
 
   const fetchProjects = useCallback(async () => {
     setIsLoadingList(true);
@@ -53,6 +56,7 @@ export function ProjectsPage() {
 
   const handleEditProject = (p: ProjectWithRelations) => {
     setSelectedProjectForDialog(p);
+    setDialogMode("edit");
     setIsDialogOpen(true);
   };
 
@@ -62,10 +66,19 @@ export function ProjectsPage() {
   };
 
   const handleCreateProject = () => {
+    setSelectedProjectForDialog(null);
+    setDialogMode("edit");
     setIsDialogOpen(true);
   };
+
   const handleViewProject = (project: ProjectWithRelations) => {
     router.push(`/dashboard/projects/${project.id}`);
+  };
+
+  const handleDeleteClick = (project: ProjectWithRelations) => {
+    setSelectedProjectForDialog(project);
+    setDialogMode("delete");
+    setIsDialogOpen(true);
   };
 
   const columns: TableGenericColumn<ProjectWithRelations>[] = [
@@ -174,6 +187,7 @@ export function ProjectsPage() {
         enableSorting
         onView={handleViewProject}
         onEdit={handleEditProject}
+        onDelete={handleDeleteClick}
         emptyMessage="No projects available"
         onAdd={handleCreateProject}
         addLabel="New Project"
@@ -195,6 +209,7 @@ export function ProjectsPage() {
         onClose={handleCloseDialog}
         onSave={() => fetchProjects()}
         project={selectedProjectForDialog}
+        mode={dialogMode}
       />
     </Box>
   );
