@@ -9,7 +9,9 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
-import { useProjects } from "./hooks/useProjects";
+import { useState, useEffect, useCallback } from "react";
+import { projectService } from "./services/services";
+import { useThemeContext } from "@/providers/ThemeContext";
 import { ProjectWithRelations, ProjectStatus } from "./interfaces/Project.entity";
 import { TableGenericColumn, TableGeneric } from "@/components/table/TableGeneric";
 import { PageHeaderGeneric } from "@/components/layout/page-header";
@@ -20,23 +22,48 @@ import { getStatusColor } from "@/utils/projectUtils";
 export function ProjectsPage() {
   const theme = useTheme();
   const router = useRouter();
+  const { showSnack } = useThemeContext();
 
-  const {
-    projects,
-    isLoadingList,
-    listError,
-    fetchProjects,
-    selectedProjectForDialog,
-    isDialogOpen,
-    setIsDialogOpen,
-    handleEditProject,
-    handleCloseDialog,
-  } = useProjects();
+  const [projects, setProjects] = useState<ProjectWithRelations[]>([]);
+  const [isLoadingList, setIsLoadingList] = useState(true);
+  const [listError, setListError] = useState<string | null>(null);
+
+  const [selectedProjectForDialog, setSelectedProjectForDialog] = useState<ProjectWithRelations | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const fetchProjects = useCallback(async () => {
+    setIsLoadingList(true);
+    setListError(null);
+    try {
+      const response = await projectService.getProjects(1); // TODO: Get accountId from auth
+      if (response.data) {
+        setProjects(response.data);
+      }
+    } catch (err) {
+      console.error("Errore nel recupero dei progetti:", err);
+      showSnack("Errore nel caricamento dei progetti // SYSTEM_FAIL", "alert");
+    } finally {
+      setIsLoadingList(false);
+    }
+  }, [showSnack]);
+
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
+
+  const handleEditProject = (p: ProjectWithRelations) => {
+    setSelectedProjectForDialog(p);
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setSelectedProjectForDialog(null);
+  };
 
   const handleCreateProject = () => {
     setIsDialogOpen(true);
   };
-
   const handleViewProject = (project: ProjectWithRelations) => {
     router.push(`/dashboard/projects/${project.id}`);
   };
