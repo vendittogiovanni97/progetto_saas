@@ -6,47 +6,42 @@ import { ButtonGeneric } from "@/components/ui/button";
 import { DynamicIcon } from "@/components/icons/DynamicIcon";
 import { categoryService } from "../../services/services";
 import { Category as ICategory } from "../../interfaces/Category.entity";
-import { CustomModal } from "@/components/ui/customModal";
 
 interface Category extends ICategory {
-  image?: string; // Estensione solo per la UI (fallback gestito nel componente)
+  image?: string;
 }
 
 interface TemplateGalleryProps {
-  open: boolean;
-  onClose: () => void;
   onSelect: (categoryId: number) => void;
+  showHeader?: boolean;
 }
 
-export function TemplateGallery({ open, onClose, onSelect }: TemplateGalleryProps) {
+export function TemplateGallery({ onSelect, showHeader = true }: TemplateGalleryProps) {
   const theme = useTheme();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (open) {
-      const fetchCategories = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-          const data = await categoryService.getCategories();
-          setCategories(data || []);
-        } catch (err) {
+    const fetchCategories = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await categoryService.getCategories();
+        setCategories(data || []);
+      } catch (err) {
+        setError("Impossibile caricare le categorie");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-          setError("Impossibile caricare le categorie");
-          console.error(err);
-        } finally {
-          setLoading(false);
-        }
-      };
+    fetchCategories();
+  }, []);
 
-      fetchCategories();
-    }
-  }, [open]);
-
-  const title = (
-    <Box>
+  const header = (
+    <Box sx={{ mb: 4 }}>
       <Typography variant="h3" sx={{ fontSize: "1.5rem", fontWeight: 800 }}>
         Cosa vuoi creare oggi?
       </Typography>
@@ -56,29 +51,30 @@ export function TemplateGallery({ open, onClose, onSelect }: TemplateGalleryProp
     </Box>
   );
 
-  const renderContent = () => {
-    if (loading) {
-      return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-          <CircularProgress size={40} />
-        </Box>
-      );
-    }
-
-    if (error) {
-      return (
-        <Box sx={{ py: 8, textAlign: 'center' }}>
-          <Typography color="error">{error}</Typography>
-        </Box>
-      );
-    }
-
+  if (loading) {
     return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+        <CircularProgress size={40} />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ py: 8, textAlign: 'center' }}>
+        <Typography color="error">{error}</Typography>
+      </Box>
+    );
+  }
+
+  return (
+    <Box>
+      {showHeader && header}
       <Grid container spacing={3}>
         {categories.map((category) => {
           const color = category.color || theme.palette.primary.main;
           const icon = category.icon || "category";
-          const image = category.image || "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=800"; // Fallback image
+          const image = category.image || "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=800";
 
           return (
             <Grid key={category.id} size={{ xs: 12, md: 4 }}>
@@ -155,18 +151,7 @@ export function TemplateGallery({ open, onClose, onSelect }: TemplateGalleryProp
           );
         })}
       </Grid>
-    );
-  };
-
-  return (
-    <CustomModal
-      open={open}
-      onClose={onClose}
-      title={title}
-      content={<Box sx={{ p: 4, pt: 0 }}>{renderContent()}</Box>}
-      maxWidth="lg"
-      fullWidth
-    />
+    </Box>
   );
 }
 

@@ -13,7 +13,7 @@ import { useProjects } from "./hooks/useProjects";
 import { ProjectWithRelations, ProjectStatus } from "./interfaces/Project.entity";
 import { TableGenericColumn, TableGeneric } from "@/components/table/TableGeneric";
 import { PageHeaderGeneric } from "@/components/layout/page-header";
-import { ProjectComposer } from "./components/ProjectComposer";
+import { ProjectDialog } from "./components/dialog/ProjectDialog";
 import { formatDate } from "@/utils/dateUtils";
 import { getStatusColor } from "@/utils/projectUtils";
 
@@ -163,11 +163,11 @@ export function ProjectsPage() {
 
       {renderContent()}
 
-      <ProjectComposer
+      <ProjectDialog
         open={isDialogOpen}
         onClose={handleCloseDialog}
         onSave={() => fetchProjects()}
-        initialProject={selectedProjectForDialog}
+        project={selectedProjectForDialog}
       />
     </Box>
   );
