@@ -5,7 +5,7 @@ import { Box, Typography, Grid, alpha, useTheme } from "@mui/material";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormGeneric } from "@/components/forms/formGeneric";
 import { useState, useEffect, useCallback } from "react";
-import { projectService, categoryService } from "../services/services";
+import { projectService } from "../services/services";
 import { ProjectWithRelations, CreateProjectDTO } from "../interfaces/Project.entity";
 import { getDefaults, getStructure } from "@/utils/structureRegistry";
 import { useThemeContext } from "@/providers/ThemeContext";
@@ -137,43 +137,105 @@ export function ProjectConfigurator({
   const hasPreview = !!PreviewComponent;
 
   const content = (
-    <Grid container spacing={5}>
-      <Grid size={{ xs: 12, md: hasPreview ? 6 : 12 }}>
-        <FormGeneric
-          sections={sections}
-          config={formData.structure || {}}
-          onConfigChange={setStructureValue}
-          onSave={handleSave}
-          onCancel={handleCancel}
-          saveLabel={saveLabel || (project ? "Aggiorna" : "Crea Progetto")}
-          loading={isSubmitting}
-        />
+    <Grid container spacing={6}>
+      <Grid size={{ xs: 12, md: hasPreview ? 7 : 12 }}>
+        <Box sx={{ 
+          p: { xs: 3, md: 5 },
+          borderRadius: 6,
+          bgcolor: alpha(theme.palette.background.paper, 0.8),
+          backdropFilter: "blur(12px)",
+          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+          boxShadow: `0 8px 32px ${alpha(theme.palette.common.black, 0.1)}`,
+          animation: "fadeInUp 0.6s ease-out"
+        }}>
+          <FormGeneric
+            sections={sections}
+            config={formData.structure || {}}
+            onConfigChange={setStructureValue}
+            onSave={handleSave}
+            onCancel={handleCancel}
+            saveLabel={saveLabel || (project ? "Aggiorna" : "Crea Progetto")}
+            loading={isSubmitting}
+          />
+        </Box>
       </Grid>
 
       {hasPreview && PreviewComponent && (
         <Grid
-          size={{ xs: 12, md: 6 }}
+          size={{ xs: 12, md: 5 }}
           sx={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            justifyContent: "center",
-            bgcolor: alpha(theme.palette.divider, 0.05),
-            borderRadius: 4,
-            py: 4,
-            border: `1px dashed ${theme.palette.divider}`,
             position: "sticky",
-            top: 24,
-            alignSelf: "flex-start"
+            top: 40,
+            alignSelf: "flex-start",
+            animation: "fadeInUp 0.8s ease-out"
           }}
         >
-          <Typography
-            variant="overline"
-            sx={{ mb: 2, color: "text.secondary", fontWeight: 700 }}
-          >
-            Anteprima Live
-          </Typography>
-          <PreviewComponent config={formData.structure || {}} />
+          <Box sx={{
+            width: "fit-content",
+            textAlign: "center",
+            mb: 4,
+            px: 3,
+            py: 1,
+            borderRadius: 10,
+            bgcolor: alpha(theme.palette.primary.main, 0.05),
+            border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 1.5
+          }}>
+            <Box sx={{ 
+              width: 8, 
+              height: 8, 
+              bgcolor: "primary.main", 
+              borderRadius: "50%",
+              boxShadow: `0 0 10px ${theme.palette.primary.main}`,
+              "@keyframes pulse": {
+                "0%": { transform: "scale(0.95)", boxShadow: "0 0 0 0 rgba(0, 0, 0, 0.7)" },
+                "70%": { transform: "scale(1)", boxShadow: "0 0 0 6px rgba(0, 0, 0, 0)" },
+                "100%": { transform: "scale(0.95)", boxShadow: "0 0 0 0 rgba(0, 0, 0, 0)" }
+              },
+              animation: "pulse 2s infinite"
+            }} />
+            <Typography
+              variant="overline"
+              sx={{ color: "primary.main", fontWeight: 800, letterSpacing: 1.5, textTransform: "uppercase" }}
+            >
+              Anteprima Live
+            </Typography>
+          </Box>
+
+          <Box sx={{
+            position: "relative",
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            perspective: "1000px"
+          }}>
+            <Box sx={{
+              position: "absolute",
+              width: "100%",
+              height: "100%",
+              bgcolor: "primary.main",
+              filter: "blur(80px)",
+              opacity: 0.1,
+              zIndex: 0,
+              transform: "scale(0.8)"
+            }} />
+            
+            <Box sx={{
+              zIndex: 1,
+              transition: "all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+              "&:hover": {
+                transform: "translateY(-10px) rotateX(5deg)",
+              }
+            }}>
+              <PreviewComponent config={formData.structure || {}} />
+            </Box>
+          </Box>
         </Grid>
       )}
     </Grid>
@@ -181,30 +243,57 @@ export function ProjectConfigurator({
 
   if (showHeader) {
     return (
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+      <Box sx={{ 
+        display: "flex", 
+        flexDirection: "column", 
+        gap: 6,
+        maxWidth: 1600,
+        mx: "auto",
+        width: "100%",
+        py: 4,
+        px: { xs: 2, md: 4 }
+      }}>
+        <Box sx={{ 
+          display: "flex", 
+          alignItems: "center", 
+          gap: 3
+        }}>
           <IconButton 
             onClick={handleCancel}
             sx={{ 
-              bgcolor: alpha(theme.palette.primary.main, 0.1),
-              color: "primary.main",
-              "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.2) }
+              width: 50,
+              height: 50,
+              bgcolor: alpha(theme.palette.background.paper, 0.8),
+              backdropFilter: "blur(8px)",
+              color: "text.primary",
+              border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+              boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+              "&:hover": { 
+                bgcolor: "primary.main",
+                color: "primary.contrastText",
+                transform: "translateX(-4px)"
+              },
+              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
             }}
           >
             <ArrowBackIcon />
           </IconButton>
-          <PageHeaderGeneric title={title} subtitle={subtitle} />
+          <PageHeaderGeneric 
+            title={title} 
+            subtitle={subtitle}
+          />
         </Box>
 
-        <Box sx={{ 
-          bgcolor: "background.paper", 
-          borderRadius: 4, 
-          p: padding,
-          border: `1px solid ${theme.palette.divider}`,
-          overflow: "hidden"
-        }}>
+        <Box sx={{ p: padding }}>
           {content}
         </Box>
+        
+        <style dangerouslySetInnerHTML={{ __html: `
+          @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+        `}} />
       </Box>
     );
   }
