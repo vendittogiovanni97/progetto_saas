@@ -58,6 +58,7 @@ import {
   TrendingUp,
   TrendingDown,
   Mail,
+  ArrowBack
 } from "@mui/icons-material";
 
 // Esportiamo le icone con nomi semantici per facilitare il refactoring e la coerenza
@@ -115,3 +116,5 @@ export const IconLanguage = Language;
 export const IconTrendUp = TrendingUp;
 export const IconTrendDown = TrendingDown;
 export const IconMail = Mail;
+export const IconBack = ArrowBack;
+

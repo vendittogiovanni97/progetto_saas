@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { Box, Typography, Grid, alpha, useTheme } from "@mui/material";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormGeneric } from "@/components/forms/formGeneric";
@@ -13,9 +12,9 @@ import { useThemeContext } from "@/providers/ThemeContext";
 // Importa tutte le strutture per attivare la auto-registrazione
 import "@/structure/chatbot/structureChatbot";
 
-import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import { PageHeaderGeneric } from "@/components/layout/page-header";
 import { IconButton } from "@mui/material";
+import { IconBack } from "@/components/icons/icons";
 
 interface ProjectConfiguratorProps {
   categoryId?: number | null;
@@ -276,7 +275,7 @@ export function ProjectConfigurator({
               transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
             }}
           >
-            <ArrowBackIcon />
+            <IconBack />
           </IconButton>
           <PageHeaderGeneric 
             title={title} 
