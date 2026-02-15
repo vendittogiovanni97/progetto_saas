@@ -24,6 +24,7 @@ export interface ModalGenericProps {
   actions?: React.ReactNode;
   maxWidth?: "xs" | "sm" | "md" | "lg" | "xl";
   fullWidth?: boolean;
+  padding?: number | string;
 }
 
 export function CustomModal({
@@ -34,6 +35,7 @@ export function CustomModal({
   actions,
   maxWidth = "sm",
   fullWidth = true,
+  padding = 3,
 }: ModalGenericProps) {
   return (
     <Dialog 
@@ -55,7 +57,7 @@ export function CustomModal({
         </IconButton>
       </DialogTitle>
 
-      <DialogContent dividers sx={{ p: 3 }}>
+      <DialogContent dividers sx={{ p: padding }}>
         {content}
       </DialogContent>
 

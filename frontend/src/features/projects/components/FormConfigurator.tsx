@@ -4,10 +4,12 @@ import { Box, Typography, Grid, alpha, useTheme } from "@mui/material";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormGeneric } from "@/components/forms/formGeneric";
 import { useState, useEffect, useCallback } from "react";
-import { projectService } from "../services/services";
-import { ProjectWithRelations, CreateProjectDTO } from "../interfaces/Project.entity";
+import { projectService, categoryService } from "../services/services";
+import { ProjectWithRelations, CreateProjectDTO, Category as ICategory } from "../interfaces/Project.entity";
 import { getDefaults, getStructure } from "@/utils/structureRegistry";
 import { useThemeContext } from "@/providers/ThemeContext";
+import { DynamicIcon } from "@/components/icons/DynamicIcon";
+import { Card, CardContent, CardMedia } from "@mui/material";
 
 // Importa tutte le strutture per attivare la auto-registrazione
 import "@/structure/chatbot/structureChatbot";
@@ -29,6 +31,91 @@ interface FormConfiguratorProps {
   title?: string;
   subtitle?: string;
   isReadOnly?: boolean;
+}
+
+// ============================================
+// Internal TemplateGallery Component
+// ============================================
+
+interface GalleryCategory extends ICategory {
+  image?: string;
+}
+
+function LocalTemplateGallery({ onSelect, showHeader = true }: { onSelect: (id: number) => void, showHeader?: boolean }) {
+  const theme = useTheme();
+  const [categories, setCategories] = useState<GalleryCategory[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await categoryService.getCategories();
+        setCategories(data || []);
+      } catch (err) {
+        setError("Impossibile caricare le categorie");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}><CircularProgress /></Box>;
+  if (error) return <Box sx={{ py: 8, textAlign: 'center' }}><Typography color="error">{error}</Typography></Box>;
+
+  return (
+    <Box>
+      {showHeader && (
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h3" sx={{ fontSize: "1.5rem", fontWeight: 800 }}>Cosa vuoi creare oggi?</Typography>
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>Seleziona una categoria per iniziare il tuo nuovo progetto.</Typography>
+        </Box>
+      )}
+      <Grid container spacing={3}>
+        {categories.map((category) => {
+          const color = category.color || theme.palette.primary.main;
+          return (
+            <Grid key={category.id} size={{ xs: 12, md: 4 }}>
+              <Card
+                sx={{
+                  height: "100%", display: "flex", flexDirection: "column", cursor: "pointer",
+                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                  border: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
+                  bgcolor: alpha(theme.palette.common.white, 0.02),
+                  "&:hover": {
+                    transform: "translateY(-8px)", borderColor: color,
+                    boxShadow: `0 12px 24px ${alpha(color, 0.2)}`, bgcolor: alpha(color, 0.03),
+                  },
+                }}
+                onClick={() => onSelect(category.id)}
+              >
+                <CardMedia
+                  component="img" height="140"
+                  image={category.image || "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=800"}
+                  alt={category.name}
+                  sx={{ filter: "grayscale(20%) brightness(80%)" }}
+                />
+                <CardContent sx={{ flexGrow: 1, p: 3 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1 }}>
+                    <Box sx={{ width: 32, height: 32, borderRadius: 1.5, bgcolor: alpha(color, 0.1), color: color, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <DynamicIcon name={category.icon || "category"} />
+                    </Box>
+                    <Typography variant="h6" sx={{ fontWeight: 700 }}>{category.name}</Typography>
+                  </Box>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2, fontSize: '0.8rem' }}>{category.description}</Typography>
+                  <ButtonGeneric.Secondary label="Seleziona" fullWidth sx={{ color: color, borderColor: alpha(color, 0.3) }} />
+                </CardContent>
+              </Card>
+            </Grid>
+          );
+        })}
+      </Grid>
+    </Box>
+  );
 }
 
 export function FormConfigurator({
@@ -143,9 +230,33 @@ export function FormConfigurator({
     }
   };
 
-  const handleCancel = onCancel || (() => router.back());
+  const handleCancel = onCancel || (() => {
+    if (effectiveCategoryId !== 0 && !project) {
+      setFormDataConfiguration(prev => ({ ...prev, categoryId: 0 }));
+    } else {
+      router.back();
+    }
+  });
 
   const effectiveCategoryId = formDataConfiguration.categoryId;
+
+  if (effectiveCategoryId === 0 && !project && !isReadOnly) {
+    return (
+      <Box sx={{ p: padding }}>
+        <LocalTemplateGallery 
+          onSelect={(id) => {
+            setFormDataConfiguration(prev => ({ 
+              ...prev, 
+              categoryId: id,
+              structure: getDefaults(id)
+            }));
+          }} 
+          showHeader={showHeader}
+        />
+      </Box>
+    );
+  }
+
   const structureConfig = getStructure(effectiveCategoryId);
 
   if (!structureConfig) {
@@ -249,13 +360,22 @@ export function FormConfigurator({
           }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4 }}>
               <Typography variant="h5" sx={{ fontWeight: 800 }}>Impostazioni</Typography>
-              {project && (
-                <ButtonGeneric.Secondary 
-                  label="Annulla" 
-                  onClick={() => setReadOnlyMode(true)}
-                  size="small"
-                />
-              )}
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                {!project && (
+                  <ButtonGeneric.Secondary 
+                    label="Cambia Tipo" 
+                    onClick={() => setFormDataConfiguration(prev => ({ ...prev, categoryId: 0 }))}
+                    size="small"
+                  />
+                )}
+                {project && (
+                  <ButtonGeneric.Secondary 
+                    label="Annulla" 
+                    onClick={() => setReadOnlyMode(true)}
+                    size="small"
+                  />
+                )}
+              </Box>
             </Box>
             <FormGeneric
               sections={sections}

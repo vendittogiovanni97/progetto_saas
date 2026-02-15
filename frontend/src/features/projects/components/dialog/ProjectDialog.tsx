@@ -1,9 +1,7 @@
 "use client";
 
-import { Box, Typography } from "@mui/material";
-import { useRouter } from "next/navigation";
+import { Box } from "@mui/material";
 import { CustomModal } from "@/components/ui/customModal";
-import { TemplateGallery } from "../list/TemplateGallery";
 import { ProjectWithRelations } from "../../interfaces/Project.entity";
 import { FormConfigurator } from "../FormConfigurator";
 
@@ -14,53 +12,30 @@ interface ProjectDialogProps {
   project: ProjectWithRelations | null;
 }
 
-export function ProjectDialog({ open, onClose, onSave, project }: ProjectDialogProps) {
-  const router = useRouter();
-
-  const handleCategorySelect = (categoryId: number) => {
-    onClose();
-    router.push(`/dashboard/projects/create?categoryId=${categoryId}`);
-  };
-
-  const title = (
-    <Box>
-      <Typography variant="h6" sx={{ fontWeight: 800 }}>
-        {project 
-          ? `Modifica ${project.name}` 
-          : "Cosa vuoi creare oggi?"}
-      </Typography>
-      {!project && (
-        <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          Seleziona una categoria per iniziare il tuo nuovo progetto.
-        </Typography>
-      )}
-    </Box>
-  );
-
+export function ProjectDialog({
+  open,
+  onClose,
+  onSave,
+  project,
+}: ProjectDialogProps) {
   return (
     <CustomModal
       open={open}
       onClose={onClose}
-      title={title}
-      maxWidth="lg"
-      fullWidth
+      title={project ? "Modifica Progetto" : "Nuovo Progetto"}
+      maxWidth="xl"
+      padding={0}
       content={
-        <Box sx={{ p: 0, pt: project ? 0 : 4 }}>
-          {project ? (
-            <FormConfigurator
-              project={project}
-              onSuccess={(p) => {
-                onSave(p);
-                onClose();
-              }}
-              onCancel={onClose}
-              padding={4}
-            />
-          ) : (
-            <Box sx={{ p: 4, pt: 0 }}>
-              <TemplateGallery onSelect={handleCategorySelect} showHeader={false} />
-            </Box>
-          )}
+        <Box sx={{ p: 0, pt: project ? 0 : 2 }}>
+          <FormConfigurator
+            project={project}
+            onSuccess={(p) => {
+              onSave(p);
+              onClose();
+            }}
+            onCancel={onClose}
+            padding={4}
+          />
         </Box>
       }
     />
