@@ -16,12 +16,10 @@ import { ProjectWithRelations, ProjectStatus } from "./interfaces/Project.entity
 import { TableGenericColumn, TableGeneric } from "@/components/table/TableGeneric";
 import { PageHeaderGeneric } from "@/components/layout/page-header";
 import { ProjectDialog } from "./components/dialog/ProjectDialog";
-import { CustomModal } from "@/components/ui/customModal";
-import { ButtonGeneric } from "@/components/ui/button";
 import { formatDate } from "@/utils/dateUtils";
 import { getStatusColor } from "@/utils/projectUtils";
 
-export function ProjectsPage() {
+export function ProjectsTable({ showHeader = true }: { showHeader?: boolean }) {
   const theme = useTheme();
   const router = useRouter();
   const { showSnack } = useThemeContext();
@@ -197,10 +195,12 @@ export function ProjectsPage() {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-      <PageHeaderGeneric
-        title="Projects Control"
-        subtitle="Manage your projects and AI agents"
-      />
+      {showHeader && (
+        <PageHeaderGeneric
+          title="Projects Control"
+          subtitle="Manage your projects and AI agents"
+        />
+      )}
 
       {renderContent()}
 

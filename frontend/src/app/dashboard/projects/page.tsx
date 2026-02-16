@@ -1,8 +1,8 @@
 "use client";
 
-import { ProjectsPage } from "@/features/projects/ProjectsTable";
+import { ProjectsTable } from "@/features/projects/ProjectsTable";
 
 
 export default function ProjectsPageRoute() {
-  return <ProjectsPage />;
+  return <ProjectsTable showHeader={true} />;
 }
