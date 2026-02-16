@@ -31,6 +31,7 @@ interface FormConfiguratorProps {
   title?: string;
   subtitle?: string;
   isReadOnly?: boolean;
+  isFullPreview?: boolean;
 }
 
 // ============================================
@@ -127,9 +128,10 @@ export function FormConfigurator({
   saveLabel,
   padding = 4,
   showHeader = false,
-  title = "Configura Progetto",
-  subtitle = "Personalizza il tuo progetto prima di iniziare",
+  title,
+  subtitle,
   isReadOnly = false,
+  isFullPreview = false,
 }: FormConfiguratorProps) {
   const theme = useTheme();
   const router = useRouter();
@@ -139,6 +141,7 @@ export function FormConfigurator({
   const [project, setProject] = useState<ProjectWithRelations | null>(projectProp || null);
   const [isLoading, setIsLoading] = useState(!!projectId && !projectProp);
   const [readOnlyMode, setReadOnlyMode] = useState(isReadOnly);
+  const [fullPreview, setFullPreview] = useState(isFullPreview);
 
   const categoryIdParam = searchParams.get("categoryId");
   const extractedCategoryId = categoryId || (categoryIdParam ? Number(categoryIdParam) : null);
@@ -257,6 +260,9 @@ export function FormConfigurator({
     );
   }
 
+  const derivedTitle = title || (fullPreview ? "Anteprima Live" : (project ? "Modifica Progetto" : "Nuovo Progetto"));
+  const derivedSubtitle = subtitle || (fullPreview ? "Verifica il comportamento del tuo assistente in tempo reale" : (project ? "Aggiorna le impostazioni e il comportamento" : "Personalizza il tuo progetto prima di iniziare"));
+
   const structureConfig = getStructure(effectiveCategoryId);
 
   if (!structureConfig) {
@@ -321,31 +327,13 @@ export function FormConfigurator({
           ))}
         </Grid>
       </Box>
-
-      <Box sx={{ 
-        p: 4, 
-        borderRadius: 5,
-        bgcolor: alpha(theme.palette.primary.main, 0.03),
-        border: `1px dashed ${alpha(theme.palette.primary.main, 0.2)}`,
-        display: "flex",
-        flexDirection: "column",
-        gap: 2
-      }}>
-        <Typography variant="body2" color="text.secondary">
-          Vuoi modificare la configurazione o il comportamento di questo progetto?
-        </Typography>
-        <ButtonGeneric.Primary 
-          label="Modifica Configurazione" 
-          onClick={() => setReadOnlyMode(false)}
-          fullWidth
-        />
-      </Box>
     </Box>
   );
 
   const content = (
-    <Grid container spacing={6}>
-      <Grid size={{ xs: 12, md: hasPreview ? 7 : 12 }}>
+    <Grid container spacing={6} justifyContent={fullPreview ? "center" : "flex-start"}>
+      {!fullPreview && (
+        <Grid size={{ xs: 12, md: hasPreview ? 7 : 12 }}>
         {readOnlyMode ? (
           dashboardInfo
         ) : (
@@ -392,54 +380,65 @@ export function FormConfigurator({
           </Box>
         )}
       </Grid>
+      )}
 
       {hasPreview && PreviewComponent && (
         <Grid
-          size={{ xs: 12, md: 5 }}
+          size={{ xs: 12, md: fullPreview ? 12 : 5 }}
           sx={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            position: "sticky",
-            top: 40,
+            position: fullPreview ? "relative" : "sticky",
+            top: fullPreview ? 0 : 40,
             alignSelf: "flex-start",
-            animation: "fadeInUp 0.8s ease-out"
+            animation: "fadeInUp 0.8s ease-out",
+            width: "100%"
           }}
         >
-          <Box sx={{
-            width: "fit-content",
-            textAlign: "center",
-            mb: 4,
-            px: 3,
-            py: 1,
-            borderRadius: 10,
-            bgcolor: alpha(theme.palette.primary.main, 0.05),
-            border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 1.5
-          }}>
-            <Box sx={{ 
-              width: 8, 
-              height: 8, 
-              bgcolor: "primary.main", 
-              borderRadius: "50%",
-              boxShadow: `0 0 10px ${theme.palette.primary.main}`,
-              "@keyframes pulse": {
-                "0%": { transform: "scale(0.95)", boxShadow: "0 0 0 0 rgba(0, 0, 0, 0.7)" },
-                "70%": { transform: "scale(1)", boxShadow: "0 0 0 6px rgba(0, 0, 0, 0)" },
-                "100%": { transform: "scale(0.95)", boxShadow: "0 0 0 0 rgba(0, 0, 0, 0)" }
-              },
-              animation: "pulse 2s infinite"
-            }} />
-            <Typography
-              variant="overline"
-              sx={{ color: "primary.main", fontWeight: 800, letterSpacing: 1.5, textTransform: "uppercase" }}
-            >
-              Anteprima Live
-            </Typography>
-          </Box>
+          {fullPreview && (
+            <Box sx={{ mb: 6, textAlign: "center" }}>
+              <Typography variant="h5" sx={{ fontWeight: 900, mb: 0.5, color: "primary.main" }}>{project?.name?.toUpperCase()}</Typography>
+              <Typography variant="caption" color="text.secondary" sx={{ letterSpacing: 1, fontWeight: 700 }}>MODALITÀ_PREVIEW_ATTIVA</Typography>
+            </Box>
+          )}
+
+          {!fullPreview && (
+            <Box sx={{
+              width: "fit-content",
+              textAlign: "center",
+              mb: 4,
+              px: 3,
+              py: 1,
+              borderRadius: 10,
+              bgcolor: alpha(theme.palette.primary.main, 0.05),
+              border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 1.5
+            }}>
+              <Box sx={{ 
+                width: 8, 
+                height: 8, 
+                bgcolor: "primary.main", 
+                borderRadius: "50%",
+                boxShadow: `0 0 10px ${theme.palette.primary.main}`,
+                "@keyframes pulse": {
+                  "0%": { transform: "scale(0.95)", boxShadow: "0 0 0 0 rgba(0, 0, 0, 0.7)" },
+                  "70%": { transform: "scale(1)", boxShadow: "0 0 0 6px rgba(0, 0, 0, 0)" },
+                  "100%": { transform: "scale(0.95)", boxShadow: "0 0 0 0 rgba(0, 0, 0, 0)" }
+                },
+                animation: "pulse 2s infinite"
+              }} />
+              <Typography
+                variant="overline"
+                sx={{ color: "primary.main", fontWeight: 800, letterSpacing: 1.5, textTransform: "uppercase" }}
+              >
+                Anteprima Live
+              </Typography>
+            </Box>
+          )}
 
           <Box sx={{
             position: "relative",
@@ -462,8 +461,10 @@ export function FormConfigurator({
             <Box sx={{
               zIndex: 1,
               transition: "all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+              width: "100%",
+              maxWidth: fullPreview ? 800 : "none",
               "&:hover": {
-                transform: "translateY(-10px) rotateX(5deg)",
+                transform: "translateY(-10px) rotateX(2deg)",
               }
             }}>
               <PreviewComponent config={formDataConfiguration.structure || {}} />
@@ -473,6 +474,25 @@ export function FormConfigurator({
       )}
     </Grid>
   );
+
+  const finalContent = fullPreview ? (
+    <Box sx={{ maxWidth: 1000, mx: "auto", width: "100%", animation: "fadeInUp 0.5s ease-out" }}>
+      {hasPreview && PreviewComponent ? (
+        <Grid container justifyContent="center">
+          <Grid size={{ xs: 12 }}>
+             {/* Re-using the logic above but simplified if needed, 
+                 actually the Grid logic above handles isFullPreview.
+                 So we can just call content here but it's cleaner to be explicit. */}
+             {content}
+          </Grid>
+        </Grid>
+      ) : (
+        <Box sx={{ textAlign: 'center', py: 10 }}>
+           <Typography>Anteprima non disponibile per questa categoria.</Typography>
+        </Box>
+      )}
+    </Box>
+  ) : content;
 
   if (showHeader) {
     return (
@@ -512,13 +532,13 @@ export function FormConfigurator({
             <IconBack />
           </IconButton>
           <PageHeaderGeneric 
-            title={title} 
-            subtitle={subtitle}
+            title={derivedTitle} 
+            subtitle={derivedSubtitle}
           />
         </Box>
 
         <Box sx={{ p: padding }}>
-          {content}
+          {finalContent}
         </Box>
         
         <style dangerouslySetInnerHTML={{ __html: `
@@ -533,7 +553,7 @@ export function FormConfigurator({
 
   return (
     <Box sx={{ p: padding }}>
-      {content}
+      {finalContent}
     </Box>
   );
 }

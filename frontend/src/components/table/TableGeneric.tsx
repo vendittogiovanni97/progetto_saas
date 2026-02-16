@@ -130,49 +130,67 @@ export function TableGeneric<T extends Record<string, any>>({
   const hasActions = !!(onView || onEdit || onDelete);
   const renderTopToolbar = () => (
     <Box sx={{ 
-      p: 2, 
+      p: 2.5, 
       display: "flex", 
       alignItems: "center", 
       justifyContent: "space-between",
       flexWrap: "wrap",
-      gap: 2,
-      bgcolor: alpha(theme.palette.common.black, 0.2),
-      borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`
+      gap: 2.5,
+      background: `linear-gradient(90deg, ${alpha(theme.palette.common.black, 0.4)} 0%, ${alpha(theme.palette.common.black, 0.1)} 100%)`,
+      borderBottom: `1px solid ${alpha("#fff", 0.08)}`
     }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
         {title && (
-          <Typography variant="h6" sx={{ fontSize: "1rem", fontWeight: 800, color: "primary.main", letterSpacing: "0.05em" }}>
+          <Typography variant="h6" sx={{ 
+            fontSize: "0.85rem", 
+            fontWeight: 900, 
+            color: "primary.main", 
+            letterSpacing: "0.2em",
+            textShadow: `0 0 10px ${alpha(theme.palette.primary.main, 0.3)}`
+          }}>
             {title.toUpperCase()}
           </Typography>
         )}
         <TextField
           size="small"
-          placeholder="SEARCH..."
+          placeholder="SEARCH RECORDS..."
           value={globalFilter}
           onChange={(e) => setGlobalFilter(e.target.value)}
           autoComplete="off"
           sx={{ 
-            width: 250,
+            width: 280,
             "& .MuiOutlinedInput-root": {
-              fontSize: "0.75rem",
-              bgcolor: alpha(theme.palette.background.paper, 0.3),
+              fontSize: "0.8rem",
+              bgcolor: alpha("#fff", 0.03),
+              borderRadius: 3,
+              transition: "all 0.2s",
+              border: `1px solid ${alpha("#fff", 0.1)}`,
+              "&:hover": { bgcolor: alpha("#fff", 0.06), borderColor: alpha("#fff", 0.2) },
+              "&.Mui-focused": { bgcolor: alpha("#fff", 0.08), borderColor: theme.palette.primary.main, boxShadow: `0 0 0 3px ${alpha(theme.palette.primary.main, 0.1)}` },
+              "& fieldset": { border: "none" }
             }
           }}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <IconSearch sx={{ fontSize: 18, opacity: 0.5 }} />
+                <IconSearch sx={{ fontSize: 18, color: "primary.main", opacity: 0.8 }} />
               </InputAdornment>
             ),
           }}
         />
       </Box>
 
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
         {onAdd && (
           <ButtonGeneric.Primary
             onClick={onAdd}
             startIcon={<IconAdd />}
+            sx={{ 
+              px: 3, 
+              borderRadius: 2.5,
+              boxShadow: `0 4px 14px ${alpha(theme.palette.primary.main, 0.3)}`,
+              "&:hover": { boxShadow: `0 6px 20px ${alpha(theme.palette.primary.main, 0.4)}` }
+            }}
           >
             {addLabel}
           </ButtonGeneric.Primary>
@@ -181,8 +199,16 @@ export function TableGeneric<T extends Record<string, any>>({
         
         {onRefresh && (
           <Tooltip title="REFRESH">
-            <IconButton size="small" onClick={onRefresh}>
-              <IconRefresh sx={{ fontSize: 20 }} />
+            <IconButton 
+              size="small" 
+              onClick={onRefresh}
+              sx={{ 
+                bgcolor: alpha("#fff", 0.05),
+                "&:hover": { bgcolor: alpha("#fff", 0.1), transform: "rotate(180deg)" },
+                transition: "all 0.5s cubic-bezier(0.4, 0, 0.2, 1)"
+              }}
+            >
+              <IconRefresh sx={{ fontSize: 18, opacity: 0.7 }} />
             </IconButton>
           </Tooltip>
         )}
@@ -195,16 +221,18 @@ export function TableGeneric<T extends Record<string, any>>({
       component={Paper}
       elevation={0}
       sx={{
-        bgcolor: alpha(theme.palette.background.paper, 0.1),
-        backdropFilter: "blur(20px)",
-        border: `1px solid white}`,
-        borderRadius: 4,
+        bgcolor: alpha("#111418", 0.4),
+        backdropFilter: "blur(40px) saturate(150%)",
+        border: `1px solid ${alpha("#fff", 0.08)}`,
+        borderRadius: 5,
         overflow: "hidden",
         position: "relative",
-        "&::-webkit-scrollbar": { width: 8, height: 8 },
+        boxShadow: "0 20px 50px rgba(0,0,0,0.3)",
+        "&::-webkit-scrollbar": { width: 6, height: 6 },
         "&::-webkit-scrollbar-thumb": { 
-          bgcolor: alpha(theme.palette.primary.main, 0.2), 
-          borderRadius: 4 
+          bgcolor: alpha(theme.palette.primary.main, 0.15), 
+          borderRadius: 10,
+          "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.3) }
         },
       }}
     >
@@ -218,10 +246,10 @@ export function TableGeneric<T extends Record<string, any>>({
           display: "flex", 
           alignItems: "center", 
           justifyContent: "center",
-          bgcolor: alpha(theme.palette.background.default, 0.5),
-          backdropFilter: "blur(2px)"
+          bgcolor: alpha("#000", 0.6),
+          backdropFilter: "blur(4px)"
         }}>
-          <CircularProgress size={40} />
+          <CircularProgress size={32} thickness={5} sx={{ color: "primary.main" }} />
         </Box>
       )}
 
@@ -234,15 +262,16 @@ export function TableGeneric<T extends Record<string, any>>({
                 align={col.align || "left"}
                 sortDirection={sortConfig?.key === col.id ? sortConfig.direction : false}
                 sx={{
-                  bgcolor: alpha(theme.palette.common.black, 0.3),
-                  borderBottom: `2px solid ${alpha(theme.palette.divider, 0.5)}`,
-                  py: 2.5,
-                  fontSize: "0.7rem",
-                  fontWeight: 800,
+                  bgcolor: alpha(theme.palette.common.black, 0.5),
+                  borderBottom: `1px solid ${alpha("#fff", 0.1)}`,
+                  py: 3,
+                  fontSize: "0.65rem",
+                  fontWeight: 900,
                   textTransform: "uppercase",
-                  letterSpacing: "0.15em",
-                  color: "text.secondary",
+                  letterSpacing: "0.2em",
+                  color: alpha("#fff", 0.5),
                   width: col.width,
+                  transition: "all 0.2s",
                 }}
               >
                 {col.enableSorting !== false && enableSorting ? (
@@ -252,7 +281,8 @@ export function TableGeneric<T extends Record<string, any>>({
                     onClick={() => handleSort(col.id)}
                     sx={{
                       "&.Mui-active": { color: "primary.main" },
-                      "& .MuiTableSortLabel-icon": { color: "primary.main !important" },
+                      "& .MuiTableSortLabel-icon": { color: "primary.main !important", opacity: 0.8 },
+                      "&:hover": { color: alpha("#fff", 0.8) }
                     }}
                   >
                     {col.header}
@@ -266,14 +296,14 @@ export function TableGeneric<T extends Record<string, any>>({
               <TableCell 
                 align="right" 
                 sx={{ 
-                  bgcolor: alpha(theme.palette.common.black, 0.3),
-                  borderBottom: `2px solid ${alpha(theme.palette.divider, 0.5)}`,
-                  py: 2.5,
-                  fontSize: "0.7rem",
-                  fontWeight: 800,
+                  bgcolor: alpha(theme.palette.common.black, 0.5),
+                  borderBottom: `1px solid ${alpha("#fff", 0.1)}`,
+                  py: 3,
+                  fontSize: "0.65rem",
+                  fontWeight: 900,
                   textTransform: "uppercase",
-                  letterSpacing: "0.15em",
-                  color: "text.secondary",
+                  letterSpacing: "0.2em",
+                  color: alpha("#fff", 0.5),
                 }}
               >
                 ACTIONS
@@ -284,8 +314,8 @@ export function TableGeneric<T extends Record<string, any>>({
         <TableBody>
           {paginatedData.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={columns.length + (hasActions ? 1 : 0)} sx={{ py: 10, textAlign: "center" }}>
-                <Typography variant="body2" sx={{ opacity: 0.5, letterSpacing: "0.1em" }}>
+              <TableCell colSpan={columns.length + (hasActions ? 1 : 0)} sx={{ py: 12, textAlign: "center" }}>
+                <Typography variant="body2" sx={{ opacity: 0.3, letterSpacing: "0.2em", fontWeight: 700 }}>
                   {emptyMessage.toUpperCase()}
                 </Typography>
               </TableCell>
@@ -299,18 +329,23 @@ export function TableGeneric<T extends Record<string, any>>({
                   display: { xs: "flex", sm: "table-row" },
                   flexDirection: "column",
                   cursor: onRowClick ? "pointer" : "default",
-                  transition: "all 0.2s",
-                  borderBottom: { xs: `1px solid ${alpha(theme.palette.divider, 0.2)}`, sm: "none" },
-                  mb: { xs: 2, sm: 0 },
-                  mx: { xs: 1, sm: 0 },
-                  borderRadius: { xs: 2, sm: 0 },
+                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                  borderBottom: { xs: `1px solid ${alpha(theme.palette.divider, 0.1)}`, sm: "none" },
+                  mb: { xs: 2.5, sm: 0 },
+                  mx: { xs: 1.5, sm: 0 },
+                  borderRadius: { xs: 3, sm: 0 },
                   bgcolor: { 
-                    xs: alpha(theme.palette.background.paper, 0.3), 
-                    sm: index % 2 === 0 ? alpha(theme.palette.common.white, 0.02) : "transparent" 
+                    xs: alpha(theme.palette.background.paper, 0.2), 
+                    sm: index % 2 === 0 ? alpha("#fff", 0.01) : "transparent" 
                   },
                   "&:hover": {
-                    bgcolor: alpha(theme.palette.primary.main, 0.04),
-                    "& td": { color: "primary.main" }
+                    bgcolor: alpha(theme.palette.primary.main, 0.06),
+                    transform: { sm: "scale(1.002) translateZ(0)" },
+                    boxShadow: { sm: `inset 4px 0 0 ${theme.palette.primary.main}, 0 4px 20px rgba(0,0,0,0.15)` },
+                    "& td": { 
+                      color: "#fff",
+                      borderColor: alpha(theme.palette.primary.main, 0.15) 
+                    }
                   },
                 }}
               >
@@ -322,17 +357,21 @@ export function TableGeneric<T extends Record<string, any>>({
                       display: { xs: "flex", sm: "table-cell" },
                       justifyContent: "space-between",
                       alignItems: "center",
-                      borderBottom: { xs: "none", sm: `1px solid ${alpha(theme.palette.divider, 0.1)}` },
-                      py: { xs: 1, sm: 2 },
-                      px: { xs: 2, sm: 2 },
+                      borderBottom: { xs: "none", sm: `1px solid ${alpha("#fff", 0.04)}` },
+                      py: { xs: 1.5, sm: 2.5 },
+                      px: { xs: 2.5, sm: 2.5 },
                       fontSize: "0.85rem",
+                      fontWeight: 500,
+                      color: alpha("#fff", 0.7),
+                      transition: "all 0.2s",
                       "&::before": {
                         content: `"${col.header}"`,
                         display: { xs: "block", sm: "none" },
-                        fontSize: "0.65rem",
+                        fontSize: "0.6rem",
                         fontWeight: 900,
                         textTransform: "uppercase",
-                        color: "text.secondary",
+                        color: "primary.main",
+                        opacity: 0.7,
                         mr: 2,
                         width: "40%",
                         textAlign: "left"
@@ -352,24 +391,60 @@ export function TableGeneric<T extends Record<string, any>>({
                     sx={{
                       display: { xs: "flex", sm: "table-cell" },
                       justifyContent: "flex-end",
-                      borderBottom: { xs: "none", sm: `1px solid ${alpha(theme.palette.divider, 0.1)}` },
-                      py: { xs: 1, sm: 2 },
-                      px: { xs: 2, sm: 2 },
+                      borderBottom: { xs: "none", sm: `1px solid ${alpha("#fff", 0.04)}` },
+                      py: { xs: 1.5, sm: 2.5 },
+                      px: { xs: 2.5, sm: 2.5 },
                     }}
                   >
-                    <Box sx={{ display: "flex", gap: 0.5, justifyContent: "flex-end" }}>
+                    <Box sx={{ display: "flex", gap: 1, justifyContent: "flex-end" }}>
                       {onView && (
-                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); onView(row); }} sx={{ "&:hover": { color: "primary.main" } }}>
+                        <IconButton 
+                          size="small" 
+                          onClick={(e) => { e.stopPropagation(); onView(row); }} 
+                          sx={{ 
+                            color: "primary.main",
+                            bgcolor: alpha(theme.palette.primary.main, 0.08),
+                            "&:hover": { 
+                              bgcolor: alpha(theme.palette.primary.main, 0.15),
+                              transform: "scale(1.1)"
+                            },
+                            transition: "all 0.2s"
+                          }}
+                        >
                           <IconVisibility sx={{ fontSize: 18 }} />
                         </IconButton>
                       )}
                       {onEdit && (
-                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); onEdit(row); }} sx={{ "&:hover": { color: "info.main" } }}>
+                        <IconButton 
+                          size="small" 
+                          onClick={(e) => { e.stopPropagation(); onEdit(row); }} 
+                          sx={{ 
+                            color: "info.main",
+                            bgcolor: alpha(theme.palette.info.main, 0.08),
+                            "&:hover": { 
+                              bgcolor: alpha(theme.palette.info.main, 0.15),
+                              transform: "scale(1.1)"
+                            },
+                            transition: "all 0.2s"
+                          }}
+                        >
                           <IconEdit sx={{ fontSize: 18 }} />
                         </IconButton>
                       )}
                       {onDelete && (
-                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); onDelete(row); }} sx={{ "&:hover": { color: "error.main" } }}>
+                        <IconButton 
+                          size="small" 
+                          onClick={(e) => { e.stopPropagation(); onDelete(row); }} 
+                          sx={{ 
+                            color: "error.main",
+                            bgcolor: alpha(theme.palette.error.main, 0.08),
+                            "&:hover": { 
+                              bgcolor: alpha(theme.palette.error.main, 0.15),
+                              transform: "scale(1.1)"
+                            },
+                            transition: "all 0.2s"
+                          }}
+                        >
                           <IconDelete sx={{ fontSize: 18 }} />
                         </IconButton>
                       )}
@@ -383,7 +458,17 @@ export function TableGeneric<T extends Record<string, any>>({
       </Table>
 
       {enablePagination && filteredData.length > pageSize && (
-        <Box sx={{ p: 2, display: "flex", justifyContent: "center", borderTop: `1px solid ${alpha(theme.palette.divider, 0.2)}`, bgcolor: alpha(theme.palette.common.black, 0.2) }}>
+        <Box sx={{ 
+          p: 3, 
+          display: "flex", 
+          justifyContent: "space-between", 
+          alignItems: "center",
+          borderTop: `1px solid ${alpha("#fff", 0.08)}`, 
+          background: `linear-gradient(0deg, ${alpha(theme.palette.common.black, 0.3)} 0%, transparent 100%)`
+        }}>
+          <Typography variant="caption" sx={{ opacity: 0.4, fontWeight: 700, letterSpacing: 1 }}>
+            SHOWING {paginatedData.length} OF {filteredData.length} RECORDS
+          </Typography>
           <Pagination 
             count={Math.ceil(filteredData.length / pageSize)} 
             page={page} 
@@ -392,8 +477,14 @@ export function TableGeneric<T extends Record<string, any>>({
             color="primary"
             sx={{
               "& .MuiPaginationItem-root": {
-                fontWeight: 700,
-                borderRadius: 1,
+                fontWeight: 800,
+                borderRadius: 2,
+                fontSize: "0.75rem",
+                "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.1) },
+                "&.Mui-selected": { 
+                  boxShadow: `0 0 15px ${alpha(theme.palette.primary.main, 0.3)}`,
+                  fontWeight: 900
+                }
               }
             }}
           />
@@ -401,4 +492,5 @@ export function TableGeneric<T extends Record<string, any>>({
       )}
     </TableContainer>
   );
+
 }
